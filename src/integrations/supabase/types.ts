@@ -14,13 +14,160 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      conversations: {
+        Row: {
+          buyer_id: string
+          created_at: string
+          id: string
+          product_id: string
+          seller_id: string
+        }
+        Insert: {
+          buyer_id: string
+          created_at?: string
+          id?: string
+          product_id: string
+          seller_id: string
+        }
+        Update: {
+          buyer_id?: string
+          created_at?: string
+          id?: string
+          product_id?: string
+          seller_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "conversations_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      messages: {
+        Row: {
+          content: string
+          conversation_id: string
+          created_at: string
+          id: string
+          read: boolean | null
+          sender_id: string
+        }
+        Insert: {
+          content: string
+          conversation_id: string
+          created_at?: string
+          id?: string
+          read?: boolean | null
+          sender_id: string
+        }
+        Update: {
+          content?: string
+          conversation_id?: string
+          created_at?: string
+          id?: string
+          read?: boolean | null
+          sender_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "messages_conversation_id_fkey"
+            columns: ["conversation_id"]
+            isOneToOne: false
+            referencedRelation: "conversations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      products: {
+        Row: {
+          category: string
+          college_name: string | null
+          condition: string
+          created_at: string
+          description: string | null
+          id: string
+          image_urls: string[] | null
+          price: number
+          seller_id: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          category?: string
+          college_name?: string | null
+          condition?: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          image_urls?: string[] | null
+          price?: number
+          seller_id: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          category?: string
+          college_name?: string | null
+          condition?: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          image_urls?: string[] | null
+          price?: number
+          seller_id?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          avatar_url: string | null
+          college_name: string | null
+          created_at: string
+          display_name: string | null
+          id: string
+          onboarded: boolean | null
+          updated_at: string
+          user_id: string
+          user_role: string | null
+        }
+        Insert: {
+          avatar_url?: string | null
+          college_name?: string | null
+          created_at?: string
+          display_name?: string | null
+          id?: string
+          onboarded?: boolean | null
+          updated_at?: string
+          user_id: string
+          user_role?: string | null
+        }
+        Update: {
+          avatar_url?: string | null
+          college_name?: string | null
+          created_at?: string
+          display_name?: string | null
+          id?: string
+          onboarded?: boolean | null
+          updated_at?: string
+          user_id?: string
+          user_role?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      is_conversation_participant: {
+        Args: { conv_id: string }
+        Returns: boolean
+      }
     }
     Enums: {
       [_ in never]: never
