@@ -41,7 +41,7 @@ export default function ChatList() {
 
           const [productRes, profileRes, unreadRes] = await Promise.all([
             supabase.from("products").select("title").eq("id", conv.product_id).maybeSingle(),
-            supabase.from("profiles").select("display_name").eq("user_id", otherId).maybeSingle(),
+            supabase.rpc("get_display_name", { _user_id: otherId }),
             supabase.from("messages").select("id", { count: "exact", head: true })
               .eq("conversation_id", conv.id)
               .eq("read", false)
@@ -51,7 +51,7 @@ export default function ChatList() {
           return {
             ...conv,
             product_title: productRes.data?.title || "Unknown Product",
-            other_name: profileRes.data?.display_name || "User",
+            other_name: (profileRes.data as string) || "User",
             unread_count: unreadRes.count || 0,
           };
         })
