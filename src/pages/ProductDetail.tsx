@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { MessageCircle, MapPin, ArrowLeft } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import AdBlock from "@/components/AdBlock";
 
 interface Product {
   id: string;
@@ -206,6 +207,9 @@ export default function ProductDetail() {
             )}
           </div>
         </div>
+
+        {/* Ad Block */}
+        <AdBlock slotId="2345678901" className="mt-8" />
       </main>
     </div>
   );

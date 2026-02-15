@@ -6,6 +6,7 @@ import Navbar from "@/components/Navbar";
 import { Button } from "@/components/ui/button";
 import { Plus, Trash2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import AdBlock from "@/components/AdBlock";
 
 interface Product {
   id: string;
@@ -111,6 +112,9 @@ export default function Dashboard() {
             ))}
           </div>
         )}
+
+        {/* Ad Block */}
+        <AdBlock slotId="3456789012" />
       </main>
     </div>
   );

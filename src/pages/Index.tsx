@@ -5,7 +5,7 @@ import { useAuthContext } from "@/contexts/AuthContext";
 import Navbar from "@/components/Navbar";
 import ProductCard from "@/components/ProductCard";
 import CategoryFilter from "@/components/CategoryFilter";
-
+import AdBlock from "@/components/AdBlock";
 interface Product {
   id: string;
   title: string;
@@ -107,6 +107,9 @@ export default function Index() {
             ))}
           </div>
         )}
+
+        {/* Ad Block */}
+        <AdBlock slotId="1234567890" />
 
         {/* Payment Notice */}
         <section className="mt-16 rounded-lg border border-border bg-card p-6 text-center">
