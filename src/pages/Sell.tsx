@@ -10,6 +10,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import { Upload, X } from "lucide-react";
+import AdBlock from "@/components/AdBlock";
 
 const CATEGORIES = ["Engineering Gear", "Medical Supplies", "Art Supplies", "General"];
 const CONDITIONS = ["New", "Like New", "Good", "Fair"];
@@ -178,6 +179,9 @@ export default function Sell() {
             {loading ? "Listing..." : "List Item"}
           </Button>
         </form>
+
+        {/* Ad Block */}
+        <AdBlock slotId="4567890123" />
       </main>
     </div>
   );

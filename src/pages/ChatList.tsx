@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuthContext } from "@/contexts/AuthContext";
 import Navbar from "@/components/Navbar";
+import AdBlock from "@/components/AdBlock";
 
 interface Conversation {
   id: string;
@@ -104,6 +105,9 @@ export default function ChatList() {
             ))}
           </div>
         )}
+
+        {/* Ad Block */}
+        <AdBlock slotId="5678901234" />
       </main>
     </div>
   );
