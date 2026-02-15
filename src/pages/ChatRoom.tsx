@@ -40,10 +40,10 @@ export default function ChatRoom() {
       if (!conv) return;
       const otherId = conv.buyer_id === user.id ? conv.seller_id : conv.buyer_id;
       const [profileRes, productRes] = await Promise.all([
-        supabase.from("profiles").select("display_name").eq("user_id", otherId).maybeSingle(),
+        supabase.rpc("get_display_name", { _user_id: otherId }),
         supabase.from("products").select("title").eq("id", conv.product_id).maybeSingle(),
       ]);
-      setOtherName(profileRes.data?.display_name || "User");
+      setOtherName((profileRes.data as string) || "User");
       setProductTitle(productRes.data?.title || "");
     };
     fetchDetails();

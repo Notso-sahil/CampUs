@@ -46,12 +46,8 @@ export default function ProductDetail() {
         .maybeSingle();
       if (data) {
         setProduct(data as Product);
-        const { data: profile } = await supabase
-          .from("profiles")
-          .select("display_name, college_name")
-          .eq("user_id", data.seller_id)
-          .maybeSingle();
-        setSeller(profile as SellerProfile | null);
+        const { data: displayName } = await supabase.rpc("get_display_name", { _user_id: data.seller_id });
+        setSeller({ display_name: displayName || null, college_name: data.college_name });
       }
       setLoading(false);
     };
