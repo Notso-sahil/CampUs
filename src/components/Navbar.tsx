@@ -26,19 +26,19 @@ export default function Navbar() {
           </span>
         </Link>
 
-        <form onSubmit={handleSearch} className="hidden flex-1 max-w-lg md:flex">
+        <form onSubmit={handleSearch} className="flex flex-1 max-w-lg">
           <div className="relative w-full">
             <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
             <Input
-              placeholder="Search for drafters, lab coats, and more..."
+              placeholder="Search..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="pl-10 bg-secondary border-0 focus-visible:ring-1"
+              className="pl-10 bg-secondary border-0 focus-visible:ring-1 md:placeholder:content-['Search_for_drafters,_lab_coats,_and_more...']"
             />
           </div>
         </form>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1 md:gap-2">
           {user ? (
             <>
               <Button variant="ghost" size="icon" asChild>
@@ -46,7 +46,7 @@ export default function Navbar() {
                   <MessageCircle className="h-5 w-5" />
                 </Link>
               </Button>
-              <Button variant="ghost" size="icon" asChild>
+              <Button variant="ghost" size="icon" asChild className="hidden sm:inline-flex">
                 <Link to="/sell">
                   <Plus className="h-5 w-5" />
                 </Link>
@@ -56,7 +56,7 @@ export default function Navbar() {
                   <User className="h-5 w-5" />
                 </Link>
               </Button>
-              <Button variant="ghost" size="icon" onClick={signOut}>
+              <Button variant="ghost" size="icon" onClick={signOut} className="hidden sm:inline-flex">
                 <LogOut className="h-5 w-5" />
               </Button>
             </>
