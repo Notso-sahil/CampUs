@@ -101,14 +101,18 @@ export default function ChatRoom() {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
+  const MAX_MESSAGE_LENGTH = 5000;
+
   const handleSend = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!newMessage.trim() || !user || !id) return;
+    const trimmed = newMessage.trim();
+    if (!trimmed || !user || !id) return;
+    if (trimmed.length > MAX_MESSAGE_LENGTH) return;
     setSending(true);
     await supabase.from("messages").insert({
       conversation_id: id,
       sender_id: user.id,
-      content: newMessage.trim(),
+      content: trimmed,
     });
     setNewMessage("");
     setSending(false);
@@ -156,16 +160,24 @@ export default function ChatRoom() {
         </div>
 
         {/* Input */}
-        <form onSubmit={handleSend} className="flex gap-2 border-t border-border py-4">
-          <Input
-            value={newMessage}
-            onChange={(e) => setNewMessage(e.target.value)}
-            placeholder="Type a message..."
-            className="flex-1"
-          />
-          <Button type="submit" size="icon" disabled={sending || !newMessage.trim()}>
-            <Send className="h-4 w-4" />
-          </Button>
+        <form onSubmit={handleSend} className="border-t border-border py-4">
+          <div className="flex gap-2">
+            <Input
+              value={newMessage}
+              onChange={(e) => setNewMessage(e.target.value)}
+              placeholder="Type a message..."
+              className="flex-1"
+              maxLength={MAX_MESSAGE_LENGTH}
+            />
+            <Button type="submit" size="icon" disabled={sending || !newMessage.trim()}>
+              <Send className="h-4 w-4" />
+            </Button>
+          </div>
+          {newMessage.length > MAX_MESSAGE_LENGTH * 0.9 && (
+            <p className="text-xs text-muted-foreground mt-1 text-right">
+              {newMessage.length}/{MAX_MESSAGE_LENGTH}
+            </p>
+          )}
         </form>
       </div>
     </div>
