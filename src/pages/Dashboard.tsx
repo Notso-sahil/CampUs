@@ -39,7 +39,7 @@ export default function Dashboard() {
   const handleDelete = async (id: string) => {
     const { error } = await supabase.from("products").delete().eq("id", id);
     if (error) {
-      toast({ title: "Error", description: error.message, variant: "destructive" });
+      toast({ title: "Error", description: "Failed to delete product. Please try again.", variant: "destructive" });
     } else {
       setProducts((prev) => prev.filter((p) => p.id !== id));
       toast({ title: "Product deleted" });

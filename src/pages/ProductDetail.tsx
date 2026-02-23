@@ -88,7 +88,7 @@ export default function ProductDetail() {
       .single();
 
     if (error) {
-      toast({ title: "Error", description: error.message, variant: "destructive" });
+      toast({ title: "Error", description: "Could not start conversation. Please try again.", variant: "destructive" });
       return;
     }
     navigate(`/chat/${newConv.id}`);
