@@ -16,10 +16,11 @@ import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
 
-function ProtectedRoute({ children }: { children: React.ReactNode }) {
-  const { user, loading } = useAuthContext();
+function ProtectedRoute({ children, requireOnboarded = false }: { children: React.ReactNode; requireOnboarded?: boolean }) {
+  const { user, profile, loading } = useAuthContext();
   if (loading) return null;
   if (!user) return <Navigate to="/auth" replace />;
+  if (requireOnboarded && profile && !profile.onboarded) return <Navigate to="/" replace />;
   return <>{children}</>;
 }
 
@@ -31,7 +32,7 @@ const AppRoutes = () => (
       <Route path="/auth" element={<Auth />} />
       <Route path="/product/:id" element={<ProductDetail />} />
       <Route path="/sell" element={
-        <ProtectedRoute><Sell /></ProtectedRoute>
+        <ProtectedRoute requireOnboarded><Sell /></ProtectedRoute>
       } />
       <Route path="/dashboard" element={
         <ProtectedRoute><Dashboard /></ProtectedRoute>

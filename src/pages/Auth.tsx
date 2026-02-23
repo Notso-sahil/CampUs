@@ -36,11 +36,17 @@ export default function Auth() {
         // Try auto-login after signup
         const { error: loginError } = await supabase.auth.signInWithPassword({ email, password });
         if (!loginError) {
-          navigate("/onboarding");
+          navigate("/");
         }
       }
     } catch (err: any) {
-      toast({ title: "Error", description: err.message, variant: "destructive" });
+      const msg = err?.message?.toLowerCase?.() || "";
+      const userMsg = msg.includes("invalid login") || msg.includes("invalid email") || msg.includes("password")
+        ? "Invalid email or password"
+        : msg.includes("already registered") ? "This email is already registered"
+        : msg.includes("rate") ? "Too many attempts. Please try again later."
+        : "Something went wrong. Please try again.";
+      toast({ title: "Error", description: userMsg, variant: "destructive" });
     } finally {
       setLoading(false);
     }

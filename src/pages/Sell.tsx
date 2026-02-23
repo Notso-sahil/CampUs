@@ -35,11 +35,24 @@ export default function Sell() {
   const [previews, setPreviews] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
 
+  const ALLOWED_TYPES = ["image/jpeg", "image/png", "image/webp"];
+  const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
+
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
     if (images.length + files.length > 4) {
       toast({ title: "Max 4 images", variant: "destructive" });
       return;
+    }
+    for (const file of files) {
+      if (!ALLOWED_TYPES.includes(file.type)) {
+        toast({ title: "Only JPEG, PNG, and WebP images allowed", variant: "destructive" });
+        return;
+      }
+      if (file.size > MAX_FILE_SIZE) {
+        toast({ title: "Each image must be under 5 MB", variant: "destructive" });
+        return;
+      }
     }
     setImages((prev) => [...prev, ...files]);
     files.forEach((file) => {
@@ -90,7 +103,7 @@ export default function Sell() {
       toast({ title: "Product listed!" });
       navigate("/dashboard");
     } catch (err: any) {
-      toast({ title: "Error", description: err.message, variant: "destructive" });
+      toast({ title: "Error", description: "Failed to list item. Please try again.", variant: "destructive" });
     } finally {
       setLoading(false);
     }
@@ -122,7 +135,7 @@ export default function Sell() {
               {previews.length < 4 && (
                 <label className="flex aspect-square cursor-pointer items-center justify-center rounded-lg border-2 border-dashed border-border hover:border-foreground transition-colors">
                   <Upload className="h-5 w-5 text-muted-foreground" />
-                  <input type="file" accept="image/*" multiple onChange={handleImageChange} className="hidden" />
+                  <input type="file" accept=".jpg,.jpeg,.png,.webp" multiple onChange={handleImageChange} className="hidden" />
                 </label>
               )}
             </div>
@@ -130,12 +143,12 @@ export default function Sell() {
 
           <div className="space-y-2">
             <Label htmlFor="title">Title</Label>
-            <Input id="title" required value={title} onChange={(e) => setTitle(e.target.value)} placeholder="e.g., Engineering Drafter Set" />
+            <Input id="title" required value={title} onChange={(e) => setTitle(e.target.value)} placeholder="e.g., Engineering Drafter Set" maxLength={150} />
           </div>
 
           <div className="space-y-2">
             <Label htmlFor="description">Description</Label>
-            <Textarea id="description" value={description} onChange={(e) => setDescription(e.target.value)} placeholder="Describe the item, usage history, etc." rows={3} />
+            <Textarea id="description" value={description} onChange={(e) => setDescription(e.target.value)} placeholder="Describe the item, usage history, etc." rows={3} maxLength={2000} />
           </div>
 
           <div className="grid grid-cols-2 gap-4">

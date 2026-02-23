@@ -65,7 +65,7 @@ export default function OnboardingModal() {
       if (error) throw error;
       await refreshProfile();
     } catch (err: any) {
-      toast({ title: "Error", description: err.message, variant: "destructive" });
+      toast({ title: "Error", description: "Failed to save. Please try again.", variant: "destructive" });
     } finally {
       setLoading(false);
     }
