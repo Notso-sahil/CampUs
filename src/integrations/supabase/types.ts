@@ -46,6 +46,126 @@ export type Database = {
           },
         ]
       }
+      events: {
+        Row: {
+          college_name: string | null
+          created_at: string
+          created_by: string | null
+          description: string | null
+          event_date: string | null
+          id: string
+          image_url: string | null
+          location: string | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          college_name?: string | null
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          event_date?: string | null
+          id?: string
+          image_url?: string | null
+          location?: string | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          college_name?: string | null
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          event_date?: string | null
+          id?: string
+          image_url?: string | null
+          location?: string | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      expeditions: {
+        Row: {
+          college_name: string | null
+          created_at: string
+          created_by: string | null
+          description: string | null
+          event_date: string | null
+          id: string
+          image_url: string | null
+          location: string | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          college_name?: string | null
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          event_date?: string | null
+          id?: string
+          image_url?: string | null
+          location?: string | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          college_name?: string | null
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          event_date?: string | null
+          id?: string
+          image_url?: string | null
+          location?: string | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      knowledge_hub: {
+        Row: {
+          college_name: string | null
+          course: string
+          created_at: string
+          created_by: string | null
+          description: string | null
+          file_url: string | null
+          id: string
+          semester: string | null
+          sub_course: string | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          college_name?: string | null
+          course: string
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          file_url?: string | null
+          id?: string
+          semester?: string | null
+          sub_course?: string | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          college_name?: string | null
+          course?: string
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          file_url?: string | null
+          id?: string
+          semester?: string | null
+          sub_course?: string | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       messages: {
         Row: {
           content: string
@@ -156,6 +276,87 @@ export type Database = {
           updated_at?: string
           user_id?: string
           user_role?: string | null
+        }
+        Relationships: []
+      }
+      recover_items: {
+        Row: {
+          college_name: string | null
+          contact_info: string
+          created_at: string
+          created_by: string | null
+          date_lost: string
+          description: string
+          id: string
+          image_url: string | null
+          title: string
+          updated_at: string
+          where_currently: string
+          where_found: string
+        }
+        Insert: {
+          college_name?: string | null
+          contact_info: string
+          created_at?: string
+          created_by?: string | null
+          date_lost?: string
+          description: string
+          id?: string
+          image_url?: string | null
+          title: string
+          updated_at?: string
+          where_currently: string
+          where_found: string
+        }
+        Update: {
+          college_name?: string | null
+          contact_info?: string
+          created_at?: string
+          created_by?: string | null
+          date_lost?: string
+          description?: string
+          id?: string
+          image_url?: string | null
+          title?: string
+          updated_at?: string
+          where_currently?: string
+          where_found?: string
+        }
+        Relationships: []
+      }
+      upload_requests: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          reviewed_by: string | null
+          status: string
+          target_section: string
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          reviewed_by?: string | null
+          status?: string
+          target_section: string
+          title: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          reviewed_by?: string | null
+          status?: string
+          target_section?: string
+          title?: string
+          updated_at?: string
+          user_id?: string
         }
         Relationships: []
       }

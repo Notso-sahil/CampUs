@@ -7,7 +7,7 @@ import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 
 export default function Auth() {
-  const [isLogin, setIsLogin] = useState(true);
+  const [mode, setMode] = useState<"login" | "signup" | "forgot">("login");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
@@ -18,7 +18,14 @@ export default function Auth() {
     e.preventDefault();
     setLoading(true);
     try {
-      if (isLogin) {
+      if (mode === "forgot") {
+        const { error } = await supabase.auth.resetPasswordForEmail(email, {
+          redirectTo: `${window.location.origin}/reset-password`,
+        });
+        if (error) throw error;
+        toast({ title: "Check your email", description: "We sent you a password reset link." });
+        setMode("login");
+      } else if (mode === "login") {
         const { error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) throw error;
         navigate("/");
@@ -29,15 +36,9 @@ export default function Auth() {
           options: { emailRedirectTo: window.location.origin },
         });
         if (error) throw error;
-        toast({
-          title: "Account created",
-          description: "Check your email to confirm, or sign in if email confirmation is disabled.",
-        });
-        // Try auto-login after signup
+        toast({ title: "Account created", description: "Check your email to confirm, or sign in if email confirmation is disabled." });
         const { error: loginError } = await supabase.auth.signInWithPassword({ email, password });
-        if (!loginError) {
-          navigate("/");
-        }
+        if (!loginError) navigate("/");
       }
     } catch (err: any) {
       const msg = err?.message?.toLowerCase?.() || "";
@@ -57,53 +58,49 @@ export default function Auth() {
       <div className="w-full max-w-sm space-y-8">
         <div className="text-center">
           <h1 className="font-display text-3xl font-bold">
-            {isLogin ? "Welcome back" : "Create account"}
+            {mode === "forgot" ? "Reset Password" : mode === "login" ? "Welcome back" : "Create account"}
           </h1>
           <p className="mt-2 text-sm text-muted-foreground">
-            {isLogin
-              ? "Sign in to buy, sell, and chat"
-              : "Join your campus marketplace"}
+            {mode === "forgot"
+              ? "Enter your email to receive a reset link"
+              : mode === "login"
+              ? "Sign in to CampusHub"
+              : "Join your campus community"}
           </p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
             <Label htmlFor="email">Email</Label>
-            <Input
-              id="email"
-              type="email"
-              required
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="you@college.edu"
-            />
+            <Input id="email" type="email" required value={email} onChange={(e) => setEmail(e.target.value)} placeholder="you@college.edu" />
           </div>
-          <div className="space-y-2">
-            <Label htmlFor="password">Password</Label>
-            <Input
-              id="password"
-              type="password"
-              required
-              minLength={6}
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder="••••••••"
-            />
-          </div>
+          {mode !== "forgot" && (
+            <div className="space-y-2">
+              <Label htmlFor="password">Password</Label>
+              <Input id="password" type="password" required minLength={6} value={password} onChange={(e) => setPassword(e.target.value)} placeholder="••••••••" />
+            </div>
+          )}
           <Button type="submit" className="w-full" disabled={loading}>
-            {loading ? "Loading..." : isLogin ? "Sign In" : "Sign Up"}
+            {loading ? "Loading..." : mode === "forgot" ? "Send Reset Link" : mode === "login" ? "Sign In" : "Sign Up"}
           </Button>
         </form>
 
-        <p className="text-center text-sm text-muted-foreground">
-          {isLogin ? "Don't have an account?" : "Already have an account?"}{" "}
-          <button
-            onClick={() => setIsLogin(!isLogin)}
-            className="font-medium text-foreground underline underline-offset-4"
-          >
-            {isLogin ? "Sign up" : "Sign in"}
-          </button>
-        </p>
+        <div className="text-center space-y-2">
+          {mode === "login" && (
+            <button onClick={() => setMode("forgot")} className="block w-full text-sm text-muted-foreground hover:text-foreground underline underline-offset-4">
+              Forgot password?
+            </button>
+          )}
+          <p className="text-sm text-muted-foreground">
+            {mode === "forgot" ? (
+              <button onClick={() => setMode("login")} className="font-medium text-foreground underline underline-offset-4">Back to sign in</button>
+            ) : mode === "login" ? (
+              <>Don't have an account?{" "}<button onClick={() => setMode("signup")} className="font-medium text-foreground underline underline-offset-4">Sign up</button></>
+            ) : (
+              <>Already have an account?{" "}<button onClick={() => setMode("login")} className="font-medium text-foreground underline underline-offset-4">Sign in</button></>
+            )}
+          </p>
+        </div>
       </div>
     </div>
   );

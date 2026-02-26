@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuthContext } from "@/contexts/AuthContext";
+import { COLLEGES } from "@/lib/colleges";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import {
@@ -19,25 +20,6 @@ import {
 } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
 
-const COLLEGES = [
-  "IIT Delhi",
-  "DTU (Delhi Technological University)",
-  "NSUT (Netaji Subhas University of Technology)",
-  "IIIT Delhi",
-  "Jamia Millia Islamia",
-  "Delhi University (North Campus)",
-  "Delhi University (South Campus)",
-  "AIIMS Delhi",
-  "Lady Shri Ram College",
-  "St. Stephen's College",
-  "IP University",
-  "Amity University Noida",
-  "SRM University Delhi-NCR",
-  "Bennett University",
-  "Shiv Nadar University",
-  "Other",
-];
-
 const ROLES = [
   { value: "buyer", label: "Buyer — I want to buy stuff" },
   { value: "seller", label: "Seller — I want to sell stuff" },
@@ -46,7 +28,7 @@ const ROLES = [
 
 export default function OnboardingModal() {
   const { user, profile, refreshProfile } = useAuthContext();
-  const [college, setCollege] = useState("");
+  const [college, setCollege] = useState("VIPS");
   const [role, setRole] = useState("");
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
@@ -64,7 +46,7 @@ export default function OnboardingModal() {
         .eq("user_id", user.id);
       if (error) throw error;
       await refreshProfile();
-    } catch (err: any) {
+    } catch {
       toast({ title: "Error", description: "Failed to save. Please try again.", variant: "destructive" });
     } finally {
       setLoading(false);
@@ -75,7 +57,7 @@ export default function OnboardingModal() {
     <Dialog open={isOpen}>
       <DialogContent className="sm:max-w-md" onInteractOutside={(e) => e.preventDefault()}>
         <DialogHeader>
-          <DialogTitle className="font-display text-2xl">Almost there</DialogTitle>
+          <DialogTitle className="font-display text-2xl">Welcome to CampusHub</DialogTitle>
           <DialogDescription>
             Tell us about yourself so we can personalize your experience.
           </DialogDescription>
@@ -83,7 +65,7 @@ export default function OnboardingModal() {
 
         <form onSubmit={handleSubmit} className="space-y-6 pt-2">
           <div className="space-y-2">
-            <Label>Which college are you from?</Label>
+            <Label>Which Delhi-NCR college are you from?</Label>
             <Select value={college} onValueChange={setCollege}>
               <SelectTrigger>
                 <SelectValue placeholder="Select your college" />
