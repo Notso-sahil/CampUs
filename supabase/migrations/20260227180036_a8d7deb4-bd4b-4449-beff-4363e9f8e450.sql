@@ -1,0 +1,9 @@
+INSERT INTO public.products (title, description, price, condition, category, college_name, seller_id, image_urls) VALUES
+('Architecture Drafter Set', 'Used for 1 semester. Includes T-square, set squares, and mini drafter. Perfect for Engineering Graphics.', 450, 'Good', 'Engineering Gear', 'VIPS', '453188e8-a27d-417b-b583-da46cff773fe', '{}'),
+('Lab Coat – Size M', 'White lab coat, worn twice. No stains. Suitable for chemistry or biology labs.', 200, 'Like New', 'Medical Supplies', 'VIPS', '453188e8-a27d-417b-b583-da46cff773fe', '{}'),
+('Engineering Graphics Sheet Box', 'Clean A2 drawing sheets (pack of 20). Unused surplus from last semester.', 150, 'New', 'Engineering Gear', 'VIPS', '453188e8-a27d-417b-b583-da46cff773fe', '{}'),
+('Casio fx-991EX Calculator', 'Scientific calculator, fully functional. Ideal for BTECH maths & physics.', 600, 'Good', 'General', 'VIPS', '453188e8-a27d-417b-b583-da46cff773fe', '{}'),
+('Python Programming Textbook', 'Reema Thareja – 2nd Edition. Highlighted but in great shape.', 300, 'Good', 'General', 'VIPS', '453188e8-a27d-417b-b583-da46cff773fe', '{}'),
+('Laptop Stand (Aluminium)', 'Adjustable aluminium laptop stand. Used for 6 months, no scratches.', 500, 'Good', 'General', 'VIPS', '453188e8-a27d-417b-b583-da46cff773fe', '{}'),
+('Watercolour Paint Set', 'Professional 24-colour set with brushes. Used for Art & Design elective.', 350, 'Good', 'Art Supplies', 'VIPS', '453188e8-a27d-417b-b583-da46cff773fe', '{}'),
+('Backpack – Wildcraft 35L', 'Spacious college backpack with laptop compartment. Minor wear on zipper.', 700, 'Fair', 'General', 'VIPS', '453188e8-a27d-417b-b583-da46cff773fe', '{}');

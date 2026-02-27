@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuthContext } from "@/contexts/AuthContext";
 import { useCollege } from "@/contexts/CollegeContext";
@@ -219,6 +220,14 @@ export default function Recover() {
         </div>
 
         {/* Items List */}
+        {!user && !showForm && (
+          <div className="mb-6 rounded-lg border border-border bg-card p-4 text-center">
+            <p className="text-sm text-muted-foreground">
+              <Link to="/auth" className="text-primary underline underline-offset-4 hover:text-primary/80">Sign in</Link> to view lost & found items and contact details.
+            </p>
+          </div>
+        )}
+
         {loading ? (
           <div className="space-y-4">
             {Array.from({ length: 4 }).map((_, i) => (
@@ -226,7 +235,7 @@ export default function Recover() {
             ))}
           </div>
         ) : items.length === 0 ? (
-          <p className="py-20 text-center text-muted-foreground">No items found</p>
+          <p className="py-20 text-center text-muted-foreground">{user ? "No items found" : "Sign in to browse items"}</p>
         ) : (
           <div className="space-y-4">
             {items.map((item) => (
