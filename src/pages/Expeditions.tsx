@@ -33,7 +33,8 @@ export default function Expeditions() {
       .from("expeditions")
       .select("*")
       .order("event_date", { ascending: true })
-      .then(({ data }) => {
+      .then(({ data, error }) => {
+        if (error) console.error("Expeditions fetch error:", error);
         let items = (data as Expedition[]) || [];
         const college = items.filter((e) => e.college_name === selectedCollege);
         const other = items.filter((e) => e.college_name !== selectedCollege);
@@ -86,7 +87,7 @@ export default function Expeditions() {
         ) : expeditions.length === 0 ? (
           <p className="py-20 text-center text-muted-foreground">No expeditions yet</p>
         ) : (
-          <div className="space-y-3">
+          <div className="space-y-3 animate-fade-in">
             {expeditions.map((exp) => (
               <div key={exp.id} className="rounded-lg border border-border bg-card overflow-hidden transition-shadow hover:shadow-sm">
                 <button

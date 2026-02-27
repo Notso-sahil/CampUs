@@ -62,7 +62,8 @@ export default function Recover() {
       query = query.eq("date_lost", format(filterDate, "yyyy-MM-dd"));
     }
 
-    const { data } = await query;
+    const { data, error } = await query;
+    if (error) console.error("Recover fetch error:", error);
     let result = (data as RecoverItem[]) || [];
     const college = result.filter((r) => r.college_name === selectedCollege);
     const other = result.filter((r) => r.college_name !== selectedCollege);
