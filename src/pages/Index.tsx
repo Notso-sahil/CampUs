@@ -2,8 +2,11 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useCollege } from "@/contexts/CollegeContext";
+import { useAuthContext } from "@/contexts/AuthContext";
 import Navbar from "@/components/Navbar";
 import SectionCarousel from "@/components/SectionCarousel";
+import PageSpinner from "@/components/PageSpinner";
+import FadeIn from "@/components/FadeIn";
 
 interface CarouselItem {
   id: string;
@@ -14,6 +17,7 @@ interface CarouselItem {
 
 export default function Index() {
   const { selectedCollege } = useCollege();
+  const { user } = useAuthContext();
   const [trade, setTrade] = useState<CarouselItem[]>([]);
   const [events, setEvents] = useState<CarouselItem[]>([]);
   const [recover, setRecover] = useState<CarouselItem[]>([]);
@@ -26,13 +30,20 @@ export default function Index() {
       setLoading(true);
       const college = selectedCollege;
 
-      const [prodRes, evtRes, recRes, kbRes, expRes] = await Promise.all([
-        supabase.from("products").select("id, title, price, image_urls, college_name").eq("college_name", college).order("created_at", { ascending: false }).limit(5),
-        supabase.from("events").select("id, title, event_date, location, college_name").eq("college_name", college).order("created_at", { ascending: false }).limit(5),
-        supabase.from("recover_items").select("id, title, where_found, college_name").eq("college_name", college).order("created_at", { ascending: false }).limit(5),
-        supabase.from("knowledge_hub").select("id, title, course, sub_course, college_name").eq("college_name", college).order("created_at", { ascending: false }).limit(5),
-        supabase.from("expeditions").select("id, title, event_date, location, college_name").eq("college_name", college).order("created_at", { ascending: false }).limit(5),
-      ]);
+      const prodRes = await supabase.from("products").select("id, title, price, image_urls, college_name").eq("college_name", college).order("created_at", { ascending: false }).limit(5);
+      const evtRes = await supabase.from("events").select("id, title, event_date, location, college_name").eq("college_name", college).order("created_at", { ascending: false }).limit(5);
+      const recRes = user
+        ? await supabase.from("recover_items").select("id, title, where_found, college_name").eq("college_name", college).order("created_at", { ascending: false }).limit(5)
+        : { data: [], error: null };
+      const kbRes = await supabase.from("knowledge_hub").select("id, title, course, sub_course, college_name").eq("college_name", college).order("created_at", { ascending: false }).limit(5);
+      const expRes = await supabase.from("expeditions").select("id, title, event_date, location, college_name").eq("college_name", college).order("created_at", { ascending: false }).limit(5);
+
+      // Log any errors for debugging
+      if (prodRes.error) console.error("Products fetch error:", prodRes.error);
+      if (evtRes.error) console.error("Events fetch error:", evtRes.error);
+      if (recRes.error) console.error("Recover fetch error:", recRes.error);
+      if (kbRes.error) console.error("Knowledge fetch error:", kbRes.error);
+      if (expRes.error) console.error("Expeditions fetch error:", expRes.error);
 
       setTrade((prodRes.data || []).map((p: any) => ({
         id: p.id, title: p.title, subtitle: `₹${p.price}`, imageUrl: p.image_urls?.[0],
@@ -52,7 +63,7 @@ export default function Index() {
       setLoading(false);
     };
     fetchAll();
-  }, [selectedCollege]);
+  }, [selectedCollege, user]);
 
   return (
     <div className="min-h-screen">
@@ -72,20 +83,9 @@ export default function Index() {
         </section>
 
         {loading ? (
-          <div className="space-y-12">
-            {Array.from({ length: 5 }).map((_, i) => (
-              <div key={i} className="space-y-4">
-                <div className="h-8 w-32 animate-pulse rounded bg-secondary" />
-                <div className="flex gap-4">
-                  {Array.from({ length: 3 }).map((_, j) => (
-                    <div key={j} className="h-36 w-[260px] flex-none animate-pulse rounded-lg bg-secondary" />
-                  ))}
-                </div>
-              </div>
-            ))}
-          </div>
+          <PageSpinner />
         ) : (
-          <>
+          <FadeIn className="space-y-12">
             <SectionCarousel
               title="Trade"
               viewAllLink="/trade"
@@ -109,10 +109,26 @@ export default function Index() {
               )}
             />
             <SectionCarousel title="Events" viewAllLink="/events" items={events} />
-            <SectionCarousel title="Recover" viewAllLink="/recover" items={recover} />
+            {user ? (
+              <SectionCarousel title="Recover" viewAllLink="/recover" items={recover} />
+            ) : (
+              <section className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <h2 className="font-display text-2xl font-bold">Recover</h2>
+                  <Link to="/recover" className="flex items-center gap-1 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
+                    View All
+                  </Link>
+                </div>
+                <div className="rounded-lg border border-border bg-card p-6 text-center">
+                  <p className="text-sm text-muted-foreground">
+                    <Link to="/auth" className="text-primary underline underline-offset-4 hover:text-primary/80">Sign in</Link> to browse lost & found items
+                  </p>
+                </div>
+              </section>
+            )}
             <SectionCarousel title="Knowledge Hub" viewAllLink="/knowledge" items={knowledge} />
             <SectionCarousel title="Expeditions" viewAllLink="/expeditions" items={expeditions} />
-          </>
+          </FadeIn>
         )}
       </main>
     </div>

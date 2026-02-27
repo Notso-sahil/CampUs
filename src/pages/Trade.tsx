@@ -41,7 +41,8 @@ export default function Trade() {
       if (category !== "All") query = query.eq("category", category);
       if (searchQuery) query = query.ilike("title", `%${searchQuery}%`);
 
-      const { data } = await query;
+      const { data, error } = await query;
+      if (error) console.error("Trade fetch error:", error);
       let items = (data as Product[]) || [];
 
       // Prioritize selected college
@@ -88,7 +89,7 @@ export default function Trade() {
             <p className="mt-1 text-sm text-muted-foreground">Be the first to list something!</p>
           </div>
         ) : (
-          <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4">
+          <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4 animate-fade-in">
             {products.map((product) => (
               <ProductCard key={product.id} product={product} />
             ))}

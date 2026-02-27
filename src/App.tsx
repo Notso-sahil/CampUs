@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider, useAuthContext } from "@/contexts/AuthContext";
 import { CollegeProvider } from "@/contexts/CollegeContext";
+import LoadingBar from "@/components/LoadingBar";
 import OnboardingModal from "@/components/OnboardingModal";
 import Index from "./pages/Index";
 import Trade from "./pages/Trade";
@@ -33,6 +34,7 @@ function ProtectedRoute({ children, requireOnboarded = false }: { children: Reac
 
 const AppRoutes = () => (
   <>
+    <LoadingBar />
     <OnboardingModal />
     <Routes>
       <Route path="/" element={<Index />} />

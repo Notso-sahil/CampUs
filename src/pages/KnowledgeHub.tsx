@@ -69,7 +69,8 @@ export default function KnowledgeHub() {
     if (selectedCourse !== "all") query = query.eq("course", selectedCourse);
     if (selectedSubCourse !== "all") query = query.eq("sub_course", selectedSubCourse);
 
-    const { data } = await query;
+    const { data, error } = await query;
+    if (error) console.error("Knowledge Hub fetch error:", error);
     let result = (data as KnowledgeItem[]) || [];
     const college = result.filter((k) => k.college_name === selectedCollege);
     const other = result.filter((k) => k.college_name !== selectedCollege);
@@ -273,7 +274,7 @@ export default function KnowledgeHub() {
         ) : items.length === 0 ? (
           <p className="py-20 text-center text-muted-foreground">No materials found</p>
         ) : (
-          <div className="space-y-3">
+          <div className="space-y-3 animate-fade-in">
             {items.map((item) => (
               <div key={item.id} className="flex items-center gap-4 rounded-lg border border-border bg-card p-4">
                 <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-secondary">

@@ -33,7 +33,8 @@ export default function Events() {
       .from("events")
       .select("*")
       .order("event_date", { ascending: true })
-      .then(({ data }) => {
+      .then(({ data, error }) => {
+        if (error) console.error("Events fetch error:", error);
         let items = (data as Event[]) || [];
         const college = items.filter((e) => e.college_name === selectedCollege);
         const other = items.filter((e) => e.college_name !== selectedCollege);
@@ -89,7 +90,7 @@ export default function Events() {
         ) : events.length === 0 ? (
           <p className="py-20 text-center text-muted-foreground">No events yet</p>
         ) : (
-          <div className="space-y-3">
+          <div className="space-y-3 animate-fade-in">
             {events.map((event) => (
               <div key={event.id} className="rounded-lg border border-border bg-card overflow-hidden transition-shadow hover:shadow-sm">
                 <button
