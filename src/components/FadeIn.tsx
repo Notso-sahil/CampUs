@@ -1,8 +1,17 @@
 import { ReactNode } from "react";
 
-export default function FadeIn({ children, className = "" }: { children: ReactNode; className?: string }) {
+interface FadeInProps {
+  children: ReactNode;
+  className?: string;
+  delay?: number;
+}
+
+export default function FadeIn({ children, className = "", delay = 0 }: FadeInProps) {
   return (
-    <div className={`animate-fade-in ${className}`}>
+    <div
+      className={`animate-slide-up ${className}`}
+      style={{ animationDelay: `${delay}ms`, animationFillMode: "both" }}
+    >
       {children}
     </div>
   );
