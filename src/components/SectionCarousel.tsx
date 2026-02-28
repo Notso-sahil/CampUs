@@ -49,7 +49,7 @@ export default function SectionCarousel({ title, viewAllLink, items, renderCard 
   if (items.length === 0) return null;
 
   const defaultCard = (item: CarouselItem) => (
-    <div className="rounded-lg border border-border bg-card p-4 h-full flex flex-col justify-between min-h-[140px]">
+    <div className="rounded-lg border border-border bg-card p-4 h-full flex flex-col justify-between min-h-[140px] transition-all duration-300 hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/5">
       {item.imageUrl && (
         <div className="aspect-video overflow-hidden rounded-md bg-secondary mb-3">
           <img src={item.imageUrl} alt={item.title} className="h-full w-full object-cover" loading="lazy" />

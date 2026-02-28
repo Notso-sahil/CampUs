@@ -70,11 +70,11 @@ export default function Index() {
       <Navbar />
       <main className="container mx-auto px-4 py-8 space-y-12">
         {/* Hero */}
-        <section className="text-center space-y-4 py-8">
+        <section className="text-center space-y-4 py-12">
           <h1 className="font-display text-4xl font-bold tracking-tight md:text-5xl lg:text-6xl">
-            CampusHub
+            Campus<span className="text-primary">Hub</span>
           </h1>
-          <p className="mx-auto max-w-lg text-lg text-muted-foreground">
+          <p className="mx-auto max-w-lg text-lg text-muted-foreground leading-relaxed">
             Your one-stop campus platform — trade, discover events, recover lost items, access study materials, and explore adventures.
           </p>
           <p className="text-sm font-medium text-muted-foreground">
@@ -91,8 +91,8 @@ export default function Index() {
               viewAllLink="/trade"
               items={trade}
               renderCard={(item) => (
-                <Link to={`/product/${item.id}`} className="block">
-                  <div className="rounded-lg border border-border bg-card overflow-hidden hover:shadow-md transition-shadow">
+                 <Link to={`/product/${item.id}`} className="block">
+                  <div className="rounded-lg border border-border bg-card overflow-hidden transition-all duration-300 hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/5">
                     {item.imageUrl ? (
                       <div className="aspect-video bg-secondary">
                         <img src={item.imageUrl} alt={item.title} className="h-full w-full object-cover" loading="lazy" />
