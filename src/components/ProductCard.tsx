@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import { getPlaceholder } from "@/lib/placeholders";
 
 interface Product {
   id: string;
@@ -12,14 +13,14 @@ interface Product {
 }
 
 export default function ProductCard({ product }: { product: Product }) {
-  const imageUrl = product.image_urls?.[0] || "/placeholder.svg";
+  const imageUrl = product.image_urls?.[0] || getPlaceholder("trade");
 
   return (
     <Link
       to={`/product/${product.id}`}
-      className="group block animate-fade-in transition-all duration-300 hover:-translate-y-1"
+      className="group block animate-fade-in transition-all duration-300 hover:-translate-y-1.5"
     >
-      <div className="aspect-square overflow-hidden rounded-lg bg-secondary shadow-sm group-hover:shadow-lg group-hover:shadow-primary/5 transition-shadow duration-300">
+      <div className="aspect-square overflow-hidden rounded-lg bg-secondary shadow-soft group-hover:shadow-glow transition-shadow duration-300">
         <img
           src={imageUrl}
           alt={product.title}
@@ -31,11 +32,11 @@ export default function ProductCard({ product }: { product: Product }) {
         <h3 className="font-body text-sm font-medium leading-tight line-clamp-2">
           {product.title}
         </h3>
-        <p className="font-display text-lg font-semibold">
+        <p className="font-display text-lg font-semibold text-primary">
           ₹{product.price.toLocaleString("en-IN")}
         </p>
         <div className="flex items-center gap-2 text-xs text-muted-foreground">
-          <span className="rounded-full bg-secondary px-2 py-0.5">
+          <span className="rounded-full bg-secondary px-2.5 py-0.5 font-medium">
             {product.condition}
           </span>
           {product.college_name && (

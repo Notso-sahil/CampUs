@@ -67,6 +67,10 @@ export default {
         md: "calc(var(--radius) - 2px)",
         sm: "calc(var(--radius) - 4px)",
       },
+      boxShadow: {
+        soft: "0 4px 6px -1px rgb(0 0 0 / 0.07), 0 2px 4px -2px rgb(0 0 0 / 0.05)",
+        glow: "0 8px 25px -5px hsl(239 84% 67% / 0.25)",
+      },
       keyframes: {
         "accordion-down": {
           from: { height: "0" },
@@ -81,7 +85,7 @@ export default {
           to: { opacity: "1", transform: "translateY(0)" },
         },
         "slide-up": {
-          from: { opacity: "0", transform: "translateY(20px)" },
+          from: { opacity: "0", transform: "translateY(24px)" },
           to: { opacity: "1", transform: "translateY(0)" },
         },
       },
