@@ -18,9 +18,9 @@ export default function LoadingBar() {
   if (!visible) return null;
 
   return (
-    <div className="fixed top-0 left-0 right-0 z-[100] h-[2px]">
+    <div className="fixed top-0 left-0 right-0 z-[100] h-[2.5px]">
       <div
-        className="h-full bg-primary transition-all duration-300 ease-out"
+        className="h-full bg-primary shadow-[0_0_8px_hsl(224_76%_48%/0.5)] transition-all duration-300 ease-out"
         style={{ width: `${progress}%` }}
       />
     </div>

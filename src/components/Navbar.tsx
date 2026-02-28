@@ -38,7 +38,7 @@ export default function Navbar() {
   };
 
   return (
-    <nav className="sticky top-0 z-50 border-b border-border bg-background/80 backdrop-blur-xl">
+    <nav className="sticky top-0 z-50 border-b glass shadow-sm">
       <div className="container mx-auto px-4">
         {/* Top row */}
         <div className="flex h-16 items-center justify-between gap-4">

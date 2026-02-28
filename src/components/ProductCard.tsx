@@ -17,9 +17,9 @@ export default function ProductCard({ product }: { product: Product }) {
   return (
     <Link
       to={`/product/${product.id}`}
-      className="group block animate-fade-in"
+      className="group block animate-fade-in transition-all duration-300 hover:-translate-y-1"
     >
-      <div className="aspect-square overflow-hidden rounded-lg bg-secondary">
+      <div className="aspect-square overflow-hidden rounded-lg bg-secondary shadow-sm group-hover:shadow-lg group-hover:shadow-primary/5 transition-shadow duration-300">
         <img
           src={imageUrl}
           alt={product.title}
