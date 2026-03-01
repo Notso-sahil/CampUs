@@ -75,7 +75,7 @@ export default function Index() {
         <section className="text-center space-y-5 py-16">
           <FadeIn>
             <h1 className="font-display text-4xl font-bold tracking-tight md:text-5xl lg:text-6xl">
-              Campus<span className="bg-clip-text text-transparent gradient-primary">Hub</span>
+              Campus<span className="text-primary">Hub</span>
             </h1>
           </FadeIn>
           <FadeIn delay={100}>

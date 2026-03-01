@@ -324,6 +324,115 @@ export type Database = {
         }
         Relationships: []
       }
+      team_members: {
+        Row: {
+          id: string
+          joined_at: string
+          role: string | null
+          team_id: string
+          user_id: string
+        }
+        Insert: {
+          id?: string
+          joined_at?: string
+          role?: string | null
+          team_id: string
+          user_id: string
+        }
+        Update: {
+          id?: string
+          joined_at?: string
+          role?: string | null
+          team_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "team_members_team_id_fkey"
+            columns: ["team_id"]
+            isOneToOne: false
+            referencedRelation: "teams"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      team_requests: {
+        Row: {
+          created_at: string
+          id: string
+          message: string | null
+          status: string
+          team_id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          message?: string | null
+          status?: string
+          team_id: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          message?: string | null
+          status?: string
+          team_id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "team_requests_team_id_fkey"
+            columns: ["team_id"]
+            isOneToOne: false
+            referencedRelation: "teams"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      teams: {
+        Row: {
+          college_name: string | null
+          created_at: string
+          description: string | null
+          id: string
+          leader_id: string
+          looking_for_description: string | null
+          looking_for_role: string | null
+          name: string
+          team_code: string
+          updated_at: string
+        }
+        Insert: {
+          college_name?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          leader_id: string
+          looking_for_description?: string | null
+          looking_for_role?: string | null
+          name: string
+          team_code?: string
+          updated_at?: string
+        }
+        Update: {
+          college_name?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          leader_id?: string
+          looking_for_description?: string | null
+          looking_for_role?: string | null
+          name?: string
+          team_code?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       upload_requests: {
         Row: {
           created_at: string

@@ -20,6 +20,7 @@ const NAV_LINKS = [
   { to: "/recover", label: "Recover" },
   { to: "/knowledge", label: "Knowledge Hub" },
   { to: "/expeditions", label: "Expeditions" },
+  { to: "/find-teammates", label: "Find Teammates" },
 ];
 
 export default function Navbar() {
@@ -44,7 +45,7 @@ export default function Navbar() {
         <div className="flex h-16 items-center justify-between gap-4">
           <Link to="/" className="flex-shrink-0">
             <span className="font-display text-xl font-bold tracking-tight">
-              Campus<span className="bg-clip-text text-transparent gradient-primary">Hub</span>
+              Campus<span className="text-primary">Hub</span>
             </span>
           </Link>
 
@@ -104,7 +105,7 @@ export default function Navbar() {
         </div>
 
         {/* Navigation links - desktop */}
-        <div className="hidden md:flex items-center gap-1 pb-2 -mt-1">
+        <div className="hidden md:flex items-center justify-center gap-1 pb-2 -mt-1">
           {NAV_LINKS.map((link) => (
             <Link
               key={link.to}
