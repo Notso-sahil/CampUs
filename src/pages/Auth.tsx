@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
+import { X } from "lucide-react";
 
 export default function Auth() {
   const [mode, setMode] = useState<"login" | "signup" | "forgot">("login");
@@ -54,9 +55,25 @@ export default function Auth() {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center px-4">
-      <div className="w-full max-w-sm space-y-8">
-        <div className="text-center">
+    <div className="fixed inset-0 z-50 flex items-center justify-center">
+      {/* Backdrop */}
+      <div
+        className="absolute inset-0 bg-foreground/40 backdrop-blur-sm"
+        onClick={() => navigate("/")}
+      />
+
+      {/* Modal */}
+      <div className="relative z-10 w-full max-w-md mx-4 rounded-2xl border border-border bg-card p-8 shadow-glow animate-fade-in">
+        {/* Close button */}
+        <button
+          onClick={() => navigate("/")}
+          className="absolute top-4 right-4 rounded-full p-1.5 text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors"
+          aria-label="Close"
+        >
+          <X className="h-5 w-5" />
+        </button>
+
+        <div className="text-center mb-6">
           <h1 className="font-display text-3xl font-bold">
             {mode === "forgot" ? "Reset Password" : mode === "login" ? "Welcome back" : "Create account"}
           </h1>
@@ -80,12 +97,12 @@ export default function Auth() {
               <Input id="password" type="password" required minLength={6} value={password} onChange={(e) => setPassword(e.target.value)} placeholder="••••••••" />
             </div>
           )}
-          <Button type="submit" className="w-full" disabled={loading}>
+          <Button type="submit" className="w-full gradient-primary text-primary-foreground rounded-full" disabled={loading}>
             {loading ? "Loading..." : mode === "forgot" ? "Send Reset Link" : mode === "login" ? "Sign In" : "Sign Up"}
           </Button>
         </form>
 
-        <div className="text-center space-y-2">
+        <div className="text-center space-y-2 mt-6">
           {mode === "login" && (
             <button onClick={() => setMode("forgot")} className="block w-full text-sm text-muted-foreground hover:text-foreground underline underline-offset-4">
               Forgot password?

@@ -20,6 +20,7 @@ import Events from "./pages/Events";
 import Expeditions from "./pages/Expeditions";
 import Recover from "./pages/Recover";
 import KnowledgeHub from "./pages/KnowledgeHub";
+import FindTeammates from "./pages/FindTeammates";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -46,6 +47,7 @@ const AppRoutes = () => (
       <Route path="/expeditions" element={<Expeditions />} />
       <Route path="/recover" element={<Recover />} />
       <Route path="/knowledge" element={<KnowledgeHub />} />
+      <Route path="/find-teammates" element={<FindTeammates />} />
       <Route path="/sell" element={
         <ProtectedRoute requireOnboarded><Sell /></ProtectedRoute>
       } />
