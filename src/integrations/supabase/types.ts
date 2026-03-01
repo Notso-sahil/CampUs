@@ -14,6 +14,33 @@ export type Database = {
   }
   public: {
     Tables: {
+      admin_feedback: {
+        Row: {
+          created_at: string
+          email: string
+          id: string
+          message: string
+          name: string
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          id?: string
+          message: string
+          name: string
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          id?: string
+          message?: string
+          name?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       conversations: {
         Row: {
           buyer_id: string
@@ -251,6 +278,7 @@ export type Database = {
           display_name: string | null
           id: string
           onboarded: boolean | null
+          phone_number: string | null
           updated_at: string
           user_id: string
           user_role: string | null
@@ -262,6 +290,7 @@ export type Database = {
           display_name?: string | null
           id?: string
           onboarded?: boolean | null
+          phone_number?: string | null
           updated_at?: string
           user_id: string
           user_role?: string | null
@@ -273,6 +302,7 @@ export type Database = {
           display_name?: string | null
           id?: string
           onboarded?: boolean | null
+          phone_number?: string | null
           updated_at?: string
           user_id?: string
           user_role?: string | null
@@ -349,6 +379,38 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "team_members_team_id_fkey"
+            columns: ["team_id"]
+            isOneToOne: false
+            referencedRelation: "teams"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      team_messages: {
+        Row: {
+          content: string
+          created_at: string
+          id: string
+          sender_id: string
+          team_id: string
+        }
+        Insert: {
+          content: string
+          created_at?: string
+          id?: string
+          sender_id: string
+          team_id: string
+        }
+        Update: {
+          content?: string
+          created_at?: string
+          id?: string
+          sender_id?: string
+          team_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "team_messages_team_id_fkey"
             columns: ["team_id"]
             isOneToOne: false
             referencedRelation: "teams"

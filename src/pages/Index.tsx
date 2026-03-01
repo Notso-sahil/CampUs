@@ -9,6 +9,7 @@ import PageSpinner from "@/components/PageSpinner";
 import FadeIn from "@/components/FadeIn";
 import { getPlaceholder } from "@/lib/placeholders";
 import { ShoppingBag, CalendarDays, Search, BookOpen, Map } from "lucide-react";
+import Footer from "@/components/Footer";
 
 interface CarouselItem {
   id: string;
@@ -179,15 +180,7 @@ export default function Index() {
         )}
       </main>
 
-      {/* Footer */}
-      <footer className="mt-20 border-t border-border bg-foreground text-background">
-        <div className="container mx-auto px-4 py-10">
-          <div className="flex flex-col md:flex-row items-center justify-between gap-4">
-            <span className="font-display text-lg font-bold">CampusHub</span>
-            <p className="text-sm opacity-60">© 2026 CampusHub. Built for students, by students.</p>
-          </div>
-        </div>
-      </footer>
+      <Footer />
     </div>
   );
 }

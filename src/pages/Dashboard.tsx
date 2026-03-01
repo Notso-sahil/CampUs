@@ -4,7 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuthContext } from "@/contexts/AuthContext";
 import Navbar from "@/components/Navbar";
 import { Button } from "@/components/ui/button";
-import { Plus, Trash2 } from "lucide-react";
+import { Plus, Trash2, Settings } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import AdBlock from "@/components/AdBlock";
 
@@ -57,12 +57,20 @@ export default function Dashboard() {
               <p className="mt-1 text-sm text-muted-foreground">{profile.college_name}</p>
             )}
           </div>
-          <Button asChild>
-            <Link to="/sell" className="gap-2">
-              <Plus className="h-4 w-4" />
-              List Item
-            </Link>
-          </Button>
+          <div className="flex gap-2">
+            <Button variant="outline" asChild className="rounded-full">
+              <Link to="/settings" className="gap-2">
+                <Settings className="h-4 w-4" />
+                Settings
+              </Link>
+            </Button>
+            <Button asChild>
+              <Link to="/sell" className="gap-2">
+                <Plus className="h-4 w-4" />
+                List Item
+              </Link>
+            </Button>
+          </div>
         </div>
 
         {loading ? (

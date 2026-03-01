@@ -14,13 +14,18 @@ import ResetPassword from "./pages/ResetPassword";
 import ProductDetail from "./pages/ProductDetail";
 import Sell from "./pages/Sell";
 import Dashboard from "./pages/Dashboard";
+import ProfileSettings from "./pages/ProfileSettings";
 import ChatList from "./pages/ChatList";
 import ChatRoom from "./pages/ChatRoom";
+import TeamChat from "./pages/TeamChat";
 import Events from "./pages/Events";
 import Expeditions from "./pages/Expeditions";
 import Recover from "./pages/Recover";
 import KnowledgeHub from "./pages/KnowledgeHub";
 import FindTeammates from "./pages/FindTeammates";
+import PrivacyPolicy from "./pages/PrivacyPolicy";
+import TermsConditions from "./pages/TermsConditions";
+import Feedback from "./pages/Feedback";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -48,17 +53,26 @@ const AppRoutes = () => (
       <Route path="/recover" element={<Recover />} />
       <Route path="/knowledge" element={<KnowledgeHub />} />
       <Route path="/find-teammates" element={<FindTeammates />} />
+      <Route path="/privacy" element={<PrivacyPolicy />} />
+      <Route path="/terms" element={<TermsConditions />} />
+      <Route path="/feedback" element={<Feedback />} />
       <Route path="/sell" element={
         <ProtectedRoute requireOnboarded><Sell /></ProtectedRoute>
       } />
       <Route path="/dashboard" element={
         <ProtectedRoute><Dashboard /></ProtectedRoute>
       } />
+      <Route path="/settings" element={
+        <ProtectedRoute><ProfileSettings /></ProtectedRoute>
+      } />
       <Route path="/chat" element={
         <ProtectedRoute><ChatList /></ProtectedRoute>
       } />
       <Route path="/chat/:id" element={
         <ProtectedRoute><ChatRoom /></ProtectedRoute>
+      } />
+      <Route path="/team-chat" element={
+        <ProtectedRoute><TeamChat /></ProtectedRoute>
       } />
       <Route path="*" element={<NotFound />} />
     </Routes>
