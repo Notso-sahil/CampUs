@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuthContext } from "@/contexts/AuthContext";
 import { useCollege } from "@/contexts/CollegeContext";
@@ -11,7 +12,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
-import { Users, Plus, Search, Copy, UserPlus, Crown, Trash2, LogOut, ArrowRightLeft } from "lucide-react";
+import { Users, Plus, Search, Copy, UserPlus, Crown, Trash2, LogOut, ArrowRightLeft, MessageCircle } from "lucide-react";
 
 interface Team {
   id: string;
@@ -48,6 +49,7 @@ export default function FindTeammates() {
   const { user } = useAuthContext();
   const { selectedCollege } = useCollege();
   const { toast } = useToast();
+  const navigate = useNavigate();
 
   const [view, setView] = useState<View>("browse");
   const [loading, setLoading] = useState(true);
@@ -355,11 +357,16 @@ export default function FindTeammates() {
                   </div>
                 )}
 
-                {myTeam.leader_id !== user?.id && (
-                  <Button variant="outline" className="rounded-full" onClick={handleLeaveTeam}>
-                    <LogOut className="h-4 w-4 mr-1" /> Leave Team
+                <div className="flex flex-wrap gap-2">
+                  <Button className="rounded-full gradient-primary text-primary-foreground" onClick={() => navigate("/team-chat")}>
+                    <MessageCircle className="h-4 w-4 mr-1" /> Team Chat
                   </Button>
-                )}
+                  {myTeam.leader_id !== user?.id && (
+                    <Button variant="outline" className="rounded-full" onClick={handleLeaveTeam}>
+                      <LogOut className="h-4 w-4 mr-1" /> Leave Team
+                    </Button>
+                  )}
+                </div>
               </CardContent>
             </Card>
           </FadeIn>
