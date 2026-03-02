@@ -320,9 +320,10 @@ export type Database = {
           id: string
           image_url: string | null
           title: string
+          type: string
           updated_at: string
-          where_currently: string
-          where_found: string
+          where_currently: string | null
+          where_found: string | null
         }
         Insert: {
           college_name?: string | null
@@ -334,9 +335,10 @@ export type Database = {
           id?: string
           image_url?: string | null
           title: string
+          type?: string
           updated_at?: string
-          where_currently: string
-          where_found: string
+          where_currently?: string | null
+          where_found?: string | null
         }
         Update: {
           college_name?: string | null
@@ -348,9 +350,10 @@ export type Database = {
           id?: string
           image_url?: string | null
           title?: string
+          type?: string
           updated_at?: string
-          where_currently?: string
-          where_found?: string
+          where_currently?: string | null
+          where_found?: string | null
         }
         Relationships: []
       }
