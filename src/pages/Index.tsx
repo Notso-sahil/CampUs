@@ -10,6 +10,7 @@ import FadeIn from "@/components/FadeIn";
 import { getPlaceholder } from "@/lib/placeholders";
 import { ShoppingBag, CalendarDays, Search, BookOpen, Map } from "lucide-react";
 import Footer from "@/components/Footer";
+import logoImg from "@/assets/logo.png";
 
 interface CarouselItem {
   id: string;
@@ -75,9 +76,12 @@ export default function Index() {
         {/* Hero */}
         <section className="text-center space-y-5 py-16">
           <FadeIn>
-            <h1 className="font-display text-4xl font-bold tracking-tight md:text-5xl lg:text-6xl">
-              Campus<span className="text-primary">Hub</span>
-            </h1>
+            <div className="flex items-center justify-center gap-3">
+              <img src={logoImg} alt="CampusHub logo" className="h-14 w-14 md:h-16 md:w-16 object-contain" />
+              <h1 className="font-display text-4xl font-bold tracking-tight md:text-5xl lg:text-6xl">
+                Campus<span className="text-primary">Hub</span>
+              </h1>
+            </div>
           </FadeIn>
           <FadeIn delay={100}>
             <p className="mx-auto max-w-lg text-lg text-muted-foreground leading-relaxed">

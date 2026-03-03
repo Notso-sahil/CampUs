@@ -3,6 +3,7 @@ import { useAuthContext } from "@/contexts/AuthContext";
 import { useCollege } from "@/contexts/CollegeContext";
 import { COLLEGES } from "@/lib/colleges";
 import { Search as SearchIcon, MessageCircle, LogOut, User, Menu, X } from "lucide-react";
+import logoImg from "@/assets/logo.png";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -43,7 +44,8 @@ export default function Navbar() {
       <div className="container mx-auto px-4 max-w-full">
         {/* Top row */}
         <div className="flex h-16 items-center justify-between gap-2">
-          <Link to="/" className="flex-shrink-0">
+          <Link to="/" className="flex-shrink-0 flex items-center gap-2">
+            <img src={logoImg} alt="CampusHub logo" className="h-8 w-8 object-contain" />
             <span className="font-display text-xl font-bold tracking-tight">
               Campus<span className="text-primary">Hub</span>
             </span>
