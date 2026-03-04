@@ -95,16 +95,15 @@ export default function Navbar() {
               </Button>
             )}
 
-            {/* Mobile hamburger – high contrast foreground color */}
-            <Button
-              variant="outline"
-              size="icon"
-              className="md:hidden rounded-full border-border bg-card text-foreground"
+            {/* Mobile hamburger – high contrast */}
+            <button
+              type="button"
+              className="md:hidden relative z-50 flex items-center justify-center min-w-[44px] min-h-[44px] w-11 h-11 rounded-full border-2 border-foreground/30 bg-card shadow-soft"
               onClick={() => setMobileOpen(!mobileOpen)}
               aria-label="Toggle menu"
             >
-              {mobileOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
-            </Button>
+              {mobileOpen ? <X className="h-6 w-6 text-foreground" strokeWidth={2.5} /> : <Menu className="h-6 w-6 text-foreground" strokeWidth={2.5} />}
+            </button>
           </div>
         </div>
 
