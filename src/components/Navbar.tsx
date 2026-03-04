@@ -79,14 +79,14 @@ export default function Navbar() {
 
             {user ? (
               <>
-                <Button variant="ghost" size="icon" asChild className="hidden sm:inline-flex rounded-full">
-                  <Link to="/chat"><MessageCircle className="h-5 w-5" /></Link>
+                <Button variant="ghost" size="icon" asChild className="hidden sm:inline-flex rounded-full hover:bg-secondary/60">
+                  <Link to="/chat"><MessageCircle className="h-5 w-5 text-foreground" strokeWidth={2} /></Link>
                 </Button>
-                <Button variant="ghost" size="icon" asChild className="hidden sm:inline-flex rounded-full">
-                  <Link to="/dashboard"><User className="h-5 w-5" /></Link>
+                <Button variant="ghost" size="icon" asChild className="hidden sm:inline-flex rounded-full hover:bg-secondary/60">
+                  <Link to="/dashboard"><User className="h-5 w-5 text-foreground" strokeWidth={2} /></Link>
                 </Button>
-                <Button variant="ghost" size="icon" onClick={signOut} className="hidden sm:inline-flex rounded-full">
-                  <LogOut className="h-5 w-5" />
+                <Button variant="ghost" size="icon" onClick={signOut} className="hidden sm:inline-flex rounded-full hover:bg-secondary/60">
+                  <LogOut className="h-5 w-5 text-foreground" strokeWidth={2} />
                 </Button>
               </>
             ) : (
@@ -95,14 +95,14 @@ export default function Navbar() {
               </Button>
             )}
 
-            {/* Mobile hamburger – high contrast */}
+            {/* Mobile hamburger – seamless, no box */}
             <button
               type="button"
-              className="md:hidden relative z-50 flex items-center justify-center min-w-[44px] min-h-[44px] w-11 h-11 rounded-full border-2 border-foreground/30 bg-card shadow-soft"
+              className="md:hidden flex items-center justify-center w-11 h-11 rounded-full hover:bg-secondary/60 transition-colors"
               onClick={() => setMobileOpen(!mobileOpen)}
               aria-label="Toggle menu"
             >
-              {mobileOpen ? <X className="h-6 w-6 text-foreground" strokeWidth={2.5} /> : <Menu className="h-6 w-6 text-foreground" strokeWidth={2.5} />}
+              {mobileOpen ? <X className="h-5 w-5 text-foreground" strokeWidth={2} /> : <Menu className="h-5 w-5 text-foreground" strokeWidth={2} />}
             </button>
           </div>
         </div>
@@ -127,7 +127,7 @@ export default function Navbar() {
 
       {/* Mobile menu */}
       {mobileOpen && (
-        <div className="md:hidden border-t border-border bg-background/95 backdrop-blur-xl px-4 pb-4 pt-2 space-y-2 animate-fade-in max-w-full overflow-x-hidden">
+        <div className="md:hidden border-t border-border/50 glass px-4 pb-4 pt-2 space-y-1 animate-fade-in max-w-full overflow-x-hidden">
           <form onSubmit={handleSearch} className="mb-3">
             <div className="relative w-full">
               <SearchIcon className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
