@@ -119,8 +119,6 @@ export default function Navbar() {
                   ? "gradient-primary text-primary-foreground shadow-soft"
                   : "text-muted-foreground hover:text-foreground hover:bg-secondary/80"
               }`}
-                  : "text-muted-foreground hover:text-foreground hover:bg-secondary/80"
-              }`}
             >
               {link.label}
             </Link>
