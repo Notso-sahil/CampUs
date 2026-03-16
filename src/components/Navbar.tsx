@@ -16,6 +16,7 @@ import {
 import { useState } from "react";
 
 const NAV_LINKS = [
+  { to: "/", label: "Home", exact: true },
   { to: "/trade", label: "Trade" },
   { to: "/events", label: "Events" },
   { to: "/recover", label: "Recover" },
@@ -114,7 +115,7 @@ export default function Navbar() {
               key={link.to}
               to={link.to}
               className={`rounded-full px-4 py-1.5 text-sm font-medium transition-all duration-200 ${
-                location.pathname.startsWith(link.to)
+                ((link as any).exact ? location.pathname === link.to : location.pathname.startsWith(link.to))
                   ? "gradient-primary text-primary-foreground shadow-soft"
                   : "text-muted-foreground hover:text-foreground hover:bg-secondary/80"
               }`}
@@ -145,7 +146,7 @@ export default function Navbar() {
               to={link.to}
               onClick={() => setMobileOpen(false)}
               className={`block rounded-lg px-4 py-2.5 text-sm font-medium transition-all ${
-                location.pathname.startsWith(link.to)
+                ((link as any).exact ? location.pathname === link.to : location.pathname.startsWith(link.to))
                   ? "gradient-primary text-primary-foreground"
                   : "text-foreground hover:bg-secondary"
               }`}
