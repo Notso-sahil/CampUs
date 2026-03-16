@@ -24,7 +24,7 @@ export default function Sell() {
   const [description, setDescription] = useState("");
   const [price, setPrice] = useState("");
   const [condition, setCondition] = useState("Good");
-  const [category, setCategory] = useState("General");
+  const [category, setCategory] = useState("Other");
   const [college, setCollege] = useState(profile?.college_name || "VIPS");
   const [images, setImages] = useState<File[]>([]);
   const [previews, setPreviews] = useState<string[]>([]);
