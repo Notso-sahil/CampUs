@@ -146,7 +146,7 @@ export default function Navbar() {
               to={link.to}
               onClick={() => setMobileOpen(false)}
               className={`block rounded-lg px-4 py-2.5 text-sm font-medium transition-all ${
-                location.pathname.startsWith(link.to)
+                ((link as any).exact ? location.pathname === link.to : location.pathname.startsWith(link.to))
                   ? "gradient-primary text-primary-foreground"
                   : "text-foreground hover:bg-secondary"
               }`}
