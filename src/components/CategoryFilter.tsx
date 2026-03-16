@@ -1,4 +1,4 @@
-const CATEGORIES = ["All", "Engineering Gear", "Medical Supplies", "Art Supplies", "General"];
+import { PRODUCT_CATEGORIES } from "@/lib/categories";
 
 interface CategoryFilterProps {
   selected: string;
@@ -6,9 +6,10 @@ interface CategoryFilterProps {
 }
 
 export default function CategoryFilter({ selected, onSelect }: CategoryFilterProps) {
+  const categories = ["All", ...PRODUCT_CATEGORIES.map((c) => c.value)];
   return (
     <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-none">
-      {CATEGORIES.map((cat) => (
+      {categories.map((cat) => (
         <button
           key={cat}
           onClick={() => onSelect(cat)}

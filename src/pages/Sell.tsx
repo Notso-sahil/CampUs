@@ -12,7 +12,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useToast } from "@/hooks/use-toast";
 import { Upload, X } from "lucide-react";
 
-const CATEGORIES = ["Engineering Gear", "Medical Supplies", "Art Supplies", "General"];
+import { CATEGORY_VALUES } from "@/lib/categories";
+const CATEGORIES = CATEGORY_VALUES;
 const CONDITIONS = ["New", "Like New", "Good", "Fair"];
 
 export default function Sell() {
@@ -23,7 +24,7 @@ export default function Sell() {
   const [description, setDescription] = useState("");
   const [price, setPrice] = useState("");
   const [condition, setCondition] = useState("Good");
-  const [category, setCategory] = useState("General");
+  const [category, setCategory] = useState("Other");
   const [college, setCollege] = useState(profile?.college_name || "VIPS");
   const [images, setImages] = useState<File[]>([]);
   const [previews, setPreviews] = useState<string[]>([]);

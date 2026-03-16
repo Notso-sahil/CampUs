@@ -5,8 +5,31 @@ import { useAuthContext } from "@/contexts/AuthContext";
 import Navbar from "@/components/Navbar";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { MessageCircle, MapPin, ArrowLeft } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { MessageCircle, MapPin, ArrowLeft, Pencil, Trash2, Camera } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { getPlaceholder } from "@/lib/placeholders";
+import { CATEGORY_VALUES } from "@/lib/categories";
 import AdBlock from "@/components/AdBlock";
 
 interface Product {
@@ -22,20 +45,30 @@ interface Product {
   created_at: string;
 }
 
-interface SellerProfile {
-  display_name: string | null;
-  college_name: string | null;
-}
+const CONDITIONS = ["New", "Like New", "Good", "Fair"];
 
 export default function ProductDetail() {
   const { id } = useParams<{ id: string }>();
-  const { user } = useAuthContext();
+  const { user, isAdmin } = useAuthContext();
   const navigate = useNavigate();
   const { toast } = useToast();
   const [product, setProduct] = useState<Product | null>(null);
-  const [seller, setSeller] = useState<SellerProfile | null>(null);
+  const [sellerName, setSellerName] = useState<string | null>(null);
   const [selectedImage, setSelectedImage] = useState(0);
   const [loading, setLoading] = useState(true);
+  const [deleting, setDeleting] = useState(false);
+
+  // Edit state
+  const [editOpen, setEditOpen] = useState(false);
+  const [editTitle, setEditTitle] = useState("");
+  const [editDescription, setEditDescription] = useState("");
+  const [editPrice, setEditPrice] = useState("");
+  const [editCondition, setEditCondition] = useState("");
+  const [editCategory, setEditCategory] = useState("");
+  const [saving, setSaving] = useState(false);
+
+  const isOwner = user && product && user.id === product.seller_id;
+  const canEdit = isOwner || isAdmin;
 
   useEffect(() => {
     if (!id) return;
@@ -46,9 +79,10 @@ export default function ProductDetail() {
         .eq("id", id)
         .maybeSingle();
       if (data) {
-        setProduct(data as Product);
-        const { data: displayName } = await supabase.rpc("get_display_name", { _user_id: data.seller_id });
-        setSeller({ display_name: displayName || null, college_name: data.college_name });
+        const p = data as Product;
+        setProduct(p);
+        const { data: displayName } = await supabase.rpc("get_display_name", { _user_id: p.seller_id });
+        setSellerName(displayName || null);
       }
       setLoading(false);
     };
@@ -56,13 +90,8 @@ export default function ProductDetail() {
   }, [id]);
 
   const handleChat = async () => {
-    if (!user) {
-      navigate("/auth");
-      return;
-    }
+    if (!user) { navigate("/auth"); return; }
     if (!product) return;
-
-    // Check for existing conversation
     const { data: existing } = await supabase
       .from("conversations")
       .select("id")
@@ -70,28 +99,74 @@ export default function ProductDetail() {
       .eq("seller_id", product.seller_id)
       .eq("product_id", product.id)
       .maybeSingle();
-
-    if (existing) {
-      navigate(`/chat/${existing.id}`);
-      return;
-    }
-
-    // Create new conversation
+    if (existing) { navigate(`/chat/${existing.id}`); return; }
     const { data: newConv, error } = await supabase
       .from("conversations")
-      .insert({
-        buyer_id: user.id,
-        seller_id: product.seller_id,
-        product_id: product.id,
-      })
+      .insert({ buyer_id: user.id, seller_id: product.seller_id, product_id: product.id })
       .select("id")
       .single();
+    if (error) { toast({ title: "Error", description: "Could not start conversation.", variant: "destructive" }); return; }
+    navigate(`/chat/${newConv.id}`);
+  };
 
+  const handleDelete = async () => {
+    if (!product) return;
+    setDeleting(true);
+    const { error } = await supabase.from("products").delete().eq("id", product.id);
     if (error) {
-      toast({ title: "Error", description: "Could not start conversation. Please try again.", variant: "destructive" });
+      toast({ title: "Error", description: "Failed to delete product.", variant: "destructive" });
+      setDeleting(false);
       return;
     }
-    navigate(`/chat/${newConv.id}`);
+    toast({ title: "Product deleted" });
+    navigate("/trade");
+  };
+
+  const openEdit = () => {
+    if (!product) return;
+    setEditTitle(product.title);
+    setEditDescription(product.description || "");
+    setEditPrice(product.price.toString());
+    setEditCondition(product.condition);
+    setEditCategory(product.category);
+    setEditOpen(true);
+  };
+
+  const handleSaveEdit = async () => {
+    if (!product) return;
+    setSaving(true);
+    const { error } = await supabase.from("products").update({
+      title: editTitle,
+      description: editDescription || null,
+      price: parseFloat(editPrice),
+      condition: editCondition,
+      category: editCategory,
+    }).eq("id", product.id);
+    if (error) {
+      toast({ title: "Error", description: "Failed to update product.", variant: "destructive" });
+    } else {
+      setProduct({ ...product, title: editTitle, description: editDescription || null, price: parseFloat(editPrice), condition: editCondition, category: editCategory });
+      toast({ title: "Product updated!" });
+      setEditOpen(false);
+    }
+    setSaving(false);
+  };
+
+  const handleImageSwap = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!product || !e.target.files?.[0] || !user) return;
+    const file = e.target.files[0];
+    if (file.size > 5 * 1024 * 1024) { toast({ title: "Image must be under 5 MB", variant: "destructive" }); return; }
+    const ext = file.name.split(".").pop();
+    const path = `${user.id}/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
+    const { error: uploadError } = await supabase.storage.from("product-images").upload(path, file);
+    if (uploadError) { toast({ title: "Upload failed", variant: "destructive" }); return; }
+    const { data: urlData } = supabase.storage.from("product-images").getPublicUrl(path);
+    const newUrls = [...product.image_urls];
+    newUrls[selectedImage] = urlData.publicUrl;
+    const { error } = await supabase.from("products").update({ image_urls: newUrls }).eq("id", product.id);
+    if (error) { toast({ title: "Failed to update image", variant: "destructive" }); return; }
+    setProduct({ ...product, image_urls: newUrls });
+    toast({ title: "Image updated!" });
   };
 
   if (loading) {
@@ -116,7 +191,7 @@ export default function ProductDetail() {
     );
   }
 
-  const images = product.image_urls.length > 0 ? product.image_urls : ["/placeholder.svg"];
+  const images = product.image_urls && product.image_urls.length > 0 ? product.image_urls : [getPlaceholder("trade")];
 
   return (
     <div className="min-h-screen">
@@ -126,19 +201,22 @@ export default function ProductDetail() {
           onClick={() => navigate(-1)}
           className="mb-6 flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors"
         >
-          <ArrowLeft className="h-4 w-4" />
-          Back
+          <ArrowLeft className="h-4 w-4" /> Back
         </button>
 
         <div className="grid gap-8 lg:grid-cols-2">
           {/* Images */}
           <div className="space-y-3">
-            <div className="aspect-square overflow-hidden rounded-lg bg-secondary">
-              <img
-                src={images[selectedImage]}
-                alt={product.title}
-                className="h-full w-full object-cover"
-              />
+            <div className="relative aspect-square overflow-hidden rounded-lg bg-secondary group">
+              <img src={images[selectedImage]} alt={product.title} className="h-full w-full object-cover" />
+              {canEdit && (
+                <label className="absolute inset-0 flex items-center justify-center bg-foreground/0 group-hover:bg-foreground/30 transition-colors cursor-pointer opacity-0 group-hover:opacity-100">
+                  <div className="flex items-center gap-2 rounded-full bg-background/90 px-4 py-2 text-sm font-medium shadow-soft">
+                    <Camera className="h-4 w-4" /> Change Image
+                  </div>
+                  <input type="file" accept=".jpg,.jpeg,.png,.webp" onChange={handleImageSwap} className="hidden" />
+                </label>
+              )}
             </div>
             {images.length > 1 && (
               <div className="flex gap-2 overflow-x-auto">
@@ -147,7 +225,7 @@ export default function ProductDetail() {
                     key={i}
                     onClick={() => setSelectedImage(i)}
                     className={`h-16 w-16 flex-shrink-0 overflow-hidden rounded-md border-2 transition-colors ${
-                      i === selectedImage ? "border-foreground" : "border-transparent"
+                      i === selectedImage ? "border-primary" : "border-transparent"
                     }`}
                   >
                     <img src={url} alt="" className="h-full w-full object-cover" />
@@ -162,9 +240,7 @@ export default function ProductDetail() {
             <div>
               <Badge variant="secondary" className="mb-3">{product.category}</Badge>
               <h1 className="font-display text-3xl font-bold">{product.title}</h1>
-              <p className="mt-2 font-display text-4xl font-bold">
-                ₹{product.price.toLocaleString("en-IN")}
-              </p>
+              <p className="mt-2 font-display text-4xl font-bold">₹{product.price.toLocaleString("en-IN")}</p>
             </div>
 
             <div className="space-y-3">
@@ -178,9 +254,9 @@ export default function ProductDetail() {
                   <span>{product.college_name}</span>
                 </div>
               )}
-              {seller && (
+              {sellerName && (
                 <div className="text-sm text-muted-foreground">
-                  Seller: <span className="text-foreground">{seller.display_name || "Anonymous"}</span>
+                  Seller: <span className="text-foreground">{sellerName}</span>
                 </div>
               )}
             </div>
@@ -194,21 +270,91 @@ export default function ProductDetail() {
 
             <div className="rounded-lg border border-border bg-card p-4">
               <p className="text-sm font-medium">💰 Cash on Delivery / Pay on Meetup</p>
-              <p className="mt-1 text-xs text-muted-foreground">
-                Meet the seller on campus to complete the transaction
-              </p>
+              <p className="mt-1 text-xs text-muted-foreground">Meet the seller on campus to complete the transaction</p>
             </div>
 
-            {user?.id !== product.seller_id && (
-              <Button onClick={handleChat} size="lg" className="w-full gap-2">
-                <MessageCircle className="h-5 w-5" />
-                Chat with Seller
-              </Button>
-            )}
+            {/* Action buttons */}
+            <div className="flex flex-wrap gap-3">
+              {user?.id !== product.seller_id && (
+                <Button onClick={handleChat} size="lg" className="flex-1 gap-2">
+                  <MessageCircle className="h-5 w-5" /> Chat with Seller
+                </Button>
+              )}
+
+              {canEdit && (
+                <>
+                  <Button variant="outline" onClick={openEdit} className="gap-2">
+                    <Pencil className="h-4 w-4" /> Edit
+                  </Button>
+                  <AlertDialog>
+                    <AlertDialogTrigger asChild>
+                      <Button variant="destructive" className="gap-2" disabled={deleting}>
+                        <Trash2 className="h-4 w-4" /> Delete
+                      </Button>
+                    </AlertDialogTrigger>
+                    <AlertDialogContent>
+                      <AlertDialogHeader>
+                        <AlertDialogTitle>Delete this product?</AlertDialogTitle>
+                        <AlertDialogDescription>
+                          Are you sure you want to delete this? This action cannot be undone.
+                        </AlertDialogDescription>
+                      </AlertDialogHeader>
+                      <AlertDialogFooter>
+                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                        <AlertDialogAction onClick={handleDelete} disabled={deleting}>
+                          {deleting ? "Deleting..." : "Delete"}
+                        </AlertDialogAction>
+                      </AlertDialogFooter>
+                    </AlertDialogContent>
+                  </AlertDialog>
+                </>
+              )}
+            </div>
           </div>
         </div>
 
-        {/* Ad Block */}
+        {/* Edit Dialog */}
+        <Dialog open={editOpen} onOpenChange={setEditOpen}>
+          <DialogContent className="max-w-md">
+            <DialogHeader>
+              <DialogTitle>Edit Product</DialogTitle>
+            </DialogHeader>
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <Label>Title</Label>
+                <Input value={editTitle} onChange={(e) => setEditTitle(e.target.value)} maxLength={150} />
+              </div>
+              <div className="space-y-2">
+                <Label>Description</Label>
+                <Textarea value={editDescription} onChange={(e) => setEditDescription(e.target.value)} rows={3} maxLength={2000} />
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label>Price (₹)</Label>
+                  <Input type="number" min="0" value={editPrice} onChange={(e) => setEditPrice(e.target.value)} />
+                </div>
+                <div className="space-y-2">
+                  <Label>Condition</Label>
+                  <Select value={editCondition} onValueChange={setEditCondition}>
+                    <SelectTrigger><SelectValue /></SelectTrigger>
+                    <SelectContent>{CONDITIONS.map((c) => <SelectItem key={c} value={c}>{c}</SelectItem>)}</SelectContent>
+                  </Select>
+                </div>
+              </div>
+              <div className="space-y-2">
+                <Label>Category</Label>
+                <Select value={editCategory} onValueChange={setEditCategory}>
+                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectContent>{CATEGORY_VALUES.map((c) => <SelectItem key={c} value={c}>{c}</SelectItem>)}</SelectContent>
+                </Select>
+              </div>
+              <Button onClick={handleSaveEdit} disabled={saving} className="w-full">
+                {saving ? "Saving..." : "Save Changes"}
+              </Button>
+            </div>
+          </DialogContent>
+        </Dialog>
+
         <AdBlock slotId="2345678901" className="mt-8" />
       </main>
     </div>
