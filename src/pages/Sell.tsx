@@ -12,7 +12,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useToast } from "@/hooks/use-toast";
 import { Upload, X } from "lucide-react";
 
-const CATEGORIES = ["Engineering Gear", "Medical Supplies", "Art Supplies", "General"];
+import { CATEGORY_VALUES } from "@/lib/categories";
+const CATEGORIES = CATEGORY_VALUES;
 const CONDITIONS = ["New", "Like New", "Good", "Fair"];
 
 export default function Sell() {
