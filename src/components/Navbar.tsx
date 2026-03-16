@@ -16,6 +16,7 @@ import {
 import { useState } from "react";
 
 const NAV_LINKS = [
+  { to: "/", label: "Home", exact: true },
   { to: "/trade", label: "Trade" },
   { to: "/events", label: "Events" },
   { to: "/recover", label: "Recover" },
