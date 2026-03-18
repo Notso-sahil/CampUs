@@ -68,13 +68,13 @@ export default function GlobalSearch({ className }: { className?: string }) {
 
     const shouldSearch = (section: string) => !scope || scope === section;
 
-    const promises: Promise<void>[] = [];
+    const promises: Promise<any>[] = [];
 
     if (shouldSearch("trade")) {
       promises.push(
         supabase.from("products").select("id, title, price, college_name").ilike("title", pattern).order("created_at", { ascending: false }).limit(5)
           .then(({ data }) => {
-            (data || []).forEach((p: any) => all.push({ id: p.id, title: p.title, subtitle: `₹${p.price}`, section: "trade", link: `/product/${p.id}` }));
+            (data || []).forEach((p: any) => all.push({ id: p.id, title: p.title, subtitle: `₹${p.price}`, section: "trade" as const, link: `/product/${p.id}` }));
           })
       );
     }
@@ -82,7 +82,7 @@ export default function GlobalSearch({ className }: { className?: string }) {
       promises.push(
         supabase.from("events").select("id, title, location, college_name").ilike("title", pattern).order("created_at", { ascending: false }).limit(5)
           .then(({ data }) => {
-            (data || []).forEach((e: any) => all.push({ id: e.id, title: e.title, subtitle: e.location, section: "events", link: `/events` }));
+            (data || []).forEach((e: any) => all.push({ id: e.id, title: e.title, subtitle: e.location, section: "events" as const, link: `/events` }));
           })
       );
     }
@@ -90,7 +90,7 @@ export default function GlobalSearch({ className }: { className?: string }) {
       promises.push(
         supabase.from("recover_items").select("id, title, where_found, college_name").ilike("title", pattern).order("created_at", { ascending: false }).limit(5)
           .then(({ data }) => {
-            (data || []).forEach((r: any) => all.push({ id: r.id, title: r.title, subtitle: r.where_found, section: "recover", link: `/recover` }));
+            (data || []).forEach((r: any) => all.push({ id: r.id, title: r.title, subtitle: r.where_found, section: "recover" as const, link: `/recover` }));
           })
       );
     }
@@ -98,7 +98,7 @@ export default function GlobalSearch({ className }: { className?: string }) {
       promises.push(
         supabase.from("knowledge_hub").select("id, title, course, college_name").ilike("title", pattern).order("created_at", { ascending: false }).limit(5)
           .then(({ data }) => {
-            (data || []).forEach((k: any) => all.push({ id: k.id, title: k.title, subtitle: k.course, section: "knowledge", link: `/knowledge` }));
+            (data || []).forEach((k: any) => all.push({ id: k.id, title: k.title, subtitle: k.course, section: "knowledge" as const, link: `/knowledge` }));
           })
       );
     }
@@ -106,7 +106,7 @@ export default function GlobalSearch({ className }: { className?: string }) {
       promises.push(
         supabase.from("expeditions").select("id, title, location, college_name").ilike("title", pattern).order("created_at", { ascending: false }).limit(5)
           .then(({ data }) => {
-            (data || []).forEach((x: any) => all.push({ id: x.id, title: x.title, subtitle: x.location, section: "expeditions", link: `/expeditions` }));
+            (data || []).forEach((x: any) => all.push({ id: x.id, title: x.title, subtitle: x.location, section: "expeditions" as const, link: `/expeditions` }));
           })
       );
     }

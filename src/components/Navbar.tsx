@@ -1,18 +1,10 @@
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useAuthContext } from "@/contexts/AuthContext";
-import { useCollege } from "@/contexts/CollegeContext";
-import { COLLEGES } from "@/lib/colleges";
-import { Search as SearchIcon, MessageCircle, LogOut, User, Menu, X } from "lucide-react";
+import { MessageCircle, LogOut, User, Menu, X } from "lucide-react";
 import logoImg from "@/assets/logo.png";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import LocationSelector from "@/components/LocationSelector";
+import GlobalSearch from "@/components/GlobalSearch";
 import { useState } from "react";
 
 const NAV_LINKS = [
@@ -27,18 +19,9 @@ const NAV_LINKS = [
 
 export default function Navbar() {
   const { user, signOut } = useAuthContext();
-  const { selectedCollege, setSelectedCollege } = useCollege();
   const navigate = useNavigate();
   const location = useLocation();
-  const [search, setSearch] = useState("");
   const [mobileOpen, setMobileOpen] = useState(false);
-
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (search.trim()) {
-      navigate(`/trade?search=${encodeURIComponent(search.trim())}`);
-    }
-  };
 
   return (
     <nav className="sticky top-0 z-50 border-b glass shadow-soft">
@@ -52,31 +35,10 @@ export default function Navbar() {
             </span>
           </Link>
 
-          <form onSubmit={handleSearch} className="hidden md:flex flex-1 max-w-md">
-            <div className="relative w-full">
-              <SearchIcon className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-              <Input
-                placeholder="Search..."
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                className="pl-10 bg-secondary/50 border-0 focus-visible:ring-1 rounded-full"
-              />
-            </div>
-          </form>
+          <GlobalSearch className="hidden md:flex flex-1 max-w-md" />
 
           <div className="flex items-center gap-1.5 sm:gap-2 flex-shrink-0">
-            <Select value={selectedCollege} onValueChange={setSelectedCollege}>
-              <SelectTrigger className="w-[100px] sm:w-[130px] h-9 text-xs bg-secondary/50 border-0 rounded-full">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {COLLEGES.map((c) => (
-                  <SelectItem key={c} value={c} className="text-xs">
-                    {c}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <LocationSelector />
 
             {user ? (
               <>
@@ -96,7 +58,7 @@ export default function Navbar() {
               </Button>
             )}
 
-            {/* Mobile hamburger – seamless, no box */}
+            {/* Mobile hamburger */}
             <button
               type="button"
               className="md:hidden flex items-center justify-center w-11 h-11 rounded-full hover:bg-secondary/60 transition-colors"
@@ -129,17 +91,9 @@ export default function Navbar() {
       {/* Mobile menu */}
       {mobileOpen && (
         <div className="md:hidden border-t border-border/50 glass px-4 pb-4 pt-2 space-y-1 animate-fade-in max-w-full overflow-x-hidden">
-          <form onSubmit={handleSearch} className="mb-3">
-            <div className="relative w-full">
-              <SearchIcon className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-              <Input
-                placeholder="Search..."
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                className="pl-10 bg-secondary/50 border-0 rounded-full"
-              />
-            </div>
-          </form>
+          <div className="mb-3">
+            <GlobalSearch />
+          </div>
           {NAV_LINKS.map((link) => (
             <Link
               key={link.to}
