@@ -1,7 +1,7 @@
 import { useState, useMemo } from "react";
 import { useCollege } from "@/contexts/CollegeContext";
-import { INDIAN_STATES, getStateForCollege, getCollegesForState } from "@/lib/indian-states-colleges";
-import { MapPin, Search, ChevronRight, Check } from "lucide-react";
+import { INDIAN_STATES, getCollegesForState } from "@/lib/indian-states-colleges";
+import { MapPin, Search, ChevronRight } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -12,12 +12,13 @@ import {
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { cn } from "@/lib/utils";
+import FadeIn from "@/components/FadeIn";
 
 export default function LocationSelector() {
   const { selectedCollege, selectedState, setLocation } = useCollege();
   const [open, setOpen] = useState(false);
   const [step, setStep] = useState<"state" | "college">("state");
-  const [pickedState, setPickedState] = useState(selectedState);
+  const [pickedState, setPickedState] = useState("");
   const [stateSearch, setStateSearch] = useState("");
   const [collegeSearch, setCollegeSearch] = useState("");
 
@@ -35,22 +36,25 @@ export default function LocationSelector() {
     return colleges.filter((c) => c.toLowerCase().includes(q));
   }, [colleges, collegeSearch]);
 
+  /* Clean Slate: reset everything on open */
   const handleOpenChange = (v: boolean) => {
     setOpen(v);
     if (v) {
       setStep("state");
-      setPickedState(selectedState);
+      setPickedState("");
       setStateSearch("");
       setCollegeSearch("");
     }
   };
 
+  /* State pick → move to college step, clear college search */
   const handleStateSelect = (state: string) => {
     setPickedState(state);
     setCollegeSearch("");
     setStep("college");
   };
 
+  /* Final selection → persist & close */
   const handleCollegeSelect = (college: string) => {
     setLocation(pickedState, college);
     setOpen(false);
@@ -68,7 +72,10 @@ export default function LocationSelector() {
         <DialogHeader className="px-5 pt-5 pb-3">
           <DialogTitle className="font-display text-lg">
             {step === "state" ? "Select State / UT" : (
-              <button onClick={() => { setStep("state"); setStateSearch(""); }} className="flex items-center gap-1.5 hover:text-primary transition-colors">
+              <button
+                onClick={() => { setStep("state"); setPickedState(""); setStateSearch(""); }}
+                className="flex items-center gap-1.5 hover:text-primary transition-colors"
+              >
                 <ChevronRight className="h-4 w-4 rotate-180" />
                 {pickedState}
               </button>
@@ -85,6 +92,7 @@ export default function LocationSelector() {
               value={step === "state" ? stateSearch : collegeSearch}
               onChange={(e) => step === "state" ? setStateSearch(e.target.value) : setCollegeSearch(e.target.value)}
               className="pl-9 bg-secondary/40 border-0 rounded-lg focus-visible:ring-1"
+              autoComplete="off"
               autoFocus
             />
           </div>
@@ -101,12 +109,7 @@ export default function LocationSelector() {
                 <button
                   key={s.name}
                   onClick={() => handleStateSelect(s.name)}
-                  className={cn(
-                    "w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-sm transition-colors text-left",
-                    s.name === selectedState
-                      ? "bg-accent text-accent-foreground font-medium"
-                      : "hover:bg-secondary/60 text-foreground"
-                  )}
+                  className="w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-sm transition-colors text-left text-foreground hover:bg-primary/10 hover:text-primary"
                 >
                   <span className="flex items-center gap-2">
                     <span>{s.name}</span>
@@ -114,31 +117,26 @@ export default function LocationSelector() {
                       {s.type === "ut" ? "UT" : "State"}
                     </span>
                   </span>
-                  {s.name === selectedState && <Check className="h-4 w-4 text-primary" />}
                 </button>
               ))}
             </div>
           ) : (
-            <div className="px-2 pb-4">
-              {filteredColleges.length === 0 && (
-                <p className="text-center text-sm text-muted-foreground py-8">No colleges found</p>
-              )}
-              {filteredColleges.map((c) => (
-                <button
-                  key={c}
-                  onClick={() => handleCollegeSelect(c)}
-                  className={cn(
-                    "w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-sm transition-colors text-left",
-                    c === selectedCollege
-                      ? "bg-accent text-accent-foreground font-medium"
-                      : "hover:bg-secondary/60 text-foreground"
-                  )}
-                >
-                  <span>{c}</span>
-                  {c === selectedCollege && <Check className="h-4 w-4 text-primary" />}
-                </button>
-              ))}
-            </div>
+            <FadeIn>
+              <div className="px-2 pb-4">
+                {filteredColleges.length === 0 && (
+                  <p className="text-center text-sm text-muted-foreground py-8">No colleges found</p>
+                )}
+                {filteredColleges.map((c) => (
+                  <button
+                    key={c}
+                    onClick={() => handleCollegeSelect(c)}
+                    className="w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-sm transition-colors text-left text-foreground hover:bg-primary/10 hover:text-primary"
+                  >
+                    <span>{c}</span>
+                  </button>
+                ))}
+              </div>
+            </FadeIn>
           )}
         </ScrollArea>
       </DialogContent>
