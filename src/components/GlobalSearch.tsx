@@ -68,7 +68,7 @@ export default function GlobalSearch({ className }: { className?: string }) {
 
     const shouldSearch = (section: string) => !scope || scope === section;
 
-    const promises: Promise<any>[] = [];
+    const promises: Array<Promise<any>> = [];
 
     if (shouldSearch("trade")) {
       promises.push(
