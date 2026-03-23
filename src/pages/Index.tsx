@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { supabase } from "@/integrations/supabase/client";
+import { api } from "@/lib/api";
 import { useCollege } from "@/contexts/CollegeContext";
 import { useAuthContext } from "@/contexts/AuthContext";
 import Navbar from "@/components/Navbar";
@@ -34,36 +34,34 @@ export default function Index() {
       setLoading(true);
       const college = selectedCollege;
 
-      const prodRes = await supabase.from("products").select("id, title, price, image_urls, college_name").eq("college_name", college).order("created_at", { ascending: false }).limit(5);
-      const evtRes = await supabase.from("events").select("id, title, event_date, location, image_url, college_name").eq("college_name", college).order("created_at", { ascending: false }).limit(5);
-      const recRes = user
-        ? await supabase.from("recover_items").select("id, title, where_found, image_url, college_name").eq("college_name", college).order("created_at", { ascending: false }).limit(5)
-        : { data: [], error: null };
-      const kbRes = await supabase.from("knowledge_hub").select("id, title, course, sub_course, college_name").eq("college_name", college).order("created_at", { ascending: false }).limit(5);
-      const expRes = await supabase.from("expeditions").select("id, title, event_date, location, image_url, college_name").eq("college_name", college).order("created_at", { ascending: false }).limit(5);
+      try {
+        const prodRes = await api.get(`/api/products?college_name=${encodeURIComponent(college)}`);
+        const evtRes = await api.get(`/api/events?college_name=${encodeURIComponent(college)}`);
+        const recRes = user
+          ? await api.get(`/api/recover-items?college_name=${encodeURIComponent(college)}`)
+          : [];
+        const kbRes = await api.get(`/api/knowledge-hub?college_name=${encodeURIComponent(college)}`);
+        const expRes = await api.get(`/api/expeditions?college_name=${encodeURIComponent(college)}`);
 
-      if (prodRes.error) console.error("Products fetch error:", prodRes.error);
-      if (evtRes.error) console.error("Events fetch error:", evtRes.error);
-      if (recRes.error) console.error("Recover fetch error:", recRes.error);
-      if (kbRes.error) console.error("Knowledge fetch error:", kbRes.error);
-      if (expRes.error) console.error("Expeditions fetch error:", expRes.error);
-
-      setTrade((prodRes.data || []).map((p: any) => ({
-        id: p.id, title: p.title, subtitle: `₹${p.price}`, imageUrl: p.image_urls?.[0] || getPlaceholder("trade"),
-      })));
-      setEvents((evtRes.data || []).map((e: any) => ({
-        id: e.id, title: e.title, subtitle: e.location, imageUrl: e.image_url || getPlaceholder("events"),
-      })));
-      setRecover((recRes.data || []).map((r: any) => ({
-        id: r.id, title: r.title, subtitle: r.where_found, imageUrl: r.image_url || getPlaceholder("recover"),
-      })));
-      setKnowledge((kbRes.data || []).map((k: any) => ({
-        id: k.id, title: k.title, subtitle: [k.course, k.sub_course].filter(Boolean).join(" · "),
-        imageUrl: getPlaceholder("knowledge"),
-      })));
-      setExpeditions((expRes.data || []).map((x: any) => ({
-        id: x.id, title: x.title, subtitle: x.location, imageUrl: x.image_url || getPlaceholder("expeditions"),
-      })));
+        setTrade((prodRes || []).slice(0, 5).map((p: any) => ({
+          id: p.id, title: p.title, subtitle: `₹${p.price}`, imageUrl: p.image_urls?.[0] || getPlaceholder("trade"),
+        })));
+        setEvents((evtRes || []).slice(0, 5).map((e: any) => ({
+          id: e.id, title: e.title, subtitle: e.location, imageUrl: e.image_url || getPlaceholder("events"),
+        })));
+        setRecover((recRes || []).slice(0, 5).map((r: any) => ({
+          id: r.id, title: r.title, subtitle: r.where_found, imageUrl: r.image_url || getPlaceholder("recover"),
+        })));
+        setKnowledge((kbRes || []).slice(0, 5).map((k: any) => ({
+          id: k.id, title: k.title, subtitle: [k.course, k.sub_course].filter(Boolean).join(" · "),
+          imageUrl: getPlaceholder("knowledge"),
+        })));
+        setExpeditions((expRes || []).slice(0, 5).map((x: any) => ({
+          id: x.id, title: x.title, subtitle: x.location, imageUrl: x.image_url || getPlaceholder("expeditions"),
+        })));
+      } catch (err) {
+        console.error("Fetch error:", err);
+      }
       setLoading(false);
     };
     fetchAll();

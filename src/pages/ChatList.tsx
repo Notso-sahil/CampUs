@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { supabase } from "@/integrations/supabase/client";
+import { api } from "@/lib/api";
 import { useAuthContext } from "@/contexts/AuthContext";
 import Navbar from "@/components/Navbar";
 import AdBlock from "@/components/AdBlock";
@@ -24,42 +24,14 @@ export default function ChatList() {
   useEffect(() => {
     if (!user) return;
     const fetchConversations = async () => {
-      const { data: convs } = await supabase
-        .from("conversations")
-        .select("*")
-        .or(`buyer_id.eq.${user.id},seller_id.eq.${user.id}`)
-        .order("created_at", { ascending: false });
-
-      if (!convs) {
+      try {
+        const convs = await api.get(`/api/conversations?user_id=${user.id}`);
+        setConversations(convs || []);
+      } catch (err) {
+        console.error("Failed to fetch conversations", err);
+      } finally {
         setLoading(false);
-        return;
       }
-
-      // Enrich with product titles and other user names
-      const enriched = await Promise.all(
-        (convs as Conversation[]).map(async (conv) => {
-          const otherId = conv.buyer_id === user.id ? conv.seller_id : conv.buyer_id;
-
-          const [productRes, profileRes, unreadRes] = await Promise.all([
-            supabase.from("products").select("title").eq("id", conv.product_id).maybeSingle(),
-            supabase.rpc("get_display_name", { _user_id: otherId }),
-            supabase.from("messages").select("id", { count: "exact", head: true })
-              .eq("conversation_id", conv.id)
-              .eq("read", false)
-              .neq("sender_id", user.id),
-          ]);
-
-          return {
-            ...conv,
-            product_title: productRes.data?.title || "Unknown Product",
-            other_name: (profileRes.data as string) || "User",
-            unread_count: unreadRes.count || 0,
-          };
-        })
-      );
-
-      setConversations(enriched);
-      setLoading(false);
     };
 
     fetchConversations();

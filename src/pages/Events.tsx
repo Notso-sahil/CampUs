@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { supabase } from "@/integrations/supabase/client";
+import { api } from "@/lib/api";
 import { useAuthContext } from "@/contexts/AuthContext";
 import { useCollege } from "@/contexts/CollegeContext";
 import Navbar from "@/components/Navbar";
@@ -29,18 +29,16 @@ export default function Events() {
   const [expandedId, setExpandedId] = useState<string | null>(null);
 
   useEffect(() => {
-    supabase
-      .from("events")
-      .select("*")
-      .order("event_date", { ascending: true })
-      .then(({ data, error }) => {
-        if (error) console.error("Events fetch error:", error);
-        let items = (data as Event[]) || [];
-        const college = items.filter((e) => e.college_name === selectedCollege);
-        const other = items.filter((e) => e.college_name !== selectedCollege);
-        setEvents([...college, ...other]);
-        setLoading(false);
-      });
+    api.get('/api/events').then((data) => {
+      let items = (data as Event[]) || [];
+      const college = items.filter((e) => e.college_name === selectedCollege);
+      const other = items.filter((e) => e.college_name !== selectedCollege);
+      setEvents([...college, ...other]);
+      setLoading(false);
+    }).catch((error) => {
+      console.error("Events fetch error:", error);
+      setLoading(false);
+    });
   }, [selectedCollege]);
 
   const handleClick = (id: string) => {
@@ -55,16 +53,16 @@ export default function Events() {
     if (!user) { navigate("/auth"); return; }
     const title = prompt("What event would you like to add?");
     if (!title?.trim()) return;
-    const { error } = await supabase.from("upload_requests").insert({
-      user_id: user.id,
-      target_section: "events",
-      title: title.trim(),
-      description: "User requested to add an event.",
-    });
-    if (error) {
-      toast({ title: "Error", description: "Failed to submit request.", variant: "destructive" });
-    } else {
+    try {
+      await api.post("/api/upload-requests", {
+        user_id: user.id,
+        target_section: "events",
+        title: title.trim(),
+        description: "User requested to add an event.",
+      });
       toast({ title: "Request submitted", description: "An admin will review your request." });
+    } catch {
+      toast({ title: "Error", description: "Failed to submit request.", variant: "destructive" });
     }
   };
 

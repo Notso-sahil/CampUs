@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
-import { supabase } from "@/integrations/supabase/client";
-import type { User, Session } from "@supabase/supabase-js";
+import { useUser, useClerk } from "@clerk/clerk-react";
 
 interface Profile {
   id: string;
@@ -12,79 +11,52 @@ interface Profile {
 }
 
 export function useAuth() {
-  const [user, setUser] = useState<User | null>(null);
-  const [session, setSession] = useState<Session | null>(null);
+  const { user, isLoaded } = useUser();
+  const { signOut: clerkSignOut } = useClerk();
   const [profile, setProfile] = useState<Profile | null>(null);
-  const [isAdmin, setIsAdmin] = useState(false);
   const [loading, setLoading] = useState(true);
 
-  const checkAdmin = async (userId: string) => {
-    const { data } = await supabase
-      .from("user_roles")
-      .select("role")
-      .eq("user_id", userId)
-      .eq("role", "admin")
-      .maybeSingle();
-    setIsAdmin(!!data);
+  const isAdmin = user?.publicMetadata?.role === "admin";
+
+  const fetchProfile = async (userId: string) => {
+    const res = await fetch(
+      `https://college-api-zeta.vercel.app/api/profile?user_id=${userId}`
+    );
+    if (res.ok) {
+      const data = await res.json();
+      setProfile(data);
+    } else {
+      setProfile(null);
+    }
   };
 
   useEffect(() => {
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (_event, session) => {
-        setSession(session);
-        setUser(session?.user ?? null);
-        if (session?.user) {
-          const { data } = await supabase
-            .from("profiles")
-            .select("*")
-            .eq("user_id", session.user.id)
-            .maybeSingle();
-          setProfile(data as Profile | null);
-          await checkAdmin(session.user.id);
-        } else {
-          setProfile(null);
-          setIsAdmin(false);
-        }
-        setLoading(false);
-      }
-    );
-
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-      setUser(session?.user ?? null);
-      if (session?.user) {
-        supabase
-          .from("profiles")
-          .select("*")
-          .eq("user_id", session.user.id)
-          .maybeSingle()
-          .then(({ data }) => {
-            setProfile(data as Profile | null);
-            checkAdmin(session.user.id).then(() => setLoading(false));
-          });
-      } else {
-        setLoading(false);
-      }
-    });
-
-    return () => subscription.unsubscribe();
-  }, []);
+    if (!isLoaded) return;
+    if (user) {
+      fetchProfile(user.id).finally(() => setLoading(false));
+    } else {
+      setProfile(null);
+      setLoading(false);
+    }
+  }, [user, isLoaded]);
 
   const signOut = async () => {
-    await supabase.auth.signOut();
+    await clerkSignOut();
     setProfile(null);
-    setIsAdmin(false);
   };
 
   const refreshProfile = async () => {
     if (!user) return;
-    const { data } = await supabase
-      .from("profiles")
-      .select("*")
-      .eq("user_id", user.id)
-      .maybeSingle();
-    setProfile(data as Profile | null);
+    await fetchProfile(user.id);
   };
 
-  return { user, session, profile, isAdmin, loading, signOut, refreshProfile };
+  return {
+    user,
+    session: null, // Clerk doesn't use sessions the same way, kept for compatibility
+    profile,
+    isAdmin,
+    loading,
+    signOut,
+    refreshProfile,
+  };
 }

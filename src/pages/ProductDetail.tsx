@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { supabase } from "@/integrations/supabase/client";
+import { api } from "@/lib/api";
 import { useAuthContext } from "@/contexts/AuthContext";
 import Navbar from "@/components/Navbar";
 import { Button } from "@/components/ui/button";
@@ -73,16 +73,20 @@ export default function ProductDetail() {
   useEffect(() => {
     if (!id) return;
     const fetchProduct = async () => {
-      const { data } = await supabase
-        .from("products")
-        .select("*")
-        .eq("id", id)
-        .maybeSingle();
-      if (data) {
-        const p = data as Product;
-        setProduct(p);
-        const { data: displayName } = await supabase.rpc("get_display_name", { _user_id: p.seller_id });
-        setSellerName(displayName || null);
+      try {
+        const data = await api.get(`/api/products?id=${id}`);
+        if (data && (data as any[]).length > 0) {
+          const p = (data as any[])[0] as Product;
+          setProduct(p);
+          try {
+            const profileData = await api.get(`/api/profile?user_id=${p.seller_id}`);
+            setSellerName((profileData as any)?.display_name || "Unknown Seller");
+          } catch {
+            setSellerName("Unknown Seller");
+          }
+        }
+      } catch (err) {
+        console.error("Failed to fetch product", err);
       }
       setLoading(false);
     };
@@ -92,34 +96,29 @@ export default function ProductDetail() {
   const handleChat = async () => {
     if (!user) { navigate("/auth"); return; }
     if (!product) return;
-    const { data: existing } = await supabase
-      .from("conversations")
-      .select("id")
-      .eq("buyer_id", user.id)
-      .eq("seller_id", product.seller_id)
-      .eq("product_id", product.id)
-      .maybeSingle();
-    if (existing) { navigate(`/chat/${existing.id}`); return; }
-    const { data: newConv, error } = await supabase
-      .from("conversations")
-      .insert({ buyer_id: user.id, seller_id: product.seller_id, product_id: product.id })
-      .select("id")
-      .single();
-    if (error) { toast({ title: "Error", description: "Could not start conversation.", variant: "destructive" }); return; }
-    navigate(`/chat/${newConv.id}`);
+    try {
+      const userConvs = await api.get(`/api/conversations?user_id=${user.id}`);
+      const existing = (userConvs as any[])?.find((c: any) => c.product_id === product.id && c.seller_id === product.seller_id);
+      if (existing) { navigate(`/chat/${existing.id}`); return; }
+      
+      const newConv = await api.post("/api/conversations", { buyer_id: user.id, seller_id: product.seller_id, product_id: product.id });
+      navigate(`/chat/${newConv.id}`);
+    } catch {
+      toast({ title: "Error", description: "Could not start conversation.", variant: "destructive" });
+    }
   };
 
   const handleDelete = async () => {
     if (!product) return;
     setDeleting(true);
-    const { error } = await supabase.from("products").delete().eq("id", product.id);
-    if (error) {
+    try {
+      await api.delete(`/api/products?id=${product.id}`);
+      toast({ title: "Product deleted" });
+      navigate("/trade");
+    } catch {
       toast({ title: "Error", description: "Failed to delete product.", variant: "destructive" });
       setDeleting(false);
-      return;
     }
-    toast({ title: "Product deleted" });
-    navigate("/trade");
   };
 
   const openEdit = () => {
@@ -135,38 +134,26 @@ export default function ProductDetail() {
   const handleSaveEdit = async () => {
     if (!product) return;
     setSaving(true);
-    const { error } = await supabase.from("products").update({
-      title: editTitle,
-      description: editDescription || null,
-      price: parseFloat(editPrice),
-      condition: editCondition,
-      category: editCategory,
-    }).eq("id", product.id);
-    if (error) {
-      toast({ title: "Error", description: "Failed to update product.", variant: "destructive" });
-    } else {
+    try {
+      await api.put("/api/products", {
+        id: product.id,
+        title: editTitle,
+        description: editDescription || null,
+        price: parseFloat(editPrice),
+        condition: editCondition,
+        category: editCategory,
+      });
       setProduct({ ...product, title: editTitle, description: editDescription || null, price: parseFloat(editPrice), condition: editCondition, category: editCategory });
       toast({ title: "Product updated!" });
       setEditOpen(false);
+    } catch {
+      toast({ title: "Error", description: "Failed to update product.", variant: "destructive" });
     }
     setSaving(false);
   };
 
   const handleImageSwap = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (!product || !e.target.files?.[0] || !user) return;
-    const file = e.target.files[0];
-    if (file.size > 5 * 1024 * 1024) { toast({ title: "Image must be under 5 MB", variant: "destructive" }); return; }
-    const ext = file.name.split(".").pop();
-    const path = `${user.id}/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
-    const { error: uploadError } = await supabase.storage.from("product-images").upload(path, file);
-    if (uploadError) { toast({ title: "Upload failed", variant: "destructive" }); return; }
-    const { data: urlData } = supabase.storage.from("product-images").getPublicUrl(path);
-    const newUrls = [...product.image_urls];
-    newUrls[selectedImage] = urlData.publicUrl;
-    const { error } = await supabase.from("products").update({ image_urls: newUrls }).eq("id", product.id);
-    if (error) { toast({ title: "Failed to update image", variant: "destructive" }); return; }
-    setProduct({ ...product, image_urls: newUrls });
-    toast({ title: "Image updated!" });
+    toast({ title: "Image upload is currently unavailable", variant: "destructive" });
   };
 
   if (loading) {

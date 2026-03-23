@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { supabase } from "@/integrations/supabase/client";
+import { api } from "@/lib/api";
 import { useAuthContext } from "@/contexts/AuthContext";
 import { useCollege } from "@/contexts/CollegeContext";
 import { COURSES } from "@/lib/courses";
@@ -60,21 +60,20 @@ export default function KnowledgeHub() {
 
   const fetchItems = async () => {
     setLoading(true);
-    let query = supabase
-      .from("knowledge_hub")
-      .select("*")
-      .order("created_at", { ascending: false })
-      .limit(10);
+    try {
+      const data = await api.get('/api/knowledge-hub');
+      let result = (data as KnowledgeItem[]) || [];
+      const college = result.filter((k) => k.college_name === selectedCollege);
+      const other = result.filter((k) => k.college_name !== selectedCollege);
+      
+      let filtered = [...college, ...other];
+      if (selectedCourse !== "all") filtered = filtered.filter(k => k.course === selectedCourse);
+      if (selectedSubCourse !== "all") filtered = filtered.filter(k => k.sub_course === selectedSubCourse);
 
-    if (selectedCourse !== "all") query = query.eq("course", selectedCourse);
-    if (selectedSubCourse !== "all") query = query.eq("sub_course", selectedSubCourse);
-
-    const { data, error } = await query;
-    if (error) console.error("Knowledge Hub fetch error:", error);
-    let result = (data as KnowledgeItem[]) || [];
-    const college = result.filter((k) => k.college_name === selectedCollege);
-    const other = result.filter((k) => k.college_name !== selectedCollege);
-    setItems([...college, ...other]);
+      setItems(filtered.slice(0, 10));
+    } catch (error) {
+      console.error("Knowledge Hub fetch error:", error);
+    }
     setLoading(false);
   };
 
@@ -94,16 +93,16 @@ export default function KnowledgeHub() {
     if (!user) { navigate("/auth"); return; }
     const title = prompt("What material would you like to upload?");
     if (!title?.trim()) return;
-    const { error } = await supabase.from("upload_requests").insert({
-      user_id: user.id,
-      target_section: "knowledge_hub",
-      title: title.trim(),
-      description: "User requested to upload study material.",
-    });
-    if (error) {
-      toast({ title: "Error", description: "Failed to submit request.", variant: "destructive" });
-    } else {
+    try {
+      await api.post("/api/upload-requests", {
+        user_id: user.id,
+        target_section: "knowledge_hub",
+        title: title.trim(),
+        description: "User requested to upload study material.",
+      });
       toast({ title: "Request submitted", description: "An admin will review your request." });
+    } catch {
+      toast({ title: "Error", description: "Failed to submit request.", variant: "destructive" });
     }
   };
 
@@ -113,15 +112,10 @@ export default function KnowledgeHub() {
     setUploading(true);
     try {
       let fileUrl: string | null = null;
-      if (uploadFile) {
-        const path = `${Date.now()}-${uploadFile.name}`;
-        const { error: uploadErr } = await supabase.storage.from("knowledge-files").upload(path, uploadFile);
-        if (uploadErr) throw uploadErr;
-        const { data } = await supabase.storage.from("knowledge-files").createSignedUrl(path, 60 * 60 * 24 * 365);
-        fileUrl = data?.signedUrl || null;
-      }
+      // Upload logic removed since Supabase is being fully removed 
+      // and no Railway file upload endpoint is provided yet.
 
-      const { error } = await supabase.from("knowledge_hub").insert({
+      await api.post("/api/knowledge-hub", {
         title: uploadTitle,
         description: uploadDesc || null,
         file_url: fileUrl,
@@ -131,7 +125,6 @@ export default function KnowledgeHub() {
         created_by: user.id,
         college_name: selectedCollege,
       });
-      if (error) throw error;
       toast({ title: "Material uploaded!" });
       setShowUpload(false);
       setUploadTitle(""); setUploadDesc(""); setUploadCourse(""); setUploadSubCourse(""); setUploadSemester(""); setUploadFile(null);

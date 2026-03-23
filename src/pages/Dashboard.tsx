@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { supabase } from "@/integrations/supabase/client";
+import { api } from "@/lib/api";
 import { useAuthContext } from "@/contexts/AuthContext";
 import Navbar from "@/components/Navbar";
 import { Button } from "@/components/ui/button";
@@ -25,24 +25,22 @@ export default function Dashboard() {
 
   useEffect(() => {
     if (!user) return;
-    supabase
-      .from("products")
-      .select("id, title, price, condition, image_urls, created_at")
-      .eq("seller_id", user.id)
-      .order("created_at", { ascending: false })
-      .then(({ data }) => {
-        setProducts((data as Product[]) || []);
-        setLoading(false);
-      });
+    api.get(`/api/products?seller_id=${user.id}`).then((data) => {
+      setProducts((data as Product[]) || []);
+      setLoading(false);
+    }).catch(err => {
+      console.error(err);
+      setLoading(false);
+    });
   }, [user]);
 
   const handleDelete = async (id: string) => {
-    const { error } = await supabase.from("products").delete().eq("id", id);
-    if (error) {
-      toast({ title: "Error", description: "Failed to delete product. Please try again.", variant: "destructive" });
-    } else {
+    try {
+      await api.delete(`/api/products?id=${id}`);
       setProducts((prev) => prev.filter((p) => p.id !== id));
       toast({ title: "Product deleted" });
+    } catch {
+      toast({ title: "Error", description: "Failed to delete product. Please try again.", variant: "destructive" });
     }
   };
 

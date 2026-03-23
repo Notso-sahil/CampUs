@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { supabase } from "@/integrations/supabase/client";
+import { api } from "@/lib/api";
+import { useClerk } from "@clerk/clerk-react";
 import { useAuthContext } from "@/contexts/AuthContext";
 import Navbar from "@/components/Navbar";
 import { Button } from "@/components/ui/button";
@@ -15,6 +16,7 @@ export default function ProfileSettings() {
   const { user, profile, refreshProfile } = useAuthContext();
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { openUserProfile } = useClerk();
 
   const [displayName, setDisplayName] = useState("");
   const [phoneNumber, setPhoneNumber] = useState("");
@@ -28,7 +30,7 @@ export default function ProfileSettings() {
       setPhoneNumber((profile as any).phone_number || "");
     }
     if (user) {
-      setEmail(user.email || "");
+      setEmail(user.primaryEmailAddress?.emailAddress || "");
     }
   }, [profile, user]);
 
@@ -47,33 +49,22 @@ export default function ProfileSettings() {
     }
 
     setSaving(true);
-    const { error } = await supabase
-      .from("profiles")
-      .update({
+    try {
+      await api.put("/api/profile", {
+        user_id: user.id,
         display_name: displayName.trim() || null,
         phone_number: phoneNumber.trim() || null,
-      } as any)
-      .eq("user_id", user.id);
-
-    if (error) {
-      toast({ title: "Error", description: "Failed to update profile.", variant: "destructive" });
-    } else {
+      });
       await refreshProfile();
       toast({ title: "Profile updated" });
+    } catch {
+      toast({ title: "Error", description: "Failed to update profile.", variant: "destructive" });
     }
     setSaving(false);
   };
 
-  const handleUpdateEmail = async () => {
-    if (!user || email === user.email) return;
-    setEmailSaving(true);
-    const { error } = await supabase.auth.updateUser({ email });
-    if (error) {
-      toast({ title: "Error", description: "Failed to update email. You may need to re-authenticate.", variant: "destructive" });
-    } else {
-      toast({ title: "Verification sent", description: "Check your new email to confirm the change." });
-    }
-    setEmailSaving(false);
+  const handleUpdateEmail = () => {
+    openUserProfile();
   };
 
   if (!user) {
@@ -136,7 +127,7 @@ export default function ProfileSettings() {
                   variant="outline"
                   className="rounded-full"
                   onClick={handleUpdateEmail}
-                  disabled={emailSaving || email === user.email}
+                  disabled={email === user?.primaryEmailAddress?.emailAddress}
                 >
                   {emailSaving ? "Sending..." : "Update Email"}
                 </Button>

@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { supabase } from "@/integrations/supabase/client";
+import { api } from "@/lib/api";
 import { useAuthContext } from "@/contexts/AuthContext";
 import { useCollege } from "@/contexts/CollegeContext";
 import Navbar from "@/components/Navbar";
@@ -63,15 +63,9 @@ function LostItemForm({ onSuccess, user, selectedCollege }: { onSuccess: () => v
     setSubmitting(true);
     try {
       let imageUrl: string | null = null;
-      if (image) {
-        const ext = image.name.split(".").pop();
-        const path = `${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
-        const { error: uploadErr } = await supabase.storage.from("recover-images").upload(path, image);
-        if (uploadErr) throw uploadErr;
-        const { data: urlData } = supabase.storage.from("recover-images").getPublicUrl(path);
-        imageUrl = urlData.publicUrl;
-      }
-      const { error } = await supabase.from("recover_items").insert({
+      // Image upload via Supabase storage removed
+
+      await api.post("/api/recover-items", {
         title,
         description,
         contact_info: contactInfo,
@@ -83,7 +77,6 @@ function LostItemForm({ onSuccess, user, selectedCollege }: { onSuccess: () => v
         where_found: "",
         where_currently: "",
       });
-      if (error) throw error;
       toast({ title: "Report submitted!", description: "Your lost item has been broadcast." });
       setTitle(""); setDescription(""); setContactInfo("");
       setImage(null); setImagePreview(null); setDateLost(new Date());
@@ -168,31 +161,22 @@ function FoundItemForm({ onSuccess, user, selectedCollege }: { onSuccess: () => 
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!image) {
-      toast({ title: "Image required", description: "Please upload a photo of the found item.", variant: "destructive" });
-      return;
-    }
     setSubmitting(true);
     try {
-      const ext = image.name.split(".").pop();
-      const path = `${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
-      const { error: uploadErr } = await supabase.storage.from("recover-images").upload(path, image);
-      if (uploadErr) throw uploadErr;
-      const { data: urlData } = supabase.storage.from("recover-images").getPublicUrl(path);
+      // Image upload via Supabase storage removed
 
-      const { error } = await supabase.from("recover_items").insert({
+      await api.post("/api/recover-items", {
         title,
         description,
         where_found: whereFound,
         where_currently: whereCurrently,
         contact_info: contactInfo,
         date_lost: format(dateLost, "yyyy-MM-dd"),
-        image_url: urlData.publicUrl,
+        image_url: null, // Removed upload
         created_by: user?.id || null,
         college_name: selectedCollege,
         type: "found" as const,
       });
-      if (error) throw error;
       toast({ title: "Item posted!", description: "Your found item report has been listed." });
       setTitle(""); setDescription(""); setWhereFound(""); setWhereCurrently(""); setContactInfo("");
       setImage(null); setImagePreview(null); setDateLost(new Date());
@@ -270,15 +254,18 @@ export default function Recover() {
 
   const fetchItems = async () => {
     setLoading(true);
-    const { data, error } = await supabase
-      .from("recover_items")
-      .select("*")
-      .order("date_lost", { ascending: false });
-    if (error) console.error("Recover fetch error:", error);
-    let result = (data as RecoverItem[]) || [];
-    const college = result.filter((r) => r.college_name === selectedCollege);
-    const other = result.filter((r) => r.college_name !== selectedCollege);
-    setItems([...college, ...other]);
+    try {
+      const data = await api.get('/api/recover-items');
+      let result = (data as RecoverItem[]) || [];
+      // Assuming backend already sorts or we shouldn't strictly enforce sorting on frontend unless missing.
+      // Easiest is to sort on frontend just in case:
+      result.sort((a, b) => new Date(b.date_lost).getTime() - new Date(a.date_lost).getTime());
+      const college = result.filter((r) => r.college_name === selectedCollege);
+      const other = result.filter((r) => r.college_name !== selectedCollege);
+      setItems([...college, ...other]);
+    } catch (err) {
+      console.error("Recover fetch error:", err);
+    }
     setLoading(false);
   };
 

@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { supabase } from "@/integrations/supabase/client";
+import { api } from "@/lib/api";
 import { useAuthContext } from "@/contexts/AuthContext";
 import Navbar from "@/components/Navbar";
 import { Button } from "@/components/ui/button";
@@ -32,69 +32,31 @@ export default function ChatRoom() {
 
     // Fetch conversation details
     const fetchDetails = async () => {
-      const { data: conv } = await supabase
-        .from("conversations")
-        .select("*")
-        .eq("id", id)
-        .maybeSingle();
-      if (!conv) return;
-      const otherId = conv.buyer_id === user.id ? conv.seller_id : conv.buyer_id;
-      const [profileRes, productRes] = await Promise.all([
-        supabase.rpc("get_display_name", { _user_id: otherId }),
-        supabase.from("products").select("title").eq("id", conv.product_id).maybeSingle(),
-      ]);
-      setOtherName((profileRes.data as string) || "User");
-      setProductTitle(productRes.data?.title || "");
+      try {
+        const convs = await api.get(`/api/conversations?user_id=${user.id}`);
+        const conv = convs?.find((c: any) => c.id === id);
+        if (!conv) return;
+        setOtherName(conv.other_name || "User");
+        setProductTitle(conv.product_title || "");
+      } catch (e) {
+        console.error(e);
+      }
     };
     fetchDetails();
 
     // Fetch messages
     const fetchMessages = async () => {
-      const { data } = await supabase
-        .from("messages")
-        .select("*")
-        .eq("conversation_id", id)
-        .order("created_at", { ascending: true });
-      setMessages((data as Message[]) || []);
-
-      // Mark unread messages as read
-      await supabase
-        .from("messages")
-        .update({ read: true })
-        .eq("conversation_id", id)
-        .neq("sender_id", user.id)
-        .eq("read", false);
+      try {
+        const data = await api.get(`/api/messages?conversation_id=${id}`);
+        setMessages((data as Message[]) || []);
+        
+        // Mark unread messages as read
+        await api.put('/api/messages', { conversation_id: id, user_id: user.id });
+      } catch (e) {
+        console.error(e);
+      }
     };
     fetchMessages();
-
-    // Realtime subscription
-    const channel = supabase
-      .channel(`messages:${id}`)
-      .on(
-        "postgres_changes",
-        {
-          event: "INSERT",
-          schema: "public",
-          table: "messages",
-          filter: `conversation_id=eq.${id}`,
-        },
-        (payload) => {
-          const newMsg = payload.new as Message;
-          setMessages((prev) => [...prev, newMsg]);
-          // Auto-mark as read if from other user
-          if (newMsg.sender_id !== user.id) {
-            supabase
-              .from("messages")
-              .update({ read: true })
-              .eq("id", newMsg.id);
-          }
-        }
-      )
-      .subscribe();
-
-    return () => {
-      supabase.removeChannel(channel);
-    };
   }, [id, user]);
 
   useEffect(() => {
@@ -109,11 +71,16 @@ export default function ChatRoom() {
     if (!trimmed || !user || !id) return;
     if (trimmed.length > MAX_MESSAGE_LENGTH) return;
     setSending(true);
-    await supabase.from("messages").insert({
-      conversation_id: id,
-      sender_id: user.id,
-      content: trimmed,
-    });
+    try {
+      const newMsg = await api.post("/api/messages", {
+        conversation_id: id,
+        sender_id: user.id,
+        content: trimmed,
+      });
+      setMessages((prev) => [...prev, newMsg]);
+    } catch (e) {
+      console.error(e);
+    }
     setNewMessage("");
     setSending(false);
   };

@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { supabase } from "@/integrations/supabase/client";
+import { api } from "@/lib/api";
 import { useAuthContext } from "@/contexts/AuthContext";
 import { useCollege } from "@/contexts/CollegeContext";
 import Navbar from "@/components/Navbar";
@@ -70,60 +70,38 @@ export default function FindTeammates() {
 
   const fetchData = async () => {
     setLoading(true);
+    try {
+      const allTeams = await api.get('/api/teams');
+      setTeams((allTeams as Team[]) || []);
 
-    // Fetch all teams
-    const { data: allTeams } = await supabase
-      .from("teams")
-      .select("*")
-      .order("created_at", { ascending: false });
-    setTeams((allTeams as Team[]) || []);
+      if (user) {
+        const membersData = await api.get(`/api/team-members?user_id=${user.id}`);
+        const membership = membersData?.[0];
 
-    if (user) {
-      // Check if user is in a team
-      const { data: membership } = await supabase
-        .from("team_members")
-        .select("*")
-        .eq("user_id", user.id)
-        .maybeSingle();
+        if (membership) {
+          const teamData = await api.get(`/api/teams?id=${membership.team_id}`);
+          const team = teamData?.[0];
+          setMyTeam(team as Team | null);
 
-      if (membership) {
-        const { data: team } = await supabase
-          .from("teams")
-          .select("*")
-          .eq("id", (membership as TeamMember).team_id)
-          .maybeSingle();
-        setMyTeam(team as Team | null);
+          if (team) {
+            const members = await api.get(`/api/team-members?team_id=${team.id}`);
+            setMyMembers((members as TeamMember[]) || []);
 
-        if (team) {
-          const { data: members } = await supabase
-            .from("team_members")
-            .select("*")
-            .eq("team_id", (team as Team).id);
-          setMyMembers((members as TeamMember[]) || []);
-
-          // If leader, fetch requests
-          if ((team as Team).leader_id === user.id) {
-            const { data: reqs } = await supabase
-              .from("team_requests")
-              .select("*")
-              .eq("team_id", (team as Team).id)
-              .eq("status", "pending");
-            setMyRequests((reqs as TeamRequest[]) || []);
+            if (team.leader_id === user.id) {
+              const reqs = await api.get(`/api/team-requests?team_id=${team.id}`);
+              setMyRequests((reqs as TeamRequest[])?.filter(r => r.status === 'pending') || []);
+            }
+            setView("my-team");
           }
-          setView("my-team");
+        } else {
+          const userReqs = await api.get(`/api/team-requests?user_id=${user.id}`);
+          const pending = new Set<string>((userReqs || []).filter((r: any) => r.status === 'pending').map((r: any) => r.team_id as string));
+          setPendingRequests(pending);
         }
-      } else {
-        // Check user's pending requests
-        const { data: userReqs } = await supabase
-          .from("team_requests")
-          .select("*")
-          .eq("user_id", user.id)
-          .eq("status", "pending");
-        const pending = new Set((userReqs || []).map((r: any) => r.team_id as string));
-        setPendingRequests(pending);
       }
+    } catch (err) {
+      console.error(err);
     }
-
     setLoading(false);
   };
 
@@ -134,28 +112,22 @@ export default function FindTeammates() {
     if (!user) return;
     setCreating(true);
     try {
-      const { data: newTeam, error } = await supabase
-        .from("teams")
-        .insert({
-          name: teamName.trim(),
-          description: teamDesc.trim() || null,
-          leader_id: user.id,
-          college_name: selectedCollege,
-          looking_for_role: lookingForRole.trim() || null,
-          looking_for_description: lookingForDesc.trim() || null,
-        })
-        .select()
-        .single();
-      if (error) throw error;
+      const newTeam = await api.post("/api/teams", {
+        name: teamName.trim(),
+        description: teamDesc.trim() || null,
+        leader_id: user.id,
+        college_name: selectedCollege,
+        looking_for_role: lookingForRole.trim() || null,
+        looking_for_description: lookingForDesc.trim() || null,
+      });
 
-      // Add leader as member
-      await supabase.from("team_members").insert({
-        team_id: (newTeam as Team).id,
+      await api.post("/api/team-members", {
+        team_id: newTeam.id,
         user_id: user.id,
         role: myRole.trim() || "Leader",
       });
 
-      toast({ title: "Team created!", description: `Team code: ${(newTeam as Team).team_code}` });
+      toast({ title: "Team created!", description: `Team code: ${newTeam.team_code}` });
       await fetchData();
     } catch (err: any) {
       toast({ title: "Error", description: err.message?.includes("unique") ? "Team name already taken" : "Failed to create team", variant: "destructive" });
@@ -167,12 +139,11 @@ export default function FindTeammates() {
   const handleRequestJoin = async (teamId: string) => {
     if (!user) return;
     try {
-      const { error } = await supabase.from("team_requests").insert({
+      await api.post("/api/team-requests", {
         team_id: teamId,
         user_id: user.id,
         message: "I'd like to join your team!",
       });
-      if (error) throw error;
       setPendingRequests((prev) => new Set(prev).add(teamId));
       toast({ title: "Request sent!" });
     } catch (err: any) {
@@ -182,20 +153,13 @@ export default function FindTeammates() {
 
   const handleAcceptRequest = async (request: TeamRequest) => {
     try {
-      // Add member
-      const { error: memberErr } = await supabase.from("team_members").insert({
+      await api.post("/api/team-members", {
         team_id: request.team_id,
         user_id: request.user_id,
         role: "Member",
       });
-      if (memberErr) throw memberErr;
-
-      // Update request status
-      await supabase.from("team_requests").update({ status: "accepted" }).eq("id", request.id);
-
-      // Reject all other pending requests for this user
-      await supabase.from("team_requests").update({ status: "rejected" }).eq("user_id", request.user_id).neq("id", request.id);
-
+      await api.put("/api/team-requests", { id: request.id, status: "accepted" });
+      
       toast({ title: "Member added!" });
       await fetchData();
     } catch (err: any) {
@@ -204,13 +168,15 @@ export default function FindTeammates() {
   };
 
   const handleRejectRequest = async (requestId: string) => {
-    await supabase.from("team_requests").update({ status: "rejected" }).eq("id", requestId);
+    await api.put("/api/team-requests", { id: requestId, status: "rejected" });
     toast({ title: "Request rejected" });
     await fetchData();
   };
 
   const handleRemoveMember = async (memberId: string) => {
-    await supabase.from("team_members").delete().eq("id", memberId);
+    const member = myMembers.find(m => m.id === memberId);
+    if (!member) return;
+    await api.delete(`/api/team-members?team_id=${member.team_id}&user_id=${member.user_id}`);
     toast({ title: "Member removed" });
     await fetchData();
   };
@@ -220,10 +186,7 @@ export default function FindTeammates() {
     const confirmed = window.confirm("Warning: You will be demoted to Team Member. Continue?");
     if (!confirmed) return;
 
-    await supabase.from("teams").update({ leader_id: newLeaderId }).eq("id", myTeam.id);
-    await supabase.from("team_members").update({ role: "Leader" }).eq("team_id", myTeam.id).eq("user_id", newLeaderId);
-    await supabase.from("team_members").update({ role: "Member" }).eq("team_id", myTeam.id).eq("user_id", user.id);
-
+    await api.put("/api/teams", { id: myTeam.id, leader_id: newLeaderId });
     toast({ title: "Leadership transferred" });
     await fetchData();
   };
@@ -234,7 +197,7 @@ export default function FindTeammates() {
       toast({ title: "Transfer leadership first", description: "You must transfer leadership before leaving.", variant: "destructive" });
       return;
     }
-    await supabase.from("team_members").delete().eq("user_id", user.id);
+    await api.delete(`/api/team-members?team_id=${myTeam.id}&user_id=${user.id}`);
     toast({ title: "You left the team" });
     setMyTeam(null);
     setView("browse");

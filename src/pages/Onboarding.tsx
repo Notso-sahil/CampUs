@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { supabase } from "@/integrations/supabase/client";
+import { api } from "@/lib/api";
 import { useAuthContext } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -45,11 +45,12 @@ export default function Onboarding() {
     if (!user || !college || !role) return;
     setLoading(true);
     try {
-      const { error } = await supabase
-        .from("profiles")
-        .update({ college_name: college, user_role: role, onboarded: true })
-        .eq("user_id", user.id);
-      if (error) throw error;
+      await api.put("/api/profile", {
+        user_id: user.id,
+        college_name: college,
+        user_role: role,
+        onboarded: true
+      });
       await refreshProfile();
       navigate("/");
     } catch (err: any) {

@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { supabase } from "@/integrations/supabase/client";
+import { api } from "@/lib/api";
 import { useAuthContext } from "@/contexts/AuthContext";
 import { useCollege } from "@/contexts/CollegeContext";
 import Navbar from "@/components/Navbar";
@@ -29,18 +29,16 @@ export default function Expeditions() {
   const [expandedId, setExpandedId] = useState<string | null>(null);
 
   useEffect(() => {
-    supabase
-      .from("expeditions")
-      .select("*")
-      .order("event_date", { ascending: true })
-      .then(({ data, error }) => {
-        if (error) console.error("Expeditions fetch error:", error);
-        let items = (data as Expedition[]) || [];
-        const college = items.filter((e) => e.college_name === selectedCollege);
-        const other = items.filter((e) => e.college_name !== selectedCollege);
-        setExpeditions([...college, ...other]);
-        setLoading(false);
-      });
+    api.get('/api/expeditions').then((data) => {
+      let items = (data as Expedition[]) || [];
+      const college = items.filter((e) => e.college_name === selectedCollege);
+      const other = items.filter((e) => e.college_name !== selectedCollege);
+      setExpeditions([...college, ...other]);
+      setLoading(false);
+    }).catch((error) => {
+      console.error("Expeditions fetch error:", error);
+      setLoading(false);
+    });
   }, [selectedCollege]);
 
   const handleClick = (id: string) => {
@@ -52,16 +50,16 @@ export default function Expeditions() {
     if (!user) { navigate("/auth"); return; }
     const title = prompt("What expedition would you like to add?");
     if (!title?.trim()) return;
-    const { error } = await supabase.from("upload_requests").insert({
-      user_id: user.id,
-      target_section: "expeditions",
-      title: title.trim(),
-      description: "User requested to add an expedition.",
-    });
-    if (error) {
-      toast({ title: "Error", description: "Failed to submit request.", variant: "destructive" });
-    } else {
+    try {
+      await api.post("/api/upload-requests", {
+        user_id: user.id,
+        target_section: "expeditions",
+        title: title.trim(),
+        description: "User requested to add an expedition.",
+      });
       toast({ title: "Request submitted", description: "An admin will review your request." });
+    } catch {
+      toast({ title: "Error", description: "Failed to submit request.", variant: "destructive" });
     }
   };
 

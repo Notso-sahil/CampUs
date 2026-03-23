@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { supabase } from "@/integrations/supabase/client";
+import { api } from "@/lib/api";
 import { useAuthContext } from "@/contexts/AuthContext";
 import { COLLEGES } from "@/lib/colleges";
 import Navbar from "@/components/Navbar";
@@ -68,16 +68,9 @@ export default function Sell() {
     setLoading(true);
     try {
       const imageUrls: string[] = [];
-      for (const file of images) {
-        const ext = file.name.split(".").pop();
-        const path = `${user.id}/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
-        const { error: uploadError } = await supabase.storage.from("product-images").upload(path, file);
-        if (uploadError) throw uploadError;
-        const { data: urlData } = supabase.storage.from("product-images").getPublicUrl(path);
-        imageUrls.push(urlData.publicUrl);
-      }
+      // Image upload via Supabase storage removed
 
-      const { error } = await supabase.from("products").insert({
+      await api.post("/api/products", {
         seller_id: user.id,
         title,
         description: description || null,
@@ -87,7 +80,6 @@ export default function Sell() {
         college_name: college || null,
         image_urls: imageUrls,
       });
-      if (error) throw error;
       toast({ title: "Product listed!" });
       navigate("/dashboard");
     } catch {

@@ -1,6 +1,6 @@
 import { createContext, useContext, ReactNode } from "react";
 import { useAuth } from "@/hooks/useAuth";
-import type { User, Session } from "@supabase/supabase-js";
+import type { UserResource } from "@clerk/types";
 
 interface Profile {
   id: string;
@@ -12,8 +12,8 @@ interface Profile {
 }
 
 interface AuthContextType {
-  user: User | null;
-  session: Session | null;
+  user: UserResource | null | undefined;
+  session: null;
   profile: Profile | null;
   isAdmin: boolean;
   loading: boolean;

@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { supabase } from "@/integrations/supabase/client";
+import { api } from "@/lib/api";
 import { useAuthContext } from "@/contexts/AuthContext";
 import Navbar from "@/components/Navbar";
 import { Button } from "@/components/ui/button";
@@ -30,60 +30,45 @@ export default function TeamChat() {
     if (!user) return;
 
     const init = async () => {
-      // Find user's team
-      const { data: membership } = await supabase
-        .from("team_members")
-        .select("team_id")
-        .eq("user_id", user.id)
-        .maybeSingle();
+      try {
+        const membersData = await api.get(`/api/team-members?user_id=${user.id}`);
+        const membership = (membersData as any[])?.[0];
+        if (!membership) return;
+        
+        const tid = membership.team_id;
+        setTeamId(tid);
 
-      if (!membership) return;
-      const tid = membership.team_id;
-      setTeamId(tid);
+        const teamData = await api.get(`/api/teams?id=${tid}`);
+        const team = (teamData as any[])?.[0];
+        if (team) setTeamName(team.name);
 
-      // Get team name
-      const { data: team } = await supabase
-        .from("teams")
-        .select("name")
-        .eq("id", tid)
-        .maybeSingle();
-      if (team) setTeamName(team.name);
-
-      // Get member names
-      const { data: members } = await supabase
-        .from("team_members")
-        .select("user_id")
-        .eq("team_id", tid);
-      if (members) {
-        const names: Record<string, string> = {};
-        for (const m of members) {
-          const { data: name } = await supabase.rpc("get_display_name", { _user_id: m.user_id });
-          names[m.user_id] = (name as string) || "User";
-        }
-        setMemberNames(names);
-      }
-
-      // Fetch messages
-      const { data: msgs } = await supabase
-        .from("team_messages")
-        .select("*")
-        .eq("team_id", tid)
-        .order("created_at", { ascending: true });
-      setMessages((msgs as TeamMessage[]) || []);
-
-      // Realtime
-      const channel = supabase
-        .channel(`team_messages:${tid}`)
-        .on(
-          "postgres_changes",
-          { event: "INSERT", schema: "public", table: "team_messages", filter: `team_id=eq.${tid}` },
-          (payload) => {
-            setMessages((prev) => [...prev, payload.new as TeamMessage]);
+        const members = await api.get(`/api/team-members?team_id=${tid}`);
+        if (members) {
+          const names: Record<string, string> = {};
+          for (const m of (members as any[])) {
+            try {
+              const prof = await api.get(`/api/profile?user_id=${m.user_id}`);
+              names[m.user_id] = (prof as any)?.display_name || "User";
+            } catch {
+              names[m.user_id] = "User";
+            }
           }
-        )
-        .subscribe();
+          setMemberNames(names);
+        }
 
-      return () => { supabase.removeChannel(channel); };
+        const msgs = await api.get(`/api/team-messages?team_id=${tid}`);
+        setMessages((msgs as TeamMessage[]) || []);
+        
+        // Polling as a fallback for realtime removal
+        const interval = setInterval(async () => {
+          const newMsgs = await api.get(`/api/team-messages?team_id=${tid}`);
+          setMessages((newMsgs as TeamMessage[]) || []);
+        }, 3000);
+
+        return () => clearInterval(interval);
+      } catch (err) {
+        console.error("Team chat fetch error", err);
+      }
     };
 
     init();
@@ -101,11 +86,18 @@ export default function TeamChat() {
     if (!trimmed || !user || !teamId) return;
     if (trimmed.length > MAX_LENGTH) return;
     setSending(true);
-    await supabase.from("team_messages").insert({
-      team_id: teamId,
-      sender_id: user.id,
-      content: trimmed,
-    });
+    try {
+      await api.post("/api/team-messages", {
+        team_id: teamId,
+        sender_id: user.id,
+        content: trimmed,
+      });
+      // Fetch immediately to update UI without waiting for interval
+      const newMsgs = await api.get(`/api/team-messages?team_id=${teamId}`);
+      setMessages((newMsgs as TeamMessage[]) || []);
+    } catch (err) {
+      console.error(err);
+    }
     setNewMessage("");
     setSending(false);
   };

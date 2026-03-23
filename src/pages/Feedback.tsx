@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { supabase } from "@/integrations/supabase/client";
+import { api } from "@/lib/api";
 import { useAuthContext } from "@/contexts/AuthContext";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
@@ -17,7 +17,7 @@ export default function Feedback() {
   const { toast } = useToast();
 
   const [name, setName] = useState("");
-  const [email, setEmail] = useState(user?.email || "");
+  const [email, setEmail] = useState(user?.primaryEmailAddress?.emailAddress || "");
   const [message, setMessage] = useState("");
   const [sending, setSending] = useState(false);
   const [sent, setSent] = useState(false);
@@ -27,17 +27,16 @@ export default function Feedback() {
     if (!name.trim() || !email.trim() || !message.trim()) return;
 
     setSending(true);
-    const { error } = await supabase.from("admin_feedback").insert({
-      user_id: user?.id || null,
-      name: name.trim(),
-      email: email.trim(),
-      message: message.trim(),
-    });
-
-    if (error) {
-      toast({ title: "Error", description: "Failed to submit feedback.", variant: "destructive" });
-    } else {
+    try {
+      await api.post("/api/admin-feedback", {
+        user_id: user?.id || null,
+        name: name.trim(),
+        email: email.trim(),
+        message: message.trim(),
+      });
       setSent(true);
+    } catch {
+      toast({ title: "Error", description: "Failed to submit feedback.", variant: "destructive" });
     }
     setSending(false);
   };

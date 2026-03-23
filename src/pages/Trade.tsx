@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
-import { supabase } from "@/integrations/supabase/client";
+import { api } from "@/lib/api";
 import { useAuthContext } from "@/contexts/AuthContext";
 import { useCollege } from "@/contexts/CollegeContext";
 import Navbar from "@/components/Navbar";
@@ -38,23 +38,23 @@ export default function Trade() {
     }
     const fetchProducts = async () => {
       setLoading(true);
-      let query = supabase
-        .from("products")
-        .select("id, title, price, condition, category, college_name, image_urls, created_at")
-        .order("created_at", { ascending: false });
+      try {
+        const data = await api.get('/api/products');
+        let items = (data as Product[]) || [];
+        
+        if (category) items = items.filter(p => p.category === category);
+        if (searchQuery) items = items.filter(p => p.title.toLowerCase().includes(searchQuery.toLowerCase()));
 
-      if (category) query = query.eq("category", category);
-      if (searchQuery) query = query.ilike("title", `%${searchQuery}%`);
+        items.sort((a,b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
 
-      const { data, error } = await query;
-      if (error) console.error("Trade fetch error:", error);
-      let items = (data as Product[]) || [];
+        const collegeItems = items.filter((p) => p.college_name === selectedCollege);
+        const otherItems = items.filter((p) => p.college_name !== selectedCollege);
+        items = [...collegeItems, ...otherItems];
 
-      const collegeItems = items.filter((p) => p.college_name === selectedCollege);
-      const otherItems = items.filter((p) => p.college_name !== selectedCollege);
-      items = [...collegeItems, ...otherItems];
-
-      setProducts(items);
+        setProducts(items);
+      } catch (err) {
+        console.error("Trade fetch error:", err);
+      }
       setLoading(false);
     };
     fetchProducts();

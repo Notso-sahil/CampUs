@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { supabase } from "@/integrations/supabase/client";
+import { api } from "@/lib/api";
 import { useAuthContext } from "@/contexts/AuthContext";
 import { COLLEGES } from "@/lib/colleges";
 import { Button } from "@/components/ui/button";
@@ -40,11 +40,12 @@ export default function OnboardingModal() {
     if (!user || !college || !role) return;
     setLoading(true);
     try {
-      const { error } = await supabase
-        .from("profiles")
-        .update({ college_name: college, user_role: role, onboarded: true })
-        .eq("user_id", user.id);
-      if (error) throw error;
+      await api.put("/api/profile", {
+        user_id: user.id,
+        college_name: college,
+        user_role: role,
+        onboarded: true,
+      });
       await refreshProfile();
     } catch {
       toast({ title: "Error", description: "Failed to save. Please try again.", variant: "destructive" });
