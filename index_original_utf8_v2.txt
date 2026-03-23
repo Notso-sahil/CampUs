@@ -1,6 +1,6 @@
-import { useEffect, useState } from "react";
+﻿import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { api } from "@/lib/api";
+import { supabase } from "@/integrations/supabase/client";
 import { useCollege } from "@/contexts/CollegeContext";
 import { useAuthContext } from "@/contexts/AuthContext";
 import Navbar from "@/components/Navbar";
@@ -34,40 +34,36 @@ export default function Index() {
       setLoading(true);
       const college = selectedCollege;
 
-      try {
-        const prodRes = await api.get(`/api/products`);
-        const evtRes = await api.get(`/api/events`);
-        const recRes = user ? await api.get(`/api/recover-items`) : [];
-        const kbRes = await api.get(`/api/knowledge-hub`);
-        const expRes = await api.get(`/api/expeditions`);
+      const prodRes = await supabase.from("products").select("id, title, price, image_urls, college_name").eq("college_name", college).order("created_at", { ascending: false }).limit(5);
+      const evtRes = await supabase.from("events").select("id, title, event_date, location, image_url, college_name").eq("college_name", college).order("created_at", { ascending: false }).limit(5);
+      const recRes = user
+        ? await supabase.from("recover_items").select("id, title, where_found, image_url, college_name").eq("college_name", college).order("created_at", { ascending: false }).limit(5)
+        : { data: [], error: null };
+      const kbRes = await supabase.from("knowledge_hub").select("id, title, course, sub_course, college_name").eq("college_name", college).order("created_at", { ascending: false }).limit(5);
+      const expRes = await supabase.from("expeditions").select("id, title, event_date, location, image_url, college_name").eq("college_name", college).order("created_at", { ascending: false }).limit(5);
 
-        // Helper to safely filter, sort, and limit
-        const processItems = (resp: any, dateField = "created_at") => {
-          let arr = Array.isArray(resp) ? resp : (Array.isArray(resp?.data) ? resp.data : []);
-          arr = arr.filter((x: any) => x.college_name === college);
-          arr.sort((a: any, b: any) => new Date(b[dateField] || 0).getTime() - new Date(a[dateField] || 0).getTime());
-          return arr.slice(0, 5);
-        };
+      if (prodRes.error) console.error("Products fetch error:", prodRes.error);
+      if (evtRes.error) console.error("Events fetch error:", evtRes.error);
+      if (recRes.error) console.error("Recover fetch error:", recRes.error);
+      if (kbRes.error) console.error("Knowledge fetch error:", kbRes.error);
+      if (expRes.error) console.error("Expeditions fetch error:", expRes.error);
 
-        setTrade(processItems(prodRes).map((p: any) => ({
-          id: p.id, title: p.title, subtitle: `₹${p.price}`, imageUrl: p.image_urls?.[0] || getPlaceholder("trade"),
-        })));
-        setEvents(processItems(evtRes, "event_date").map((e: any) => ({
-          id: e.id, title: e.title, subtitle: e.location, imageUrl: e.image_url || getPlaceholder("events"),
-        })));
-        setRecover(processItems(recRes).map((r: any) => ({
-          id: r.id, title: r.title, subtitle: r.where_found, imageUrl: r.image_url || getPlaceholder("recover"),
-        })));
-        setKnowledge(processItems(kbRes).map((k: any) => ({
-          id: k.id, title: k.title, subtitle: [k.course, k.sub_course].filter(Boolean).join(" · "),
-          imageUrl: getPlaceholder("knowledge"),
-        })));
-        setExpeditions(processItems(expRes, "event_date").map((x: any) => ({
-          id: x.id, title: x.title, subtitle: x.location, imageUrl: x.image_url || getPlaceholder("expeditions"),
-        })));
-      } catch (err) {
-        console.error("Fetch error:", err);
-      }
+      setTrade((prodRes.data || []).map((p: any) => ({
+        id: p.id, title: p.title, subtitle: `Γé╣${p.price}`, imageUrl: p.image_urls?.[0] || getPlaceholder("trade"),
+      })));
+      setEvents((evtRes.data || []).map((e: any) => ({
+        id: e.id, title: e.title, subtitle: e.location, imageUrl: e.image_url || getPlaceholder("events"),
+      })));
+      setRecover((recRes.data || []).map((r: any) => ({
+        id: r.id, title: r.title, subtitle: r.where_found, imageUrl: r.image_url || getPlaceholder("recover"),
+      })));
+      setKnowledge((kbRes.data || []).map((k: any) => ({
+        id: k.id, title: k.title, subtitle: [k.course, k.sub_course].filter(Boolean).join(" ┬╖ "),
+        imageUrl: getPlaceholder("knowledge"),
+      })));
+      setExpeditions((expRes.data || []).map((x: any) => ({
+        id: x.id, title: x.title, subtitle: x.location, imageUrl: x.image_url || getPlaceholder("expeditions"),
+      })));
       setLoading(false);
     };
     fetchAll();
@@ -89,7 +85,7 @@ export default function Index() {
           </FadeIn>
           <FadeIn delay={100}>
             <p className="mx-auto max-w-lg text-lg text-muted-foreground leading-relaxed">
-              Your one-stop campus platform — trade, discover events, recover lost items, access study materials, and explore adventures.
+              Your one-stop campus platform ΓÇö trade, discover events, recover lost items, access study materials, and explore adventures.
             </p>
           </FadeIn>
           <FadeIn delay={200}>

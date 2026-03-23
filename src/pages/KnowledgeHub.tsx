@@ -61,8 +61,8 @@ export default function KnowledgeHub() {
   const fetchItems = async () => {
     setLoading(true);
     try {
-      const data = await api.get('/api/knowledge-hub');
-      let result = (data as KnowledgeItem[]) || [];
+      const resp = await api.get('/api/knowledge-hub');
+      let result: KnowledgeItem[] = Array.isArray(resp) ? resp : (Array.isArray(resp?.data) ? resp.data : []);
       const college = result.filter((k) => k.college_name === selectedCollege);
       const other = result.filter((k) => k.college_name !== selectedCollege);
       

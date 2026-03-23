@@ -29,8 +29,8 @@ export default function Expeditions() {
   const [expandedId, setExpandedId] = useState<string | null>(null);
 
   useEffect(() => {
-    api.get('/api/expeditions').then((data) => {
-      let items = (data as Expedition[]) || [];
+    api.get('/api/expeditions').then((resp) => {
+      let items: Expedition[] = Array.isArray(resp) ? resp : (Array.isArray(resp?.data) ? resp.data : []);
       const college = items.filter((e) => e.college_name === selectedCollege);
       const other = items.filter((e) => e.college_name !== selectedCollege);
       setExpeditions([...college, ...other]);

@@ -63,8 +63,13 @@ export default function ProfileSettings() {
     setSaving(false);
   };
 
-  const handleUpdateEmail = () => {
+  const handleUpdateEmail = async () => {
+    if (!user || email === user.primaryEmailAddress?.emailAddress) return;
+    setEmailSaving(true);
+    // Simulate slight delay to match original UI feedback
+    await new Promise((resolve) => setTimeout(resolve, 800));
     openUserProfile();
+    setEmailSaving(false);
   };
 
   if (!user) {
@@ -127,7 +132,7 @@ export default function ProfileSettings() {
                   variant="outline"
                   className="rounded-full"
                   onClick={handleUpdateEmail}
-                  disabled={email === user?.primaryEmailAddress?.emailAddress}
+                  disabled={emailSaving || email === user?.primaryEmailAddress?.emailAddress}
                 >
                   {emailSaving ? "Sending..." : "Update Email"}
                 </Button>

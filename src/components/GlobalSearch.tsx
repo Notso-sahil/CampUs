@@ -73,16 +73,18 @@ export default function GlobalSearch({ className }: { className?: string }) {
     if (shouldSearch("trade")) {
       promises.push(
         api.get(`/api/products?search=${encodeURIComponent(q)}`)
-          .then((data) => {
-            (data || []).slice(0, 5).forEach((p: any) => all.push({ id: p.id, title: p.title, subtitle: `₹${p.price}`, section: "trade" as const, link: `/product/${p.id}` }));
+          .then((resp) => {
+            const data = Array.isArray(resp) ? resp : (Array.isArray(resp?.data) ? resp.data : []);
+            data.slice(0, 5).forEach((p: any) => all.push({ id: p.id, title: p.title, subtitle: `₹${p.price}`, section: "trade" as const, link: `/product/${p.id}` }));
           }).catch(console.error)
       );
     }
     if (shouldSearch("events")) {
       promises.push(
         api.get('/api/events')
-          .then((data) => {
-            (data || [])
+          .then((resp) => {
+            const data = Array.isArray(resp) ? resp : (Array.isArray(resp?.data) ? resp.data : []);
+            data
               .filter((e: any) => e.title?.toLowerCase().includes(q.toLowerCase()))
               .slice(0, 5)
               .forEach((e: any) => all.push({ id: e.id, title: e.title, subtitle: e.location, section: "events" as const, link: `/events` }));
@@ -92,8 +94,9 @@ export default function GlobalSearch({ className }: { className?: string }) {
     if (shouldSearch("recover")) {
       promises.push(
         api.get('/api/recover-items')
-          .then((data) => {
-            (data || [])
+          .then((resp) => {
+            const data = Array.isArray(resp) ? resp : (Array.isArray(resp?.data) ? resp.data : []);
+            data
               .filter((r: any) => r.title?.toLowerCase().includes(q.toLowerCase()))
               .slice(0, 5)
               .forEach((r: any) => all.push({ id: r.id, title: r.title, subtitle: r.where_found, section: "recover" as const, link: `/recover` }));
@@ -103,8 +106,9 @@ export default function GlobalSearch({ className }: { className?: string }) {
     if (shouldSearch("knowledge")) {
       promises.push(
         api.get('/api/knowledge-hub')
-          .then((data) => {
-            (data || [])
+          .then((resp) => {
+            const data = Array.isArray(resp) ? resp : (Array.isArray(resp?.data) ? resp.data : []);
+            data
               .filter((k: any) => k.title?.toLowerCase().includes(q.toLowerCase()))
               .slice(0, 5)
               .forEach((k: any) => all.push({ id: k.id, title: k.title, subtitle: k.course, section: "knowledge" as const, link: `/knowledge` }));
@@ -114,8 +118,9 @@ export default function GlobalSearch({ className }: { className?: string }) {
     if (shouldSearch("expeditions")) {
       promises.push(
         api.get('/api/expeditions')
-          .then((data) => {
-            (data || [])
+          .then((resp) => {
+            const data = Array.isArray(resp) ? resp : (Array.isArray(resp?.data) ? resp.data : []);
+            data
               .filter((x: any) => x.title?.toLowerCase().includes(q.toLowerCase()))
               .slice(0, 5)
               .forEach((x: any) => all.push({ id: x.id, title: x.title, subtitle: x.location, section: "expeditions" as const, link: `/expeditions` }));

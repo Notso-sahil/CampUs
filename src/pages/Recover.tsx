@@ -161,6 +161,10 @@ function FoundItemForm({ onSuccess, user, selectedCollege }: { onSuccess: () => 
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!image) {
+      toast({ title: "Image required", description: "Please upload a photo of the found item.", variant: "destructive" });
+      return;
+    }
     setSubmitting(true);
     try {
       // Image upload via Supabase storage removed

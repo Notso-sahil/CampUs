@@ -29,8 +29,8 @@ export default function Events() {
   const [expandedId, setExpandedId] = useState<string | null>(null);
 
   useEffect(() => {
-    api.get('/api/events').then((data) => {
-      let items = (data as Event[]) || [];
+    api.get('/api/events').then((resp) => {
+      let items: Event[] = Array.isArray(resp) ? resp : (Array.isArray(resp?.data) ? resp.data : []);
       const college = items.filter((e) => e.college_name === selectedCollege);
       const other = items.filter((e) => e.college_name !== selectedCollege);
       setEvents([...college, ...other]);

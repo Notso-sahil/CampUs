@@ -39,8 +39,8 @@ export default function Trade() {
     const fetchProducts = async () => {
       setLoading(true);
       try {
-        const data = await api.get('/api/products');
-        let items = (data as Product[]) || [];
+        const resp = await api.get('/api/products');
+        let items = (Array.isArray(resp) ? resp : (Array.isArray(resp?.data) ? resp.data : []));
         
         if (category) items = items.filter(p => p.category === category);
         if (searchQuery) items = items.filter(p => p.title.toLowerCase().includes(searchQuery.toLowerCase()));
