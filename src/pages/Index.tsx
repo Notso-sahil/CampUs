@@ -44,9 +44,12 @@ export default function Index() {
         // Helper to safely filter, sort, and limit
         const processItems = (resp: any, dateField = "created_at") => {
           let arr = Array.isArray(resp) ? resp : (Array.isArray(resp?.data) ? resp.data : []);
-          arr = arr.filter((x: any) => x.college_name === college);
-          arr.sort((a: any, b: any) => new Date(b[dateField] || 0).getTime() - new Date(a[dateField] || 0).getTime());
-          return arr.slice(0, 5);
+          // Filter by college if available
+          const filtered = arr.filter((x: any) => x.college_name === college);
+          // If no results match the selected college, show latest from all colleges
+          const itemsToSort = filtered.length > 0 ? filtered : arr;
+          itemsToSort.sort((a: any, b: any) => new Date(b[dateField] || 0).getTime() - new Date(a[dateField] || 0).getTime());
+          return itemsToSort.slice(0, 5);
         };
 
         setTrade(processItems(prodRes).map((p: any) => ({

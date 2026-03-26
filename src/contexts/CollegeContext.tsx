@@ -1,5 +1,4 @@
 import { createContext, useContext, useState, ReactNode } from "react";
-import { getStateForCollege } from "@/lib/indian-states-colleges";
 
 interface CollegeContextType {
   selectedCollege: string;
@@ -20,15 +19,13 @@ export function CollegeProvider({ children }: { children: ReactNode }) {
     () => localStorage.getItem("campushub_college") || "VIPS"
   );
   const [selectedState, setSelectedState] = useState(
-    () => localStorage.getItem("campushub_state") || getStateForCollege(localStorage.getItem("campushub_college") || "VIPS")
+    () => localStorage.getItem("campushub_state") || "Delhi"
   );
 
   const handleSetCollege = (college: string) => {
     setSelectedCollegeState(college);
     localStorage.setItem("campushub_college", college);
-    const state = getStateForCollege(college);
-    setSelectedState(state);
-    localStorage.setItem("campushub_state", state);
+    // Note: State should be set via setLocation when both state and college are known
   };
 
   const handleSetLocation = (state: string, college: string) => {
