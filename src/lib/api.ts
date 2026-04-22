@@ -1,8 +1,8 @@
-const PRIMARY_URL = "https://college-api.azurewebsites.net";
-const SECONDARY_URL = "https://college-api.onrender.com";
+const PRIMARY_URL = "https://college-api-xtwb.onrender.com";
+const SECONDARY_URL = "https://campushub-a9dsa7bxcdgaeygv.centralindia-01.azurewebsites.net";
 
 // In a real multi-cloud setup, you might want to dynamically check which one is up
-// or use a load balancer. For now, we'll default to Azure (no sleep) as primary.
+// or use a load balancer. Render is now set as primary.
 let BASE_URL = PRIMARY_URL;
 
 export const api = {
@@ -55,4 +55,4 @@ export const api = {
       }
       return res.json();
     }),
-};
+};
