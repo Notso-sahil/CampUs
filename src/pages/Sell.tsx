@@ -145,10 +145,9 @@ export default function Sell() {
             </div>
             <div className="space-y-2">
               <Label>College</Label>
-              <Select value={college} onValueChange={setCollege}>
-                <SelectTrigger><SelectValue placeholder="Select" /></SelectTrigger>
-                <SelectContent>{COLLEGES.map((c) => <SelectItem key={c} value={c}>{c}</SelectItem>)}</SelectContent>
-              </Select>
+              <div className="h-10 px-3 flex items-center bg-secondary/50 rounded-md text-sm font-medium border border-border/50 text-muted-foreground">
+                VIPS (Delhi)
+              </div>
             </div>
           </div>
           <Button type="submit" className="w-full" disabled={loading}>

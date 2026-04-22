@@ -15,24 +15,16 @@ const CollegeContext = createContext<CollegeContextType>({
 });
 
 export function CollegeProvider({ children }: { children: ReactNode }) {
-  const [selectedCollege, setSelectedCollegeState] = useState(
-    () => localStorage.getItem("campushub_college") || "VIPS"
-  );
-  const [selectedState, setSelectedState] = useState(
-    () => localStorage.getItem("campushub_state") || "Delhi"
-  );
+  // Hardcoded to VIPS and Delhi as per user request
+  const selectedCollege = "VIPS";
+  const selectedState = "Delhi";
 
-  const handleSetCollege = (college: string) => {
-    setSelectedCollegeState(college);
-    localStorage.setItem("campushub_college", college);
-    // Note: State should be set via setLocation when both state and college are known
+  const handleSetCollege = (_college: string) => {
+    // Disabled: only VIPS allowed
   };
 
-  const handleSetLocation = (state: string, college: string) => {
-    setSelectedState(state);
-    setSelectedCollegeState(college);
-    localStorage.setItem("campushub_state", state);
-    localStorage.setItem("campushub_college", college);
+  const handleSetLocation = (_state: string, _college: string) => {
+    // Disabled: only Delhi and VIPS allowed
   };
 
   return (

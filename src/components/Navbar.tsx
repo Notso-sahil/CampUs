@@ -1,9 +1,8 @@
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useAuthContext } from "@/contexts/AuthContext";
-import { MessageCircle, LogOut, User, Menu, X } from "lucide-react";
+import { MessageCircle, LogOut, User, Menu, X, MapPin } from "lucide-react";
 import logoImg from "@/assets/logo.png";
 import { Button } from "@/components/ui/button";
-import LocationSelector from "@/components/LocationSelector";
 import GlobalSearch from "@/components/GlobalSearch";
 import { useState } from "react";
 
@@ -38,7 +37,10 @@ export default function Navbar() {
           <GlobalSearch className="hidden md:flex flex-1 max-w-md" />
 
           <div className="flex items-center gap-1.5 sm:gap-2 flex-shrink-0">
-            <LocationSelector />
+            <div className="flex items-center gap-1.5 h-9 px-3 rounded-full bg-secondary/50 text-xs font-medium text-foreground max-w-[140px] sm:max-w-[180px] truncate">
+              <MapPin className="h-3.5 w-3.5 text-primary flex-shrink-0" />
+              <span className="truncate">VIPS</span>
+            </div>
 
             {user ? (
               <>

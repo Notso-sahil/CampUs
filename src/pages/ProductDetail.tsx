@@ -74,12 +74,32 @@ export default function ProductDetail() {
     if (!id) return;
     const fetchProduct = async () => {
       try {
+        // Try fetching by specific ID first
         const data = await api.get(`/api/products?id=${id}`);
-        if (data && (data as any[]).length > 0) {
-          const p = (data as any[])[0] as Product;
-          setProduct(p);
+
+        let found: Product | null = null;
+
+        if (Array.isArray(data)) {
+          // If the API returns an array, find by ID (handles both filtered and unfiltered responses)
+          const match = data.find((p: any) => p.id === id || String(p.id) === String(id));
+          if (match) found = match as Product;
+        } else if (data && typeof data === "object" && !Array.isArray(data) && (data as any).id) {
+          // API returned a single object
+          found = data as Product;
+        }
+
+        // Fallback: fetch all products and search client-side
+        if (!found) {
+          const allData = await api.get(`/api/products`);
+          const arr = Array.isArray(allData) ? allData : (Array.isArray((allData as any)?.data) ? (allData as any).data : []);
+          const match = arr.find((p: any) => p.id === id || String(p.id) === String(id));
+          if (match) found = match as Product;
+        }
+
+        if (found) {
+          setProduct(found);
           try {
-            const profileData = await api.get(`/api/profile?user_id=${p.seller_id}`);
+            const profileData = await api.get(`/api/profile?user_id=${found.seller_id}`);
             setSellerName((profileData as any)?.display_name || "Unknown Seller");
           } catch {
             setSellerName("Unknown Seller");
