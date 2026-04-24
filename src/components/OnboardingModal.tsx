@@ -40,12 +40,23 @@ export default function OnboardingModal() {
     if (!user || !college || !role) return;
     setLoading(true);
     try {
-      await api.put("/api/profile", {
+      const payload = {
         user_id: user.id,
         college_name: college,
         user_role: role,
         onboarded: true,
-      });
+      };
+
+      // Step 1: Create profile if it doesn't exist (POST ignores 'onboarded' field)
+      try {
+        await api.post("/api/profile", payload);
+      } catch {
+        // Profile might already exist — that's fine
+      }
+
+      // Step 2: Always PUT to set onboarded=true (POST doesn't set it)
+      await api.put("/api/profile", payload);
+
       await refreshProfile();
     } catch {
       toast({ title: "Error", description: "Failed to save. Please try again.", variant: "destructive" });

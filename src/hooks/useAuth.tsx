@@ -22,15 +22,15 @@ export function useAuth() {
   const fetchProfile = async (userId: string) => {
     try {
       const data = await api.get(`/api/profile?user_id=${userId}`);
-      // Backend may return null/empty for new users — treat as not-yet-onboarded
+      // api.get returns null for 404 (new user, no profile yet)
       if (data && typeof data === "object" && (data as any).user_id) {
         setProfile(data as Profile);
       } else {
-        // New user: no profile yet — onboarding modal will trigger
+        // New user — trigger onboarding modal
         setProfile({ id: "", user_id: userId, display_name: null, college_name: null, user_role: null, onboarded: false });
       }
     } catch {
-      // Network error or 404 — still show onboarding for new users
+      // Network/server error — still let onboarding show so user isn't stuck
       setProfile({ id: "", user_id: userId, display_name: null, college_name: null, user_role: null, onboarded: false });
     }
   };
