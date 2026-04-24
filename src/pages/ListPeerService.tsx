@@ -47,7 +47,7 @@ export default function ListPeerService() {
   const [portfolioPreviews, setPortfolioPreviews] = useState<string[]>([]);
   const [tags, setTags] = useState("");
 
-  const handleImages = (files: FileList | null, setter: (prev: string[]) => void, limit: number) => {
+  const handleImages = (files: FileList | null, setter: React.Dispatch<React.SetStateAction<string[]>>, limit: number) => {
     if (!files) return;
     const arr = Array.from(files).slice(0, limit);
     arr.forEach(file => {
@@ -200,7 +200,7 @@ export default function ListPeerService() {
                       <Upload className="h-5 w-5 text-muted-foreground" />
                       <span className="text-[10px] font-bold text-muted-foreground mt-1">Add</span>
                       <input type="file" accept="image/*" multiple className="hidden"
-                        onChange={e => handleImages(e.target.files, prev => setSamplePreviews(p => [...p, ...prev].slice(0,3)), 3)} />
+                        onChange={e => handleImages(e.target.files, setSamplePreviews, 3)} />
                     </label>
                   )}
                 </div>
@@ -302,7 +302,7 @@ export default function ListPeerService() {
                     <label className="aspect-square rounded-xl border-2 border-dashed border-border flex flex-col items-center justify-center cursor-pointer hover:border-primary hover:bg-primary/5 transition-all">
                       <Plus className="h-5 w-5 text-muted-foreground" />
                       <input type="file" accept="image/*" multiple className="hidden"
-                        onChange={e => handleImages(e.target.files, prev => setPortfolioPreviews(p => [...p, ...prev].slice(0,5)), 5)} />
+                        onChange={e => handleImages(e.target.files, setPortfolioPreviews, 5)} />
                     </label>
                   )}
                 </div>

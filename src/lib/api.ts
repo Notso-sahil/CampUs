@@ -1,58 +1,48 @@
 const PRIMARY_URL = "https://college-api-xtwb.onrender.com";
 const SECONDARY_URL = "https://campushub-a9dsa7bxcdgaeygv.centralindia-01.azurewebsites.net";
 
-// In a real multi-cloud setup, you might want to dynamically check which one is up
-// or use a load balancer. Render is now set as primary.
-let BASE_URL = PRIMARY_URL;
+let currentBase = PRIMARY_URL;
+
+const fetchWithFailover = async (path: string, options?: RequestInit): Promise<any> => {
+  try {
+    const res = await fetch(`${currentBase}${path}`, options);
+    if (res.ok) return res.json();
+    
+    // If we get a 404, it might just mean the record doesn't exist (e.g. new profile)
+    // We should only failover on 5xx or network errors, but since Render can be slow/down,
+    // we try secondary if NOT 2xx.
+    throw new Error(`API returned ${res.status}`);
+  } catch (err) {
+    if (currentBase === PRIMARY_URL) {
+      console.warn(`Primary API failed for ${path}, trying secondary...`, err);
+      try {
+        const res2 = await fetch(`${SECONDARY_URL}${path}`, options);
+        // If secondary works, we could optionally update currentBase for this session
+        // but let's keep it safe for now.
+        return res2.json();
+      } catch (err2) {
+        console.error("Secondary API also failed", err2);
+        throw err2;
+      }
+    }
+    throw err;
+  }
+};
 
 export const api = {
-  get: (path: string) =>
-    fetch(`${BASE_URL}${path}`).then((res) => {
-      if (!res.ok && BASE_URL === PRIMARY_URL) {
-        // Simple failover attempt if primary fails
-        console.warn("Primary API failed, trying secondary...");
-        return fetch(`${SECONDARY_URL}${path}`).then(r => r.json());
-      }
-      return res.json();
-    }),
-
-  post: (path: string, body: unknown) =>
-    fetch(`${BASE_URL}${path}`, {
+  get: (path: string) => fetchWithFailover(path),
+  post: (path: string, body: unknown) => 
+    fetchWithFailover(path, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(body),
-    }).then((res) => {
-      if (!res.ok && BASE_URL === PRIMARY_URL) {
-        return fetch(`${SECONDARY_URL}${path}`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(body),
-        }).then(r => r.json());
-      }
-      return res.json();
     }),
-
-  put: (path: string, body: unknown) =>
-    fetch(`${BASE_URL}${path}`, {
+  put: (path: string, body: unknown) => 
+    fetchWithFailover(path, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(body),
-    }).then((res) => {
-      if (!res.ok && BASE_URL === PRIMARY_URL) {
-        return fetch(`${SECONDARY_URL}${path}`, {
-          method: "PUT",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(body),
-        }).then(r => r.json());
-      }
-      return res.json();
     }),
-
-  delete: (path: string) =>
-    fetch(`${BASE_URL}${path}`, { method: "DELETE" }).then((res) => {
-      if (!res.ok && BASE_URL === PRIMARY_URL) {
-        return fetch(`${SECONDARY_URL}${path}`, { method: "DELETE" }).then(r => r.json());
-      }
-      return res.json();
-    }),
+  delete: (path: string) => 
+    fetchWithFailover(path, { method: "DELETE" }),
 };
