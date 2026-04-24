@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useUser, useClerk } from "@clerk/clerk-react";
+import { api } from "@/lib/api";
 
 interface Profile {
   id: string;
@@ -19,14 +20,18 @@ export function useAuth() {
   const isAdmin = user?.publicMetadata?.role === "admin";
 
   const fetchProfile = async (userId: string) => {
-    const res = await fetch(
-      `https://college-api-zeta.vercel.app/api/profile?user_id=${userId}`
-    );
-    if (res.ok) {
-      const data = await res.json();
-      setProfile(data);
-    } else {
-      setProfile(null);
+    try {
+      const data = await api.get(`/api/profile?user_id=${userId}`);
+      // Backend may return null/empty for new users — treat as not-yet-onboarded
+      if (data && typeof data === "object" && (data as any).user_id) {
+        setProfile(data as Profile);
+      } else {
+        // New user: no profile yet — onboarding modal will trigger
+        setProfile({ id: "", user_id: userId, display_name: null, college_name: null, user_role: null, onboarded: false });
+      }
+    } catch {
+      // Network error or 404 — still show onboarding for new users
+      setProfile({ id: "", user_id: userId, display_name: null, college_name: null, user_role: null, onboarded: false });
     }
   };
 

@@ -26,6 +26,9 @@ import FindTeammates from "./pages/FindTeammates";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import TermsConditions from "./pages/TermsConditions";
 import Feedback from "./pages/Feedback";
+import HirePeer from "./pages/HirePeer";
+import PeerServiceDetail from "./pages/PeerServiceDetail";
+import ListPeerService from "./pages/ListPeerService";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -53,6 +56,11 @@ const AppRoutes = () => (
       <Route path="/recover" element={<Recover />} />
       <Route path="/knowledge" element={<KnowledgeHub />} />
       <Route path="/find-teammates" element={<FindTeammates />} />
+      <Route path="/hire-peer" element={<HirePeer />} />
+      <Route path="/hire-peer/:id" element={<PeerServiceDetail />} />
+      <Route path="/hire-peer/list" element={
+        <ProtectedRoute requireOnboarded><ListPeerService /></ProtectedRoute>
+      } />
       <Route path="/privacy" element={<PrivacyPolicy />} />
       <Route path="/terms" element={<TermsConditions />} />
       <Route path="/feedback" element={<Feedback />} />
