@@ -53,44 +53,44 @@ export default function SectionCarousel({ title, viewAllLink, items, renderCard,
   const fallbackImg = getPlaceholder(placeholderCategory);
 
   const defaultCard = (item: CarouselItem) => (
-    <div className="rounded-lg border border-border bg-card overflow-hidden shadow-soft transition-all duration-300 hover:-translate-y-1.5 hover:shadow-glow group/card">
-      <div className="aspect-video overflow-hidden bg-secondary">
+    <div className="rounded-lg border border-border bg-card overflow-hidden hover:border-primary/30 transition-colors group/card">
+      <div className="aspect-[4/3] overflow-hidden bg-secondary">
         <img
           src={item.imageUrl || fallbackImg}
           alt={item.title}
-          className="h-full w-full object-cover transition-transform duration-500 group-hover/card:scale-105"
+          className="h-full w-full object-cover group-hover/card:scale-[1.03] transition-transform duration-300"
           loading="lazy"
         />
       </div>
-      <div className="p-4">
-        <h4 className="font-body text-sm font-medium leading-tight line-clamp-2">{item.title}</h4>
+      <div className="p-3">
+        <h4 className="text-sm font-medium leading-tight line-clamp-2">{item.title}</h4>
         {item.subtitle && (
-          <p className="text-xs text-muted-foreground mt-1.5 line-clamp-1">{item.subtitle}</p>
+          <p className="text-xs text-muted-foreground mt-1 line-clamp-1">{item.subtitle}</p>
         )}
       </div>
     </div>
   );
 
   return (
-    <section className="space-y-5">
+    <section className="space-y-4">
       <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2.5">
-          {icon && <span className="text-primary">{icon}</span>}
-          <h2 className="font-display text-2xl font-bold">{title}</h2>
+        <div className="flex items-center gap-2">
+          {icon && <span className="text-muted-foreground">{icon}</span>}
+          <h2 className="text-lg font-semibold">{title}</h2>
         </div>
         <Link
           to={viewAllLink}
-          className="flex items-center gap-1 text-sm font-medium text-muted-foreground hover:text-primary transition-colors"
+          className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors"
         >
-          View All <ArrowRight className="h-4 w-4" />
+          View all <ArrowRight className="h-3.5 w-3.5" />
         </Link>
       </div>
 
       <div className="relative group">
         <div className="overflow-hidden" ref={emblaRef}>
-          <div className="flex gap-4">
+          <div className="flex gap-3">
             {items.map((item) => (
-              <div key={item.id} className="flex-none w-[260px] sm:w-[300px]">
+              <div key={item.id} className="flex-none w-[240px] sm:w-[280px]">
                 {renderCard ? renderCard(item) : defaultCard(item)}
               </div>
             ))}
@@ -100,19 +100,19 @@ export default function SectionCarousel({ title, viewAllLink, items, renderCard,
         {items.length > 2 && (
           <>
             <Button
-              variant="ghost"
+              variant="outline"
               size="icon"
               onClick={() => emblaApi?.scrollPrev()}
-              className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-2 opacity-0 group-hover:opacity-100 transition-opacity glass shadow-soft h-9 w-9 rounded-full"
+              className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-3 opacity-0 group-hover:opacity-100 transition-opacity h-8 w-8 rounded-full bg-background shadow-sm border-border"
               disabled={!canPrev}
             >
               <ChevronLeft className="h-4 w-4" />
             </Button>
             <Button
-              variant="ghost"
+              variant="outline"
               size="icon"
               onClick={() => emblaApi?.scrollNext()}
-              className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-2 opacity-0 group-hover:opacity-100 transition-opacity glass shadow-soft h-9 w-9 rounded-full"
+              className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-3 opacity-0 group-hover:opacity-100 transition-opacity h-8 w-8 rounded-full bg-background shadow-sm border-border"
               disabled={!canNext}
             >
               <ChevronRight className="h-4 w-4" />

@@ -7,6 +7,7 @@ import { AuthProvider, useAuthContext } from "@/contexts/AuthContext";
 import { CollegeProvider } from "@/contexts/CollegeContext";
 import LoadingBar from "@/components/LoadingBar";
 import OnboardingModal from "@/components/OnboardingModal";
+import BottomNav from "@/components/BottomNav";
 import Index from "./pages/Index";
 import Trade from "./pages/Trade";
 import Auth from "./pages/Auth";
@@ -45,6 +46,7 @@ const AppRoutes = () => (
   <>
     <LoadingBar />
     <OnboardingModal />
+    <div className="pb-16 md:pb-0"> {/* Mobile padding for BottomNav */}
     <Routes>
       <Route path="/" element={<Index />} />
       <Route path="/trade" element={<Trade />} />
@@ -84,6 +86,8 @@ const AppRoutes = () => (
       } />
       <Route path="*" element={<NotFound />} />
     </Routes>
+    </div>
+    <BottomNav />
   </>
 );
 

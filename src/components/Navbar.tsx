@@ -1,6 +1,6 @@
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useAuthContext } from "@/contexts/AuthContext";
-import { MessageCircle, LogOut, User, Menu, X, MapPin } from "lucide-react";
+import { MessageCircle, LogOut, User, MapPin } from "lucide-react";
 import logoImg from "@/assets/logo.png";
 import { Button } from "@/components/ui/button";
 import GlobalSearch from "@/components/GlobalSearch";
@@ -11,18 +11,17 @@ const NAV_LINKS = [
   { to: "/",              label: "Home",           exact: true },
   { to: "/trade",         label: "Trade"                       },
   { to: "/events",        label: "Events"                      },
-  { to: "/recover",       label: "Recover"                     },
-  { to: "/knowledge",     label: "Knowledge Hub"               },
+  { to: "/recover",       label: "Lost & Found"                },
+  { to: "/knowledge",     label: "Notes"                       },
   { to: "/expeditions",   label: "Expeditions"                 },
-  { to: "/find-teammates",label: "Find Teammates"              },
-  { to: "/hire-peer",     label: "Hire a Peer"                 },
+  { to: "/find-teammates",label: "Teams"                       },
+  { to: "/hire-peer",     label: "Services"                    },
 ];
 
 export default function Navbar() {
   const { user, signOut } = useAuthContext();
   const navigate = useNavigate();
   const location = useLocation();
-  const [mobileOpen, setMobileOpen] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
 
   // Fetch unread message count for badge
@@ -41,35 +40,30 @@ export default function Navbar() {
     return () => clearInterval(interval);
   }, [user]);
 
-  // Close mobile menu on route change
-  useEffect(() => {
-    setMobileOpen(false);
-  }, [location.pathname]);
-
   const isActive = (link: { to: string; exact?: boolean }) =>
     link.exact
       ? location.pathname === link.to
       : location.pathname.startsWith(link.to);
 
   return (
-    <nav className="sticky top-0 z-50 border-b glass shadow-soft">
+    <nav className="sticky top-0 z-50 bg-background/95 backdrop-blur-sm border-b border-border">
       <div className="container mx-auto px-4 max-w-full">
         {/* Top row */}
-        <div className="flex h-16 items-center justify-between gap-2">
+        <div className="flex h-14 items-center justify-between gap-3">
           <Link to="/" className="flex-shrink-0 flex items-center gap-2">
-            <img src={logoImg} alt="CampusHub logo" className="h-8 w-8 object-contain" />
-            <span className="font-display text-xl font-bold tracking-tight">
-              Campus<span className="text-primary">Hub</span>
+            <img src={logoImg} alt="CampusHub" className="h-7 w-7 object-contain" />
+            <span className="text-lg font-semibold tracking-tight">
+              CampusHub
             </span>
           </Link>
 
-          <GlobalSearch className="hidden md:flex flex-1 max-w-md" />
+          <GlobalSearch className="hidden md:flex flex-1 max-w-sm mx-4" />
 
-          <div className="flex items-center gap-1.5 sm:gap-2 flex-shrink-0">
+          <div className="flex items-center gap-1 sm:gap-1.5 flex-shrink-0">
             {/* Location chip */}
-            <div className="flex items-center gap-1.5 h-9 px-3 rounded-full bg-secondary/50 text-xs font-medium text-foreground max-w-[120px] truncate">
-              <MapPin className="h-3.5 w-3.5 text-primary flex-shrink-0" />
-              <span className="truncate">VIPS</span>
+            <div className="flex items-center gap-1 h-8 px-2.5 rounded-md bg-secondary text-xs font-medium text-muted-foreground">
+              <MapPin className="h-3 w-3 flex-shrink-0" />
+              <span className="truncate max-w-[80px]">VIPS</span>
             </div>
 
             {user ? (
@@ -80,57 +74,44 @@ export default function Navbar() {
                     variant="ghost"
                     size="icon"
                     asChild
-                    className="rounded-full hover:bg-secondary/60"
+                    className="h-9 w-9 rounded-md"
                   >
                     <Link to="/chat">
-                      <MessageCircle className="h-5 w-5 text-foreground" strokeWidth={2} />
+                      <MessageCircle className="h-4.5 w-4.5" />
                     </Link>
                   </Button>
                   {unreadCount > 0 && (
-                    <span className="absolute -top-1 -right-1 min-w-[18px] h-[18px] rounded-full bg-primary text-white text-[9px] font-bold flex items-center justify-center px-1 pointer-events-none shadow">
+                    <span className="absolute -top-0.5 -right-0.5 min-w-[16px] h-[16px] rounded-full bg-red-500 text-white text-[9px] font-medium flex items-center justify-center px-1 pointer-events-none">
                       {unreadCount > 9 ? "9+" : unreadCount}
                     </span>
                   )}
                 </div>
 
-                <Button variant="ghost" size="icon" asChild className="hidden sm:inline-flex rounded-full hover:bg-secondary/60">
-                  <Link to="/dashboard"><User className="h-5 w-5 text-foreground" strokeWidth={2} /></Link>
+                <Button variant="ghost" size="icon" asChild className="hidden sm:inline-flex h-9 w-9 rounded-md">
+                  <Link to="/dashboard"><User className="h-4.5 w-4.5" /></Link>
                 </Button>
-                <Button variant="ghost" size="icon" onClick={signOut} className="hidden sm:inline-flex rounded-full hover:bg-secondary/60">
-                  <LogOut className="h-5 w-5 text-foreground" strokeWidth={2} />
+                <Button variant="ghost" size="icon" onClick={signOut} className="hidden sm:inline-flex h-9 w-9 rounded-md">
+                  <LogOut className="h-4.5 w-4.5" />
                 </Button>
               </>
             ) : (
-              <Button asChild size="sm" className="gradient-primary text-primary-foreground rounded-full shadow-soft hover:shadow-glow transition-shadow text-xs px-3">
-                <Link to="/auth">Sign In</Link>
+              <Button asChild size="sm" className="h-8 px-3 bg-primary text-primary-foreground rounded-md text-xs font-medium hover:bg-primary/90 transition-colors">
+                <Link to="/auth">Sign in</Link>
               </Button>
             )}
-
-            {/* Mobile hamburger */}
-            <button
-              type="button"
-              className="md:hidden flex items-center justify-center w-11 h-11 rounded-full hover:bg-secondary/60 transition-colors"
-              onClick={() => setMobileOpen(!mobileOpen)}
-              aria-label="Toggle menu"
-              aria-expanded={mobileOpen}
-            >
-              {mobileOpen
-                ? <X className="h-5 w-5 text-foreground" strokeWidth={2} />
-                : <Menu className="h-5 w-5 text-foreground" strokeWidth={2} />}
-            </button>
           </div>
         </div>
 
         {/* Navigation links - desktop */}
-        <div className="hidden md:flex items-center justify-center gap-1 pb-2 -mt-1 flex-wrap">
+        <div className="hidden md:flex items-center gap-0.5 pb-2 -mt-0.5 overflow-x-auto scrollbar-none">
           {NAV_LINKS.map((link) => (
             <Link
               key={link.to}
               to={link.to}
-              className={`rounded-full px-4 py-1.5 text-sm font-medium transition-all duration-200 ${
+              className={`px-3 py-1.5 text-[13px] font-medium rounded-md transition-colors whitespace-nowrap ${
                 isActive(link)
-                  ? "gradient-primary text-primary-foreground shadow-soft"
-                  : "text-muted-foreground hover:text-foreground hover:bg-secondary/80"
+                  ? "bg-primary text-primary-foreground"
+                  : "text-muted-foreground hover:text-foreground hover:bg-secondary"
               }`}
             >
               {link.label}
@@ -139,69 +120,6 @@ export default function Navbar() {
         </div>
       </div>
 
-      {/* Mobile menu */}
-      {mobileOpen && (
-        <div className="md:hidden border-t border-border/50 glass px-4 pb-6 pt-3 space-y-1 animate-fade-in max-w-full overflow-x-hidden">
-          {/* Search */}
-          <div className="mb-4">
-            <GlobalSearch />
-          </div>
-
-          {/* Nav links */}
-          {NAV_LINKS.map((link) => (
-            <Link
-              key={link.to}
-              to={link.to}
-              onClick={() => setMobileOpen(false)}
-              className={`flex items-center rounded-xl px-4 py-3 text-sm font-medium transition-all ${
-                isActive(link)
-                  ? "gradient-primary text-primary-foreground"
-                  : "text-foreground hover:bg-secondary"
-              }`}
-            >
-              {link.label}
-            </Link>
-          ))}
-
-          {/* User actions */}
-          {user ? (
-            <div className="flex flex-col gap-2 pt-3 mt-3 border-t border-border">
-              <div className="relative">
-                <Button variant="ghost" size="sm" asChild className="w-full justify-start rounded-xl gap-2">
-                  <Link to="/chat" onClick={() => setMobileOpen(false)}>
-                    <MessageCircle className="h-4 w-4" />
-                    Messages
-                    {unreadCount > 0 && (
-                      <span className="ml-auto min-w-[20px] h-5 rounded-full bg-primary text-white text-[10px] font-bold flex items-center justify-center px-1">
-                        {unreadCount > 9 ? "9+" : unreadCount}
-                      </span>
-                    )}
-                  </Link>
-                </Button>
-              </div>
-              <Button variant="ghost" size="sm" asChild className="w-full justify-start rounded-xl gap-2">
-                <Link to="/dashboard" onClick={() => setMobileOpen(false)}>
-                  <User className="h-4 w-4" /> Dashboard
-                </Link>
-              </Button>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => { signOut(); setMobileOpen(false); }}
-                className="w-full justify-start rounded-xl gap-2 text-destructive hover:text-destructive hover:bg-destructive/10"
-              >
-                <LogOut className="h-4 w-4" /> Sign Out
-              </Button>
-            </div>
-          ) : (
-            <div className="pt-3 mt-3 border-t border-border">
-              <Button asChild className="w-full gradient-primary text-primary-foreground rounded-xl font-bold">
-                <Link to="/auth" onClick={() => setMobileOpen(false)}>Sign In</Link>
-              </Button>
-            </div>
-          )}
-        </div>
-      )}
     </nav>
   );
 }

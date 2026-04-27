@@ -11,7 +11,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
-import { Upload, X, MapPin, Tag, Sparkles, ShieldCheck } from "lucide-react";
+import { Upload, X, MapPin, Tag, ShieldCheck } from "lucide-react";
 
 import { CATEGORY_VALUES } from "@/lib/categories";
 const CONDITIONS = ["New", "Like New", "Good", "Fair"];
@@ -108,14 +108,11 @@ export default function Sell() {
       <main className="flex-1 container mx-auto max-w-2xl px-4 py-8">
         <FadeIn>
           <div className="mb-8">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-primary text-xs font-bold uppercase tracking-widest mb-4">
-              <Sparkles className="h-3.5 w-3.5" /> Sell Something
-            </div>
-            <h1 className="font-display text-4xl font-bold tracking-tight">List your item</h1>
-            <p className="text-muted-foreground mt-2">Sell to your peers on the VIPS campus. It's fast and free.</p>
+            <h1 className="text-2xl font-bold">List your item</h1>
+            <p className="text-muted-foreground mt-1 text-sm">Sell to your peers on the VIPS campus. It's fast and free.</p>
           </div>
 
-          <form onSubmit={handleSubmit} className="space-y-8 bg-card border border-border rounded-2xl p-6 shadow-soft">
+          <form onSubmit={handleSubmit} className="space-y-6 bg-card border border-border rounded-lg p-5">
             
             {/* Image Upload */}
             <div className="space-y-3">
@@ -250,7 +247,7 @@ export default function Sell() {
 
             <Button 
               type="submit" 
-              className="w-full h-14 gradient-primary text-primary-foreground font-bold rounded-2xl shadow-soft hover:shadow-glow transition-all duration-300 gap-2" 
+              className="w-full h-11 bg-primary text-primary-foreground font-medium rounded-lg hover:bg-primary/90 transition-colors" 
               disabled={loading}
             >
               {loading ? (

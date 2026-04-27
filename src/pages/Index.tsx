@@ -11,7 +11,7 @@ import { Button } from "@/components/ui/button";
 import { getPlaceholder } from "@/lib/placeholders";
 import {
   ShoppingBag, CalendarDays, Search, BookOpen, Map,
-  Users, Briefcase, ChevronRight, Sparkles, Zap, Shield
+  Users, Briefcase, ChevronRight, ArrowRight, Zap, Shield
 } from "lucide-react";
 import logoImg from "@/assets/logo.png";
 
@@ -23,13 +23,13 @@ interface CarouselItem {
 }
 
 const FEATURE_LINKS = [
-  { to: "/trade",          icon: <ShoppingBag className="h-6 w-6" />, label: "Trade",          desc: "Buy & sell campus items",      color: "from-blue-500/20 to-indigo-500/20",  border: "border-blue-500/20"  },
-  { to: "/events",         icon: <CalendarDays className="h-6 w-6" />, label: "Events",         desc: "Campus events & workshops",    color: "from-purple-500/20 to-pink-500/20",  border: "border-purple-500/20" },
-  { to: "/recover",        icon: <Search className="h-6 w-6" />,       label: "Recover",        desc: "Lost & found board",           color: "from-red-500/20 to-orange-500/20",   border: "border-red-500/20"   },
-  { to: "/knowledge",      icon: <BookOpen className="h-6 w-6" />,     label: "Knowledge Hub",  desc: "Study materials & notes",      color: "from-emerald-500/20 to-teal-500/20", border: "border-emerald-500/20"},
-  { to: "/expeditions",    icon: <Map className="h-6 w-6" />,          label: "Expeditions",    desc: "Adventure & outdoor trips",    color: "from-amber-500/20 to-yellow-500/20", border: "border-amber-500/20" },
-  { to: "/find-teammates", icon: <Users className="h-6 w-6" />,        label: "Find Teammates", desc: "Team up for hackathons",       color: "from-sky-500/20 to-cyan-500/20",     border: "border-sky-500/20"   },
-  { to: "/hire-peer",      icon: <Briefcase className="h-6 w-6" />,    label: "Hire a Peer",    desc: "Expert academic help",         color: "from-violet-500/20 to-fuchsia-500/20", border: "border-violet-500/20"},
+  { to: "/trade",          icon: <ShoppingBag className="h-5 w-5" />, label: "Trade",          desc: "Buy & sell campus items"    },
+  { to: "/events",         icon: <CalendarDays className="h-5 w-5" />, label: "Events",         desc: "Campus events & workshops"  },
+  { to: "/recover",        icon: <Search className="h-5 w-5" />,       label: "Lost & Found",   desc: "Report or find lost items"  },
+  { to: "/knowledge",      icon: <BookOpen className="h-5 w-5" />,     label: "Notes",          desc: "Study materials & notes"    },
+  { to: "/expeditions",    icon: <Map className="h-5 w-5" />,          label: "Expeditions",    desc: "Adventure & outdoor trips"  },
+  { to: "/find-teammates", icon: <Users className="h-5 w-5" />,        label: "Teammates",      desc: "Team up for hackathons"     },
+  { to: "/hire-peer",      icon: <Briefcase className="h-5 w-5" />,    label: "Peer Services",  desc: "Get academic help from peers"},
 ];
 
 export default function Index() {
@@ -95,101 +95,83 @@ export default function Index() {
 
       <main className="flex-1 w-full">
         {/* ─── Hero ─────────────────────────────────────────────────── */}
-        <section className="relative pt-16 pb-20 overflow-hidden">
-          {/* Ambient background */}
-          <div aria-hidden className="pointer-events-none absolute inset-0 -z-10">
-            <div className="absolute -top-24 left-1/4 w-[600px] h-[600px] bg-primary/10 rounded-full blur-[120px]" />
-            <div className="absolute top-32 right-1/4 w-[400px] h-[400px] bg-primary-glow/10 rounded-full blur-[100px]" />
-            <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[800px] h-px bg-gradient-to-r from-transparent via-border to-transparent" />
-          </div>
-
-          <div className="container mx-auto px-4 text-center">
-            <FadeIn>
-              <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-primary/10 border border-primary/20 text-primary text-xs font-bold uppercase tracking-widest mb-6">
-                <Sparkles className="h-3.5 w-3.5" /> Your Campus, Supercharged
-              </div>
-              <div className="flex items-center justify-center gap-4 mb-4">
-                <img src={logoImg} alt="CampusHub" className="h-14 w-14 md:h-16 md:w-16 object-contain" />
-                <h1 className="font-display text-5xl md:text-7xl font-bold tracking-tight leading-none">
-                  Campus<span className="text-primary">Hub</span>
+        <section className="pt-12 sm:pt-20 pb-16 sm:pb-24">
+          <div className="container mx-auto px-4">
+            <div className="max-w-2xl">
+              <FadeIn>
+                <p className="text-sm text-muted-foreground mb-4">
+                  {selectedCollege} &middot; Campus Platform
+                </p>
+                <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold tracking-tight leading-[1.1] text-foreground">
+                  Everything your
+                  <br />
+                  campus needs,{" "}
+                  <span className="text-primary">one place.</span>
                 </h1>
-              </div>
-              <p className="mt-4 text-base md:text-lg text-muted-foreground max-w-xl mx-auto leading-relaxed">
-                The all-in-one platform for campus life — trade, connect, learn, and thrive.
-              </p>
-              <p className="mt-3 text-sm text-muted-foreground">
-                Showing for <span className="text-foreground font-semibold px-2 py-0.5 rounded-lg bg-secondary">{selectedCollege}</span>
-              </p>
-            </FadeIn>
+                <p className="mt-5 text-lg text-muted-foreground leading-relaxed max-w-lg">
+                  Trade items, find teammates, share notes, and connect with your campus community. No more scattered WhatsApp groups.
+                </p>
+              </FadeIn>
 
-            <FadeIn delay={150}>
-              <div className="mt-8 flex flex-wrap justify-center gap-3">
-                {!user && (
-                  <Button
-                    onClick={() => navigate("/auth")}
-                    className="h-12 px-8 gradient-primary text-primary-foreground rounded-2xl font-bold shadow-soft hover:shadow-glow transition-shadow gap-2"
-                  >
-                    <Sparkles className="h-4 w-4" /> Get Started Free
+              <FadeIn delay={100}>
+                <div className="mt-8 flex flex-wrap gap-3">
+                  {!user ? (
+                    <Button
+                      onClick={() => navigate("/auth")}
+                      className="h-11 px-6 bg-primary text-primary-foreground rounded-lg font-medium hover:bg-primary/90 transition-colors"
+                    >
+                      Get started
+                    </Button>
+                  ) : (
+                    <Button
+                      onClick={() => navigate("/dashboard")}
+                      className="h-11 px-6 bg-primary text-primary-foreground rounded-lg font-medium hover:bg-primary/90 transition-colors"
+                    >
+                      Dashboard
+                    </Button>
+                  )}
+                  <Button variant="outline" asChild className="h-11 px-6 rounded-lg font-medium">
+                    <Link to="/trade">Browse marketplace <ArrowRight className="h-4 w-4 ml-1.5" /></Link>
                   </Button>
-                )}
-                <Button variant="outline" asChild className="h-12 px-6 rounded-2xl font-bold border-border hover:border-primary/40 gap-2">
-                  <Link to="/trade"><ShoppingBag className="h-4 w-4" /> Browse Trade</Link>
-                </Button>
-              </div>
-            </FadeIn>
-
-            {/* Trust row */}
-            <FadeIn delay={250}>
-              <div className="mt-8 flex flex-wrap justify-center gap-3">
-                {[
-                  { icon: <Shield className="h-3.5 w-3.5" />, label: "Verified Students" },
-                  { icon: <Zap className="h-3.5 w-3.5" />,    label: "Instant Connect" },
-                  { icon: <Users className="h-3.5 w-3.5" />,  label: "Campus Community" },
-                ].map(b => (
-                  <div key={b.label} className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-secondary/50 text-xs font-medium text-muted-foreground border border-border/50">
-                    <span className="text-primary">{b.icon}</span>{b.label}
-                  </div>
-                ))}
-              </div>
-            </FadeIn>
+                </div>
+              </FadeIn>
+            </div>
           </div>
         </section>
 
-        {/* ─── Feature Grid ─────────────────────────────────────────── */}
+        {/* ─── Quick Links ────────────────────────────────────────────── */}
         <section className="container mx-auto px-4 pb-16">
           <FadeIn>
-            <h2 className="font-display text-2xl md:text-3xl font-bold mb-6 text-center">Everything You Need</h2>
-          </FadeIn>
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-7 gap-3">
-            {FEATURE_LINKS.map((feat, i) => (
-              <FadeIn key={feat.to} delay={i * 50}>
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2 sm:gap-3">
+              {FEATURE_LINKS.map((feat, i) => (
                 <Link
+                  key={feat.to}
                   to={feat.to}
-                  className={`group flex flex-col items-center gap-3 p-4 rounded-2xl border bg-gradient-to-br ${feat.color} ${feat.border} hover:shadow-soft hover:-translate-y-1 transition-all duration-300 text-center`}
+                  className="group flex items-center gap-3 p-3 sm:p-4 rounded-xl border border-border bg-card hover:bg-secondary/50 transition-colors"
                 >
-                  <div className="w-12 h-12 rounded-xl bg-background/60 backdrop-blur-sm flex items-center justify-center text-primary shadow-sm group-hover:scale-110 transition-transform">
+                  <div className="text-muted-foreground group-hover:text-primary transition-colors flex-shrink-0">
                     {feat.icon}
                   </div>
-                  <div>
-                    <p className="text-sm font-bold text-foreground">{feat.label}</p>
-                    <p className="text-[10px] text-muted-foreground mt-0.5 leading-tight hidden sm:block">{feat.desc}</p>
+                  <div className="min-w-0">
+                    <p className="text-sm font-medium text-foreground truncate">{feat.label}</p>
+                    <p className="text-xs text-muted-foreground truncate hidden sm:block">{feat.desc}</p>
                   </div>
                 </Link>
-              </FadeIn>
-            ))}
-          </div>
+              ))}
+            </div>
+          </FadeIn>
         </section>
 
         {/* ─── Carousels ────────────────────────────────────────────── */}
-        <div className="container mx-auto px-4 pb-24 space-y-16">
+        <div className="container mx-auto px-4 pb-20 space-y-14">
           {loading ? (
-            <div className="space-y-12">
+            <div className="space-y-10">
               {Array.from({ length: 3 }).map((_, i) => (
-                <div key={i} className="space-y-4">
-                  <div className="h-7 w-40 rounded-lg bg-secondary/60 animate-pulse" />
-                  <div className="flex gap-4">
+                <div key={i} className="space-y-3">
+                  <div className="h-6 w-32 rounded bg-secondary animate-pulse" />
+                  <div className="flex gap-3">
                     {Array.from({ length: 4 }).map((_, j) => (
-                      <div key={j} className="flex-shrink-0 w-56 aspect-[3/4] rounded-2xl bg-secondary/40 animate-pulse" />
+                      <div key={j} className="flex-shrink-0 w-52 aspect-[4/3] rounded-lg bg-secondary/60 animate-pulse" />
                     ))}
                   </div>
                 </div>
@@ -199,21 +181,21 @@ export default function Index() {
             <>
               <FadeIn delay={0}>
                 <SectionCarousel
-                  title="Trade"
+                  title="Marketplace"
                   viewAllLink="/trade"
                   items={trade}
                   icon={<ShoppingBag className="h-5 w-5" />}
                   placeholderCategory="trade"
                   renderCard={(item) => (
                     <Link to={`/product/${item.id}`} className="block">
-                      <div className="rounded-2xl border border-border bg-card overflow-hidden shadow-soft transition-all duration-300 hover:-translate-y-1.5 hover:shadow-glow group/card">
+                      <div className="rounded-lg border border-border bg-card overflow-hidden hover:border-primary/30 transition-colors group/card">
                         <div className="aspect-[4/3] bg-secondary overflow-hidden">
                           <img src={item.imageUrl || getPlaceholder("trade")} alt={item.title}
-                            className="h-full w-full object-cover transition-transform duration-500 group-hover/card:scale-105" loading="lazy" />
+                            className="h-full w-full object-cover group-hover/card:scale-[1.03] transition-transform duration-300" loading="lazy" />
                         </div>
                         <div className="p-3">
-                          <h4 className="text-sm font-bold line-clamp-1 group-hover/card:text-primary transition-colors">{item.title}</h4>
-                          {item.subtitle && <p className="font-display text-base font-bold mt-1 text-primary">{item.subtitle}</p>}
+                          <h4 className="text-sm font-medium line-clamp-1">{item.title}</h4>
+                          {item.subtitle && <p className="text-sm font-semibold mt-1 text-primary">{item.subtitle}</p>}
                         </div>
                       </div>
                     </Link>
@@ -221,29 +203,29 @@ export default function Index() {
                 />
               </FadeIn>
 
-              <FadeIn delay={100}>
+              <FadeIn delay={50}>
                 <SectionCarousel title="Events" viewAllLink="/events" items={events}
                   icon={<CalendarDays className="h-5 w-5" />} placeholderCategory="events" />
               </FadeIn>
 
-              <FadeIn delay={200}>
+              <FadeIn delay={100}>
                 {user ? (
-                  <SectionCarousel title="Recover" viewAllLink="/recover" items={recover}
+                  <SectionCarousel title="Lost & Found" viewAllLink="/recover" items={recover}
                     icon={<Search className="h-5 w-5" />} placeholderCategory="recover" />
                 ) : (
-                  <section className="space-y-4">
+                  <section className="space-y-3">
                     <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2.5">
-                        <span className="text-primary"><Search className="h-5 w-5" /></span>
-                        <h2 className="font-display text-2xl font-bold">Recover</h2>
+                      <div className="flex items-center gap-2">
+                        <Search className="h-5 w-5 text-muted-foreground" />
+                        <h2 className="text-lg font-semibold">Lost & Found</h2>
                       </div>
-                      <Link to="/recover" className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors flex items-center gap-1">
-                        View All <ChevronRight className="h-4 w-4" />
+                      <Link to="/recover" className="text-sm text-muted-foreground hover:text-foreground transition-colors flex items-center gap-1">
+                        View all <ChevronRight className="h-3.5 w-3.5" />
                       </Link>
                     </div>
-                    <div className="rounded-2xl border border-border bg-card p-10 text-center shadow-soft">
+                    <div className="rounded-lg border border-dashed border-border p-8 text-center">
                       <p className="text-sm text-muted-foreground">
-                        <Link to="/auth" className="text-primary font-bold underline underline-offset-4 hover:text-primary/80 transition-colors">Sign in</Link>
+                        <Link to="/auth" className="text-primary font-medium hover:underline">Sign in</Link>
                         {" "}to browse lost & found items
                       </p>
                     </div>
@@ -251,12 +233,12 @@ export default function Index() {
                 )}
               </FadeIn>
 
-              <FadeIn delay={300}>
-                <SectionCarousel title="Knowledge Hub" viewAllLink="/knowledge" items={knowledge}
+              <FadeIn delay={150}>
+                <SectionCarousel title="Notes & Resources" viewAllLink="/knowledge" items={knowledge}
                   icon={<BookOpen className="h-5 w-5" />} placeholderCategory="knowledge" />
               </FadeIn>
 
-              <FadeIn delay={400}>
+              <FadeIn delay={200}>
                 <SectionCarousel title="Expeditions" viewAllLink="/expeditions" items={expeditions}
                   icon={<Map className="h-5 w-5" />} placeholderCategory="expeditions" />
               </FadeIn>
@@ -264,22 +246,28 @@ export default function Index() {
           )}
         </div>
 
-        {/* ─── Hire a Peer CTA ──────────────────────────────────────── */}
-        <section className="border-t border-border bg-secondary/30 py-20">
-          <div className="container mx-auto px-4 text-center">
-            <FadeIn>
-              <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-primary/10 border border-primary/20 text-primary text-xs font-bold uppercase tracking-widest mb-6">
-                <Sparkles className="h-3.5 w-3.5" /> New Feature
-              </div>
-              <h2 className="font-display text-3xl md:text-4xl font-bold mb-4">Hire a Peer</h2>
-              <p className="text-muted-foreground max-w-lg mx-auto mb-8 leading-relaxed">
-                Need EG sheets done? Python lab files? Hardware assembly?
-                Find verified campus experts or monetize your own skills.
-              </p>
-              <Button asChild className="h-12 px-10 gradient-primary text-primary-foreground rounded-2xl font-bold shadow-soft hover:shadow-glow transition-shadow gap-2">
-                <Link to="/hire-peer">Explore Marketplace <ChevronRight className="h-4 w-4" /></Link>
-              </Button>
-            </FadeIn>
+        {/* ─── Peer Services CTA ──────────────────────────────────────── */}
+        <section className="border-t border-border py-16 sm:py-20">
+          <div className="container mx-auto px-4">
+            <div className="max-w-xl mx-auto text-center">
+              <FadeIn>
+                <div className="inline-flex items-center gap-2 text-xs text-primary font-medium bg-primary/5 border border-primary/10 rounded-md px-2.5 py-1 mb-5">
+                  <Briefcase className="h-3.5 w-3.5" /> Peer-to-peer services
+                </div>
+                <h2 className="text-2xl sm:text-3xl font-bold mb-3">Need academic help?</h2>
+                <p className="text-muted-foreground mb-7 leading-relaxed">
+                  EG sheets, Python lab files, hardware assembly — find campus peers who can help, or start earning by offering your own skills.
+                </p>
+                <div className="flex flex-wrap justify-center gap-3">
+                  <Button asChild className="h-11 px-6 bg-primary text-primary-foreground rounded-lg font-medium hover:bg-primary/90 transition-colors">
+                    <Link to="/hire-peer">Browse services</Link>
+                  </Button>
+                  <Button asChild variant="outline" className="h-11 px-6 rounded-lg font-medium">
+                    <Link to="/list-peer-service">Offer your skills</Link>
+                  </Button>
+                </div>
+              </FadeIn>
+            </div>
           </div>
         </section>
       </main>

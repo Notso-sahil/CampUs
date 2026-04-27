@@ -1,7 +1,7 @@
 import { SignIn, SignUp } from "@clerk/clerk-react";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { X, Sparkles } from "lucide-react";
+import { X } from "lucide-react";
 import logoImg from "@/assets/logo.png";
 
 export default function Auth() {
@@ -10,11 +10,7 @@ export default function Auth() {
 
   return (
     <div className="min-h-screen flex flex-col bg-background overflow-x-hidden">
-      {/* Ambient background */}
-      <div aria-hidden className="pointer-events-none fixed inset-0 -z-10">
-        <div className="absolute top-0 left-1/4 w-[500px] h-[500px] bg-primary/10 rounded-full blur-[120px]" />
-        <div className="absolute bottom-0 right-1/4 w-[400px] h-[400px] bg-primary-glow/10 rounded-full blur-[100px]" />
-      </div>
+
 
       {/* Header */}
       <div className="sticky top-0 z-50 flex items-center justify-between px-4 py-3 border-b border-border bg-background/80 backdrop-blur-md">
@@ -23,8 +19,8 @@ export default function Auth() {
           className="flex items-center gap-2"
         >
           <img src={logoImg} alt="CampusHub" className="h-7 w-7 object-contain" />
-          <span className="font-display text-lg font-bold">
-            Campus<span className="text-primary">Hub</span>
+          <span className="text-base font-semibold">
+            CampusHub
           </span>
         </button>
         <button
@@ -40,11 +36,10 @@ export default function Auth() {
       <div className="flex-1 flex flex-col items-center justify-center px-4 py-8 gap-6">
         {/* Title above Clerk widget */}
         <div className="text-center space-y-2">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-primary text-xs font-bold uppercase tracking-widest">
-            <Sparkles className="h-3 w-3" />
+          <p className="text-xs text-muted-foreground font-medium">
             {mode === "login" ? "Welcome back" : "Join the community"}
-          </div>
-          <h1 className="font-display text-2xl md:text-3xl font-bold">
+          </p>
+          <h1 className="text-2xl font-bold">
             {mode === "login" ? "Sign in to CampusHub" : "Create your account"}
           </h1>
           <p className="text-sm text-muted-foreground">
@@ -63,7 +58,7 @@ export default function Auth() {
               appearance={{
                 elements: {
                   rootBox: "w-full",
-                  card: "rounded-2xl border border-border bg-card shadow-glow w-full",
+                  card: "rounded-lg border border-border bg-card shadow-sm w-full",
                   headerTitle: "hidden",
                   headerSubtitle: "hidden",
                 },
@@ -76,7 +71,7 @@ export default function Auth() {
               appearance={{
                 elements: {
                   rootBox: "w-full",
-                  card: "rounded-2xl border border-border bg-card shadow-glow w-full",
+                  card: "rounded-lg border border-border bg-card shadow-sm w-full",
                   headerTitle: "hidden",
                   headerSubtitle: "hidden",
                 },

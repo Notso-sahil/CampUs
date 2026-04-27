@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import {
-  Search, Plus, Sparkles, ShieldCheck, Zap, MapPin,
+  Search, Plus, ShieldCheck, Zap, MapPin,
   Star, ChevronRight, X, SlidersHorizontal, TrendingUp, Users, Award
 } from "lucide-react";
 import Navbar from "@/components/Navbar";
@@ -16,7 +16,7 @@ import { useCollege } from "@/contexts/CollegeContext";
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 const CATEGORIES = [
-  { id: "all",                  label: "All Skills",          emoji: "✨" },
+  { id: "all",                  label: "All",                 emoji: "" },
   { id: "Engineering Graphics", label: "EG Sheets",           emoji: "📐" },
   { id: "Python/Coding",        label: "Python / Coding",     emoji: "🐍" },
   { id: "Hardware/Circuit",     label: "Hardware & Circuits",  emoji: "🔌" },
@@ -231,38 +231,27 @@ export default function HirePeer() {
 
       <main className="flex-1 w-full">
         {/* ─── Hero ────────────────────────────────────────────────────────── */}
-        <section className="relative pt-16 pb-12 overflow-hidden">
-          {/* Ambient blobs */}
-          <div aria-hidden className="pointer-events-none absolute inset-0 -z-10">
-            <div className="absolute -top-24 left-1/4 w-[500px] h-[500px] bg-primary/10 rounded-full blur-[100px]" />
-            <div className="absolute top-32 right-1/4 w-[400px] h-[400px] bg-primary-glow/10 rounded-full blur-[120px]" />
-          </div>
-
-          <div className="container mx-auto px-4 text-center">
+        <section className="pt-10 pb-8">
+          <div className="container mx-auto px-4">
             <FadeIn>
-              <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-primary/10 border border-primary/20 text-primary text-xs font-bold uppercase tracking-widest mb-6">
-                <Sparkles className="h-3.5 w-3.5" />
-                Campus Internal Economy
-              </div>
-              <h1 className="font-display text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight leading-[1.1]">
-                Hire a{" "}
-                <span className="text-primary">Peer</span>
+              <h1 className="text-2xl md:text-3xl font-bold">
+                Peer Services
               </h1>
-              <p className="mt-5 text-base md:text-lg text-muted-foreground max-w-xl mx-auto leading-relaxed">
+              <p className="mt-1 text-sm text-muted-foreground max-w-lg">
                 Find skilled students for EG sheets, coding labs, hardware projects & more —
                 or monetize your own expertise.
               </p>
             </FadeIn>
 
             {/* Search bar */}
-            <FadeIn delay={150}>
-              <form onSubmit={handleSearch} className="mt-8 max-w-2xl mx-auto flex gap-2">
+            <FadeIn delay={50}>
+              <form onSubmit={handleSearch} className="mt-5 max-w-xl flex gap-2">
                 <div className="relative flex-1">
-                  <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground pointer-events-none" />
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
                   <Input
                     ref={searchRef}
-                    placeholder="Search EG sheets, Python, hardware…"
-                    className="pl-12 pr-10 h-14 rounded-2xl bg-card border-border shadow-soft text-base focus-visible:ring-2 focus-visible:ring-primary focus-visible:border-primary"
+                    placeholder="Search services…"
+                    className="pl-9 pr-8 h-10 rounded-lg"
                     value={searchInput}
                     onChange={(e) => setSearchInput(e.target.value)}
                   />
@@ -272,51 +261,17 @@ export default function HirePeer() {
                       onClick={clearSearch}
                       className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
                     >
-                      <X className="h-4 w-4" />
+                      <X className="h-3.5 w-3.5" />
                     </button>
                   )}
                 </div>
                 <Button
                   type="submit"
-                  className="h-14 px-8 gradient-primary text-primary-foreground rounded-2xl font-bold shadow-soft hover:shadow-glow transition-shadow flex-shrink-0"
+                  className="h-10 px-4 bg-primary text-primary-foreground rounded-lg font-medium hover:bg-primary/90 transition-colors"
                 >
                   Search
                 </Button>
               </form>
-            </FadeIn>
-
-            {/* Trust badges */}
-            <FadeIn delay={250}>
-              <div className="mt-8 flex flex-wrap justify-center gap-3">
-                {[
-                  { icon: <ShieldCheck className="h-3.5 w-3.5" />, label: "Verified Experts" },
-                  { icon: <MapPin className="h-3.5 w-3.5" />,     label: "On-Campus Handover" },
-                  { icon: <Star className="h-3.5 w-3.5" />,       label: "Rated & Reviewed" },
-                  { icon: <Zap className="h-3.5 w-3.5" />,        label: "Instant PDF Delivery" },
-                ].map((b) => (
-                  <div key={b.label} className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-secondary/50 text-xs font-medium text-muted-foreground border border-border/50">
-                    <span className="text-primary">{b.icon}</span>
-                    {b.label}
-                  </div>
-                ))}
-              </div>
-            </FadeIn>
-
-            {/* Stats */}
-            <FadeIn delay={350}>
-              <div className="mt-10 grid grid-cols-3 gap-4 max-w-lg mx-auto">
-                {[
-                  { icon: <Users className="h-5 w-5 text-primary" />, value: "200+", label: "Students Served" },
-                  { icon: <Award className="h-5 w-5 text-primary" />, value: "4.9★", label: "Avg. Rating" },
-                  { icon: <TrendingUp className="h-5 w-5 text-primary" />, value: "₹500+", label: "Avg. Earnings" },
-                ].map((stat) => (
-                  <div key={stat.label} className="rounded-2xl bg-card border border-border p-4 shadow-soft text-center">
-                    <div className="flex justify-center mb-1">{stat.icon}</div>
-                    <p className="text-xl font-bold font-display">{stat.value}</p>
-                    <p className="text-[10px] text-muted-foreground uppercase tracking-widest font-bold mt-0.5">{stat.label}</p>
-                  </div>
-                ))}
-              </div>
             </FadeIn>
           </div>
         </section>
@@ -331,13 +286,13 @@ export default function HirePeer() {
                 <button
                   key={cat.id}
                   onClick={() => setActiveCategory(cat.id)}
-                  className={`flex items-center gap-2 whitespace-nowrap px-4 py-2 rounded-xl text-sm font-bold border transition-all ${
+                  className={`flex items-center gap-1.5 whitespace-nowrap px-3 py-1.5 rounded-md text-sm font-medium border transition-colors ${
                     activeCategory === cat.id
-                      ? "gradient-primary text-primary-foreground border-transparent shadow-soft"
-                      : "bg-card text-muted-foreground border-border hover:border-primary/40 hover:text-foreground"
+                      ? "bg-primary text-primary-foreground border-primary"
+                      : "bg-card text-muted-foreground border-border hover:border-primary/30 hover:text-foreground"
                   }`}
                 >
-                  <span>{cat.emoji}</span>
+                  {cat.emoji && <span>{cat.emoji}</span>}
                   {cat.label}
                 </button>
               ))}
@@ -390,7 +345,7 @@ export default function HirePeer() {
                     else navigate("/hire-peer/list");
                   }}
                   size="sm"
-                  className="rounded-xl h-9 px-4 gap-1.5 gradient-primary text-primary-foreground font-bold text-xs shadow-soft hover:shadow-glow transition-shadow"
+                  className="rounded-md h-8 px-3 gap-1.5 bg-primary text-primary-foreground font-medium text-xs hover:bg-primary/90 transition-colors"
                 >
                   <Plus className="h-3.5 w-3.5" />
                   Start Selling
@@ -454,7 +409,7 @@ export default function HirePeer() {
                   { step: "4", text: "Receive work via on-campus handover or digital delivery." },
                 ].map((item) => (
                   <div key={item.step} className="flex gap-4 items-start">
-                    <div className="w-8 h-8 rounded-full gradient-primary text-white text-sm font-bold flex items-center justify-center flex-shrink-0 shadow-soft">
+                    <div className="w-8 h-8 rounded-full bg-primary text-white text-sm font-medium flex items-center justify-center flex-shrink-0">
                       {item.step}
                     </div>
                     <p className="text-sm text-muted-foreground leading-relaxed pt-1.5">{item.text}</p>
@@ -490,7 +445,7 @@ export default function HirePeer() {
                   if (!user) navigate("/auth");
                   else navigate("/hire-peer/list");
                 }}
-                className="h-13 px-10 gradient-primary text-primary-foreground rounded-2xl font-bold shadow-soft hover:shadow-glow transition-shadow gap-2"
+                className="h-11 px-6 bg-primary text-primary-foreground rounded-lg font-medium hover:bg-primary/90 transition-colors gap-2"
               >
                 Become an Expert <ChevronRight className="h-4 w-4" />
               </Button>
