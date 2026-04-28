@@ -122,7 +122,7 @@ function LostItemForm({ onSuccess, user, selectedCollege }: { onSuccess: () => v
         <Label>Report it to (Contact Number) *</Label>
         <Input required value={contactInfo} onChange={(e) => setContactInfo(e.target.value)} placeholder="Your phone number or email" maxLength={200} />
       </div>
-      <Button type="submit" disabled={submitting} className="w-full gradient-primary text-primary-foreground rounded-xl">
+      <Button type="submit" disabled={submitting} className="w-full bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors">
         {submitting ? "Submitting…" : "Broadcast Lost Item"}
       </Button>
     </form>
@@ -236,7 +236,7 @@ function FoundItemForm({ onSuccess, user, selectedCollege }: { onSuccess: () => 
         <Label>Your Contact Info *</Label>
         <Input required value={contactInfo} onChange={(e) => setContactInfo(e.target.value)} placeholder="Phone number or email" maxLength={200} />
       </div>
-      <Button type="submit" disabled={submitting} className="w-full gradient-primary text-primary-foreground rounded-xl">
+      <Button type="submit" disabled={submitting} className="w-full bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors">
         {submitting ? "Submitting…" : "Report Found Item"}
       </Button>
     </form>
@@ -351,7 +351,7 @@ export default function Recover() {
               onClick={() => setActiveTab(tab)}
               className={`rounded-full px-5 py-2 text-sm font-medium transition-all ${
                 activeTab === tab
-                  ? "gradient-primary text-primary-foreground shadow-soft"
+                  ? "bg-primary text-primary-foreground"
                   : "bg-secondary text-muted-foreground hover:text-foreground"
               }`}
             >

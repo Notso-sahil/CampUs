@@ -127,7 +127,7 @@ export default function Sell() {
                     <button 
                       type="button" 
                       onClick={() => removeImage(i)} 
-                      className="absolute right-1.5 top-1.5 h-6 w-6 rounded-full bg-black/50 text-white flex items-center justify-center backdrop-blur-sm hover:bg-black/70 transition-colors"
+                      className="absolute right-1.5 top-1.5 h-7 w-7 rounded-full bg-black/60 text-white flex items-center justify-center"
                     >
                       <X className="h-3.5 w-3.5" />
                     </button>

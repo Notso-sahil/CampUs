@@ -224,7 +224,7 @@ export default function FindTeammates() {
             <Users className="h-16 w-16 mx-auto text-primary mb-6" />
             <h1 className="font-display text-3xl font-bold mb-3">Find Teammates</h1>
             <p className="text-muted-foreground mb-6">Sign in to create or join hackathon teams.</p>
-            <Button asChild className="gradient-primary text-primary-foreground rounded-full shadow-glow">
+            <Button asChild className="bg-primary text-primary-foreground rounded-lg">
               <a href="/auth">Sign In</a>
             </Button>
           </FadeIn>
@@ -311,7 +311,7 @@ export default function FindTeammates() {
                             {r.message && <p className="text-xs text-muted-foreground">{r.message}</p>}
                           </div>
                           <div className="flex gap-2">
-                            <Button size="sm" className="rounded-full gradient-primary text-primary-foreground" onClick={() => handleAcceptRequest(r)}>Accept</Button>
+                            <Button size="sm" className="bg-primary text-primary-foreground rounded-lg" onClick={() => handleAcceptRequest(r)}>Accept</Button>
                             <Button size="sm" variant="outline" className="rounded-full" onClick={() => handleRejectRequest(r.id)}>Reject</Button>
                           </div>
                         </div>
@@ -321,7 +321,7 @@ export default function FindTeammates() {
                 )}
 
                 <div className="flex flex-wrap gap-2">
-                  <Button className="rounded-full gradient-primary text-primary-foreground" onClick={() => navigate("/team-chat")}>
+                  <Button className="bg-primary text-primary-foreground rounded-lg gap-1" onClick={() => navigate("/team-chat")}>
                     <MessageCircle className="h-4 w-4 mr-1" /> Team Chat
                   </Button>
                   {myTeam.leader_id !== user?.id && (
@@ -340,14 +340,14 @@ export default function FindTeammates() {
               <div className="flex flex-wrap gap-3 justify-center">
                 <Button
                   variant={view === "browse" ? "default" : "outline"}
-                  className="rounded-full"
+                  className="rounded-lg"
                   onClick={() => setView("browse")}
                 >
                   <Search className="h-4 w-4 mr-1" /> Browse Teams
                 </Button>
                 <Button
                   variant={view === "create" ? "default" : "outline"}
-                  className="rounded-full"
+                  className="rounded-lg"
                   onClick={() => setView("create")}
                 >
                   <Plus className="h-4 w-4 mr-1" /> Create Team
@@ -384,7 +384,7 @@ export default function FindTeammates() {
                         <Label>Looking For (Details)</Label>
                         <Textarea value={lookingForDesc} onChange={(e) => setLookingForDesc(e.target.value)} placeholder="Experience with TensorFlow preferred..." />
                       </div>
-                      <Button type="submit" className="w-full gradient-primary text-primary-foreground rounded-full" disabled={creating}>
+                      <Button type="submit" className="w-full bg-primary text-primary-foreground rounded-lg" disabled={creating}>
                         {creating ? "Creating..." : "Create Team"}
                       </Button>
                     </form>
@@ -407,9 +407,9 @@ export default function FindTeammates() {
                   {filteredTeams.length === 0 ? (
                     <p className="text-center text-muted-foreground py-12">No teams found. Be the first to create one!</p>
                   ) : (
-                    <div className="grid gap-4 sm:grid-cols-2">
+                    <div className="grid gap-3 grid-cols-1 sm:grid-cols-2">
                       {filteredTeams.map((team) => (
-                        <Card key={team.id} className="shadow-soft border-border transition-all duration-300 hover:-translate-y-1 hover:shadow-glow">
+                        <Card key={team.id} className="border-border">
                           <CardHeader className="pb-3">
                             <CardTitle className="font-display text-lg">{team.name}</CardTitle>
                             {team.description && <CardDescription className="line-clamp-2">{team.description}</CardDescription>}
@@ -425,7 +425,7 @@ export default function FindTeammates() {
                               {pendingRequests.has(team.id) ? (
                                 <span className="text-xs text-muted-foreground font-medium">Requested</span>
                               ) : (
-                                <Button size="sm" className="rounded-full gradient-primary text-primary-foreground" onClick={() => handleRequestJoin(team.id)}>
+                                <Button size="sm" className="bg-primary text-primary-foreground rounded-lg" onClick={() => handleRequestJoin(team.id)}>
                                   <UserPlus className="h-3.5 w-3.5 mr-1" /> Request to Join
                                 </Button>
                               )}

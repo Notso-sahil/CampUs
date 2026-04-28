@@ -71,7 +71,7 @@ export default function Dashboard() {
           {/* Profile Hero Card */}
           <div className="rounded-2xl border border-border bg-card shadow-soft p-5 mb-8">
             <div className="flex items-center gap-4">
-              <div className="w-14 h-14 rounded-2xl gradient-primary flex items-center justify-center text-white text-xl font-bold shadow-soft flex-shrink-0">
+              <div className="w-14 h-14 rounded-xl bg-primary flex items-center justify-center text-white text-xl font-bold flex-shrink-0">
                 {initials}
               </div>
               <div className="flex-1 min-w-0">
@@ -94,7 +94,7 @@ export default function Dashboard() {
             </div>
 
             {/* Quick action buttons */}
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 mt-5">
+            <div className="grid grid-cols-2 gap-2 mt-5">
               {[
                 { to: "/sell",      icon: <Plus className="h-4 w-4" />,          label: "List Item",  primary: true  },
                 { to: "/chat",      icon: <MessageCircle className="h-4 w-4" />, label: "Messages",   primary: false },
@@ -106,7 +106,7 @@ export default function Dashboard() {
                   asChild
                   variant={btn.primary ? "default" : "outline"}
                   size="sm"
-                  className={`rounded-xl gap-1.5 h-10 text-xs font-bold ${btn.primary ? "gradient-primary text-primary-foreground shadow-soft hover:shadow-glow" : ""}`}
+                  className={`rounded-lg gap-1.5 h-10 text-xs font-medium w-full ${btn.primary ? "bg-primary text-primary-foreground hover:bg-primary/90" : ""}`}
                 >
                   <Link to={btn.to}>
                     {btn.icon}{btn.label}
@@ -139,7 +139,7 @@ export default function Dashboard() {
               </div>
               <h3 className="text-lg font-bold mb-2">No listings yet</h3>
               <p className="text-sm text-muted-foreground mb-6">Be the first to list something for sale!</p>
-              <Button asChild className="gradient-primary text-primary-foreground rounded-2xl gap-2">
+              <Button asChild className="bg-primary text-primary-foreground rounded-lg gap-2 hover:bg-primary/90">
                 <Link to="/sell"><Plus className="h-4 w-4" /> List Your First Item</Link>
               </Button>
             </div>
@@ -185,7 +185,7 @@ export default function Dashboard() {
                       <Button
                         variant="ghost"
                         size="icon"
-                        className="flex-shrink-0 h-9 w-9 rounded-xl text-muted-foreground hover:text-destructive hover:bg-destructive/10 opacity-0 group-hover:opacity-100 transition-all"
+                        className="flex-shrink-0 h-10 w-10 rounded-lg text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-all"
                       >
                         <Trash2 className="h-4 w-4" />
                       </Button>

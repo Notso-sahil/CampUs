@@ -125,10 +125,10 @@ export default function ListPeerService() {
         <div className="flex items-center gap-3 mb-10">
           {[1, 2].map(n => (
             <div key={n} className="flex items-center gap-2">
-              <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold transition-all ${step >= n ? "gradient-primary text-white shadow-soft" : "bg-secondary text-muted-foreground"}`}>
+              <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold transition-all ${step >= n ? "bg-primary text-white" : "bg-secondary text-muted-foreground"}`}>
                 {step > n ? <CheckCircle2 className="h-4 w-4" /> : n}
               </div>
-              <span className={`text-sm font-medium hidden sm:block ${step >= n ? "text-foreground" : "text-muted-foreground"}`}>
+              <span className={`text-sm font-medium ${step >= n ? "text-foreground" : "text-muted-foreground"}`}>
                 {n === 1 ? "Expert Profile" : "List Service"}
               </span>
               {n < 2 && <div className="flex-1 h-px w-8 bg-border" />}
@@ -140,7 +140,7 @@ export default function ListPeerService() {
         {step === 1 && (
           <FadeIn>
             <div className="space-y-2 mb-8">
-              <h1 className="font-display text-3xl font-bold">Build Your Expert Profile</h1>
+              <h1 className="text-2xl font-bold">Build Your Expert Profile</h1>
               <p className="text-muted-foreground text-sm">Your profile passes the Trust Protocol before your services go live.</p>
             </div>
 
@@ -190,7 +190,7 @@ export default function ListPeerService() {
                     <div key={i} className="relative aspect-square rounded-xl overflow-hidden border border-border group">
                       <img src={url} alt="" className="h-full w-full object-cover" />
                       <button type="button" onClick={() => setSamplePreviews(p => p.filter((_, j) => j !== i))}
-                        className="absolute top-1 right-1 h-6 w-6 rounded-full bg-background/80 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity shadow-sm">
+                        className="absolute top-1 right-1 h-7 w-7 rounded-full bg-background/90 flex items-center justify-center shadow-sm border border-border">
                         <X className="h-3 w-3" />
                       </button>
                     </div>
@@ -213,7 +213,7 @@ export default function ListPeerService() {
               </div>
 
               <Button onClick={submitProfile} disabled={loading || !displayName || !bio || !selectedCollege}
-                className="w-full h-12 gradient-primary text-primary-foreground rounded-xl font-bold shadow-soft hover:shadow-glow transition-shadow gap-2">
+                className="w-full h-11 bg-primary text-primary-foreground rounded-lg font-medium hover:bg-primary/90 transition-colors gap-2">
                 {loading ? <div className="h-5 w-5 border-2 border-white border-t-transparent rounded-full animate-spin" /> : <><ShieldCheck className="h-4 w-4" /> Submit for Verification</>}
               </Button>
             </div>
@@ -224,7 +224,7 @@ export default function ListPeerService() {
         {step === 2 && (
           <FadeIn>
             <div className="space-y-2 mb-8">
-              <h1 className="font-display text-3xl font-bold">List Your Service</h1>
+              <h1 className="text-2xl font-bold">List Your Service</h1>
               <p className="text-muted-foreground text-sm">Service goes live after admin approval. Keep details clear and specific.</p>
             </div>
 
@@ -293,7 +293,7 @@ export default function ListPeerService() {
                     <div key={i} className="relative aspect-square rounded-xl overflow-hidden border border-border group">
                       <img src={url} alt="" className="h-full w-full object-cover" />
                       <button type="button" onClick={() => setPortfolioPreviews(p => p.filter((_, j) => j !== i))}
-                        className="absolute top-1 right-1 h-6 w-6 rounded-full bg-background/80 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                        className="absolute top-1 right-1 h-7 w-7 rounded-full bg-background/90 flex items-center justify-center shadow-sm border border-border">
                         <X className="h-3 w-3" />
                       </button>
                     </div>
@@ -314,7 +314,7 @@ export default function ListPeerService() {
               </div>
 
               <Button onClick={submitService} disabled={loading || !title || !category || !priceBasic}
-                className="w-full h-12 gradient-primary text-primary-foreground rounded-xl font-bold shadow-soft hover:shadow-glow transition-shadow gap-2">
+                className="w-full h-11 bg-primary text-primary-foreground rounded-lg font-medium hover:bg-primary/90 transition-colors gap-2">
                 {loading ? <div className="h-5 w-5 border-2 border-white border-t-transparent rounded-full animate-spin" /> : <><Plus className="h-4 w-4" /> Submit Service Listing</>}
               </Button>
               <p className="text-[10px] text-center text-muted-foreground">Service becomes visible after admin approval.</p>

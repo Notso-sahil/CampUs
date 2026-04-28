@@ -206,7 +206,7 @@ export default function ProductDetail() {
       <main className="container mx-auto px-4 py-8">
         <button
           onClick={() => navigate(-1)}
-          className="mb-6 flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors"
+          className="mb-5 inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors tap-target"
         >
           <ArrowLeft className="h-4 w-4" /> Back
         </button>
@@ -226,12 +226,12 @@ export default function ProductDetail() {
               )}
             </div>
             {images.length > 1 && (
-              <div className="flex gap-2 overflow-x-auto">
+            <div className="flex gap-2 overflow-x-auto scrollbar-none pb-1">
                 {images.map((url, i) => (
                   <button
                     key={i}
                     onClick={() => setSelectedImage(i)}
-                    className={`h-16 w-16 flex-shrink-0 overflow-hidden rounded-md border-2 transition-colors ${
+                    className={`h-16 w-16 flex-shrink-0 overflow-hidden rounded-md border-2 transition-colors tap-target ${
                       i === selectedImage ? "border-primary" : "border-transparent"
                     }`}
                   >
@@ -246,8 +246,8 @@ export default function ProductDetail() {
           <div className="space-y-6">
             <div>
               <Badge variant="secondary" className="mb-3">{product.category}</Badge>
-              <h1 className="font-display text-3xl font-bold">{product.title}</h1>
-              <p className="mt-2 font-display text-4xl font-bold">₹{product.price.toLocaleString("en-IN")}</p>
+              <h1 className="text-2xl font-bold mt-1">{product.title}</h1>
+              <p className="mt-2 text-3xl font-bold text-primary">₹{product.price.toLocaleString("en-IN")}</p>
             </div>
 
             <div className="space-y-3">
@@ -281,9 +281,9 @@ export default function ProductDetail() {
             </div>
 
             {/* Action buttons */}
-            <div className="flex flex-wrap gap-3">
+            <div className="flex flex-col sm:flex-row gap-3">
               {user?.id !== product.seller_id && (
-                <Button onClick={handleChat} size="lg" className="flex-1 gap-2">
+                <Button onClick={handleChat} size="lg" className="w-full sm:flex-1 gap-2">
                   <MessageCircle className="h-5 w-5" /> Chat with Seller
                 </Button>
               )}

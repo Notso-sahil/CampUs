@@ -6,11 +6,10 @@ export default function Footer() {
   const currentYear = new Date().getFullYear();
 
   return (
-    <footer className="mt-16 border-t border-border">
-      <div className="container mx-auto px-4 py-10">
+    <footer className="border-t border-border">
+      {/* Full footer — desktop only */}
+      <div className="hidden md:block container mx-auto px-4 py-10">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
-
-          {/* Brand */}
           <div className="col-span-2 md:col-span-1 space-y-3">
             <Link to="/" className="flex items-center gap-2">
               <img src={logoImg} alt="CampusHub" className="h-6 w-6 object-contain" />
@@ -28,7 +27,6 @@ export default function Footer() {
             </div>
           </div>
 
-          {/* Links */}
           <div className="space-y-3">
             <h4 className="text-sm font-medium text-foreground">Platform</h4>
             <ul className="space-y-2">
@@ -64,6 +62,15 @@ export default function Footer() {
             <Link to="/privacy" className="hover:text-foreground transition-colors">Privacy</Link>
             <Link to="/terms" className="hover:text-foreground transition-colors">Terms</Link>
           </div>
+        </div>
+      </div>
+
+      {/* Minimal footer — mobile only */}
+      <div className="md:hidden px-4 py-3 flex items-center justify-between text-xs text-muted-foreground">
+        <p>© {currentYear} CampusHub</p>
+        <div className="flex items-center gap-3">
+          <Link to="/privacy" className="hover:text-foreground transition-colors">Privacy</Link>
+          <Link to="/terms" className="hover:text-foreground transition-colors">Terms</Link>
         </div>
       </div>
     </footer>

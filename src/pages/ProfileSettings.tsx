@@ -79,17 +79,17 @@ export default function ProfileSettings() {
         <FadeIn>
           <button
             onClick={() => navigate("/dashboard")}
-            className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground mb-8 transition-colors"
+            className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground mb-6 transition-colors tap-target"
           >
             <ArrowLeft className="h-4 w-4" /> Back to Dashboard
           </button>
 
-          <h1 className="font-display text-3xl font-bold mb-8">Profile Settings</h1>
+          <h1 className="text-2xl font-bold mb-6">Profile Settings</h1>
 
           {/* Avatar + Identity */}
           <div className="rounded-2xl border border-border bg-card shadow-soft p-6 mb-6">
             <div className="flex items-center gap-4 mb-6">
-              <div className="w-16 h-16 rounded-2xl gradient-primary flex items-center justify-center text-white text-2xl font-bold shadow-soft flex-shrink-0">
+              <div className="w-14 h-14 rounded-xl bg-primary flex items-center justify-center text-white text-xl font-bold flex-shrink-0">
                 {initials}
               </div>
               <div className="min-w-0">
@@ -134,7 +134,7 @@ export default function ProfileSettings() {
               <Button
                 type="submit"
                 disabled={saving}
-                className="w-full h-11 gradient-primary text-primary-foreground rounded-xl font-bold shadow-soft hover:shadow-glow transition-shadow gap-2"
+                className="w-full h-11 bg-primary text-primary-foreground rounded-lg font-medium hover:bg-primary/90 transition-colors gap-2"
               >
                 {saving
                   ? <div className="h-4 w-4 border-2 border-white border-t-transparent rounded-full animate-spin" />

@@ -71,7 +71,7 @@ export default function Events() {
       <Navbar />
       <main className="container mx-auto max-w-2xl px-4 py-8">
         <div className="flex items-center justify-between mb-8">
-          <h1 className="font-display text-3xl font-bold">Events</h1>
+          <h1 className="text-2xl font-bold">Events</h1>
           {!isAdmin && user && (
             <Button variant="outline" size="sm" onClick={handleRequestUpload} className="gap-2">
               <Send className="h-4 w-4" /> Request to Upload
@@ -93,7 +93,7 @@ export default function Events() {
               <div key={event.id} className="rounded-lg border border-border bg-card overflow-hidden transition-shadow hover:shadow-sm">
                 <button
                   onClick={() => handleClick(event.id)}
-                  className="w-full text-left px-6 py-4 flex items-center justify-between"
+                  className="w-full text-left px-4 py-4 flex items-center justify-between min-h-[56px]"
                 >
                   <div className="flex-1 min-w-0">
                     <h3 className="font-display text-lg font-semibold">{event.title}</h3>

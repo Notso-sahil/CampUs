@@ -11,7 +11,7 @@ export default function CategoryGrid({ onSelect }: CategoryGridProps) {
         <button
           key={cat.value}
           onClick={() => onSelect(cat.value)}
-          className="group flex flex-col items-center gap-2 rounded-xl border border-border bg-card p-3 transition-all hover:shadow-glow hover:border-primary/40 hover:-translate-y-1"
+          className="group flex flex-col items-center gap-2 rounded-xl border border-border bg-card p-3 transition-colors active:bg-secondary/50"
         >
           <div className="aspect-square w-full overflow-hidden rounded-lg bg-secondary">
             <img

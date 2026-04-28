@@ -64,10 +64,10 @@ export default function ChatList() {
           <div className="flex items-center justify-between mb-8">
             <div>
               <div className="flex items-center gap-2 mb-1">
-                <div className="w-8 h-8 rounded-xl gradient-primary flex items-center justify-center shadow-soft">
+                <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center">
                   <MessageCircle className="h-4 w-4 text-white" />
                 </div>
-                <h1 className="font-display text-3xl font-bold">Messages</h1>
+                <h1 className="text-xl font-bold">Messages</h1>
               </div>
               <p className="text-sm text-muted-foreground">
                 {loading ? "Loading…" : `${conversations.length} conversation${conversations.length !== 1 ? "s" : ""}`}
@@ -96,7 +96,7 @@ export default function ChatList() {
               <p className="text-muted-foreground mt-2 mb-6 text-sm">
                 Chat with a seller by clicking "Chat with Seller" on any product.
               </p>
-              <Button asChild className="gradient-primary text-primary-foreground rounded-2xl gap-2">
+              <Button asChild className="bg-primary text-primary-foreground rounded-lg gap-2 hover:bg-primary/90">
                 <Link to="/trade"><ShoppingBag className="h-4 w-4" /> Browse Items</Link>
               </Button>
             </div>
@@ -107,11 +107,11 @@ export default function ChatList() {
               <FadeIn key={conv.id} delay={i * 40}>
                 <Link
                   to={`/chat/${conv.id}`}
-                  className="group flex items-center gap-4 rounded-2xl border border-border bg-card p-4 transition-all hover:border-primary/30 hover:shadow-soft hover:-translate-y-0.5"
+                  className="group flex items-center gap-3 rounded-xl border border-border bg-card p-4 transition-colors active:bg-secondary/50"
                 >
                   {/* Avatar */}
                   <div className="relative flex-shrink-0">
-                    <div className="w-12 h-12 rounded-full gradient-primary flex items-center justify-center text-white font-bold text-sm shadow-soft">
+                    <div className="w-11 h-11 rounded-full bg-primary flex items-center justify-center text-white font-bold text-sm flex-shrink-0">
                       {initials(conv.other_name)}
                     </div>
                     {(conv.unread_count ?? 0) > 0 && (

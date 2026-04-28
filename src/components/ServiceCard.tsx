@@ -42,7 +42,7 @@ export default function ServiceCard({ service }: ServiceCardProps) {
   return (
     <Link
       to={`/hire-peer/${service.id}`}
-      className="group block rounded-2xl border border-border bg-card overflow-hidden shadow-soft transition-all duration-300 hover:-translate-y-1.5 hover:shadow-glow focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+      className="group block rounded-xl border border-border bg-card overflow-hidden transition-colors active:bg-secondary/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
     >
       {/* Thumbnail */}
       <div className="relative aspect-[16/10] overflow-hidden bg-secondary">
@@ -76,7 +76,7 @@ export default function ServiceCard({ service }: ServiceCardProps) {
       <div className="p-4 space-y-3">
         {/* Expert row */}
         <div className="flex items-center gap-2">
-          <div className="h-7 w-7 rounded-full gradient-primary flex items-center justify-center flex-shrink-0 shadow-sm">
+          <div className="h-7 w-7 rounded-full bg-primary flex items-center justify-center flex-shrink-0">
             <span className="text-[10px] font-bold text-white">{initials}</span>
           </div>
           <div className="flex items-center gap-1 min-w-0">

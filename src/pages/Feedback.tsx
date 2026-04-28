@@ -73,7 +73,7 @@ export default function Feedback() {
                     <Textarea value={message} onChange={(e) => setMessage(e.target.value)} required placeholder="Share your thoughts, suggestions, or report an issue..." maxLength={2000} rows={5} />
                     <p className="text-xs text-muted-foreground text-right">{message.length}/2000</p>
                   </div>
-                  <Button type="submit" className="w-full gradient-primary text-primary-foreground rounded-full" disabled={sending}>
+                  <Button type="submit" className="w-full bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors" disabled={sending}>
                     <Send className="h-4 w-4 mr-1" /> {sending ? "Sending..." : "Submit Feedback"}
                   </Button>
                 </form>

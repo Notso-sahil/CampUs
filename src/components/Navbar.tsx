@@ -1,4 +1,4 @@
-import { Link, useNavigate, useLocation } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { useAuthContext } from "@/contexts/AuthContext";
 import { MessageCircle, LogOut, User, MapPin } from "lucide-react";
 import logoImg from "@/assets/logo.png";
@@ -20,7 +20,6 @@ const NAV_LINKS = [
 
 export default function Navbar() {
   const { user, signOut } = useAuthContext();
-  const navigate = useNavigate();
   const location = useLocation();
   const [unreadCount, setUnreadCount] = useState(0);
 

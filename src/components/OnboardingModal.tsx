@@ -110,7 +110,7 @@ export default function OnboardingModal() {
 
           <Button
             type="submit"
-            className="w-full h-12 gradient-primary text-primary-foreground font-semibold rounded-xl shadow-soft hover:shadow-glow transition-all duration-300"
+            className="w-full h-12 bg-primary text-primary-foreground font-semibold rounded-xl hover:bg-primary/90 transition-colors"
             disabled={loading || !role}
           >
             {loading ? "Setting up your profile..." : "Start Exploring VIPS Hub"}
