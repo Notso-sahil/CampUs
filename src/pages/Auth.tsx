@@ -54,7 +54,7 @@ export default function Auth() {
           {mode === "login" ? (
             <SignIn
               routing="hash"
-              afterSignInUrl="/"
+              fallbackRedirectUrl="/"
               appearance={{
                 elements: {
                   rootBox: "w-full",
@@ -67,7 +67,7 @@ export default function Auth() {
           ) : (
             <SignUp
               routing="hash"
-              afterSignUpUrl="/"
+              fallbackRedirectUrl="/"
               appearance={{
                 elements: {
                   rootBox: "w-full",
