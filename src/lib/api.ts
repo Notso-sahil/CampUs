@@ -1,4 +1,4 @@
-const BASE_URL = "https://college-api-xtwb.onrender.com";
+const BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:3000";
 
 const apiFetch = async (path: string, options?: RequestInit): Promise<any> => {
   const res = await fetch(`${BASE_URL}${path}`, options);
