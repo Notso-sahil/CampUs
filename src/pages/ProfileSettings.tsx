@@ -1,7 +1,8 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { api } from "@/lib/api";
-import { useClerk } from "@clerk/clerk-react";
+import { auth } from "@/lib/firebase";
+import { sendPasswordResetEmail } from "firebase/auth";
 import { useAuthContext } from "@/contexts/AuthContext";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
@@ -12,19 +13,19 @@ import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import {
   ArrowLeft, Save, User, Mail, Phone, ShieldCheck,
-  MapPin, ChevronRight, ExternalLink
+  MapPin, ChevronRight, CheckCircle2, AlertCircle
 } from "lucide-react";
 
 export default function ProfileSettings() {
   const { user, profile, refreshProfile } = useAuthContext();
   const navigate = useNavigate();
   const { toast } = useToast();
-  const { openUserProfile } = useClerk();
 
   const [displayName, setDisplayName] = useState("");
   const [phoneNumber, setPhoneNumber] = useState("");
   const [email, setEmail] = useState("");
   const [saving, setSaving] = useState(false);
+  const [resettingPassword, setResettingPassword] = useState(false);
 
   useEffect(() => {
     if (profile) {
@@ -32,7 +33,7 @@ export default function ProfileSettings() {
       setPhoneNumber((profile as any).phone_number || "");
     }
     if (user) {
-      setEmail(user.primaryEmailAddress?.emailAddress || "");
+      setEmail(user.email || "");
     }
   }, [profile, user]);
 
@@ -63,12 +64,33 @@ export default function ProfileSettings() {
     setSaving(false);
   };
 
+  const handleResetPassword = async () => {
+    if (!email) return;
+    setResettingPassword(true);
+    try {
+      await sendPasswordResetEmail(auth, email);
+      toast({
+        title: "Reset link sent!",
+        description: "A password reset link has been sent to your email inbox.",
+      });
+    } catch (err) {
+      console.error(err);
+      toast({
+        title: "Error",
+        description: "Failed to send password reset email. Please try again later.",
+        variant: "destructive",
+      });
+    } finally {
+      setResettingPassword(false);
+    }
+  };
+
   if (!user) {
     navigate("/auth");
     return null;
   }
 
-  const initials = (profile?.display_name || user.firstName || user.emailAddresses?.[0]?.emailAddress || "?")
+  const initials = (profile?.display_name || user.firstName || user.email || "?")
     .split(" ").map(n => n[0]).join("").toUpperCase().slice(0, 2);
 
   return (
@@ -152,16 +174,9 @@ export default function ProfileSettings() {
             <div className="p-3 rounded-xl bg-secondary/40 border border-border text-sm font-medium truncate mb-3">
               {email || "No email set"}
             </div>
-            <p className="text-xs text-muted-foreground mb-4">
-              To change your email, use the Clerk account manager. A verification email will be sent to the new address.
+            <p className="text-xs text-muted-foreground">
+              Your registered email address is managed via Firebase Authentication securely.
             </p>
-            <Button
-              variant="outline"
-              onClick={() => openUserProfile()}
-              className="rounded-xl gap-2 h-10 text-sm"
-            >
-              <ExternalLink className="h-4 w-4" /> Manage via Account Settings
-            </Button>
           </div>
 
           {/* Security section */}
@@ -169,12 +184,16 @@ export default function ProfileSettings() {
             <h3 className="font-display text-lg font-bold mb-4 flex items-center gap-2">
               <ShieldCheck className="h-5 w-5 text-primary" /> Security
             </h3>
+            <p className="text-xs text-muted-foreground mb-4">
+              Need to change your password? Click the button below, and we'll email you a secure link to update it.
+            </p>
             <Button
               variant="outline"
-              onClick={() => openUserProfile()}
-              className="w-full rounded-xl h-11 gap-2 justify-between font-medium"
+              onClick={handleResetPassword}
+              disabled={resettingPassword}
+              className="w-full rounded-xl h-11 gap-2 justify-between font-medium hover:bg-secondary transition-colors"
             >
-              <span>Change Password</span>
+              <span>{resettingPassword ? "Sending reset link..." : "Change Password"}</span>
               <ChevronRight className="h-4 w-4 text-muted-foreground" />
             </Button>
           </div>

@@ -1,6 +1,18 @@
 import { createContext, useContext, ReactNode } from "react";
 import { useAuth } from "@/hooks/useAuth";
-import type { UserResource } from "@clerk/types";
+export interface WrappedFirebaseUser {
+  id: string;
+  uid: string;
+  email: string | null;
+  displayName: string | null;
+  firstName: string | null;
+  primaryEmailAddress: {
+    emailAddress: string;
+  } | null;
+  publicMetadata: {
+    role?: string;
+  };
+}
 
 interface Profile {
   id: string;
@@ -12,7 +24,7 @@ interface Profile {
 }
 
 interface AuthContextType {
-  user: UserResource | null | undefined;
+  user: WrappedFirebaseUser | null | undefined;
   session: null;
   profile: Profile | null;
   isAdmin: boolean;

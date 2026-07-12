@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
-import { useUser, useClerk } from "@clerk/clerk-react";
+import { auth } from "@/lib/firebase";
+import { onAuthStateChanged, signOut as firebaseSignOut, User as FirebaseUser } from "firebase/auth";
 import { api } from "@/lib/api";
+import type { WrappedFirebaseUser } from "@/contexts/AuthContext";
 
 interface Profile {
   id: string;
@@ -11,53 +13,80 @@ interface Profile {
   onboarded: boolean;
 }
 
+const wrapUser = (fbUser: FirebaseUser, profileRole?: string): WrappedFirebaseUser => {
+  const email = fbUser.email;
+  const displayName = fbUser.displayName;
+  const firstName = displayName ? displayName.split(" ")[0] : (email ? email.split("@")[0] : "User");
+
+  return {
+    id: fbUser.uid,
+    uid: fbUser.uid,
+    email,
+    displayName,
+    firstName,
+    primaryEmailAddress: email ? { emailAddress: email } : null,
+    publicMetadata: {
+      role: profileRole,
+    },
+  };
+};
+
 export function useAuth() {
-  const { user, isLoaded } = useUser();
-  const { signOut: clerkSignOut } = useClerk();
+  const [user, setUser] = useState<WrappedFirebaseUser | null>(null);
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
 
-  const isAdmin = user?.publicMetadata?.role === "admin";
+  const isAdmin = profile?.user_role === "admin" || user?.publicMetadata?.role === "admin";
 
-  const fetchProfile = async (userId: string) => {
+  const fetchProfile = async (userId: string, fbUser: FirebaseUser) => {
     try {
       const data = await api.get(`/api/profile?user_id=${userId}`);
-      // api.get returns null for 404 (new user, no profile yet)
       if (data && typeof data === "object" && (data as any).user_id) {
-        setProfile(data as Profile);
+        const prof = data as Profile;
+        setProfile(prof);
+        setUser(wrapUser(fbUser, prof.user_role || undefined));
       } else {
         // New user — trigger onboarding modal
         setProfile({ id: "", user_id: userId, display_name: null, college_name: null, user_role: null, onboarded: false });
+        setUser(wrapUser(fbUser));
       }
     } catch {
       // Network/server error — still let onboarding show so user isn't stuck
       setProfile({ id: "", user_id: userId, display_name: null, college_name: null, user_role: null, onboarded: false });
+      setUser(wrapUser(fbUser));
     }
   };
 
   useEffect(() => {
-    if (!isLoaded) return;
-    if (user) {
-      fetchProfile(user.id).finally(() => setLoading(false));
-    } else {
-      setProfile(null);
+    const unsubscribe = onAuthStateChanged(auth, async (fbUser) => {
+      setLoading(true);
+      if (fbUser) {
+        await fetchProfile(fbUser.uid, fbUser);
+      } else {
+        setUser(null);
+        setProfile(null);
+      }
       setLoading(false);
-    }
-  }, [user, isLoaded]);
+    });
+
+    return () => unsubscribe();
+  }, []);
 
   const signOut = async () => {
-    await clerkSignOut();
+    await firebaseSignOut(auth);
+    setUser(null);
     setProfile(null);
   };
 
   const refreshProfile = async () => {
-    if (!user) return;
-    await fetchProfile(user.id);
+    const fbUser = auth.currentUser;
+    if (!fbUser) return;
+    await fetchProfile(fbUser.uid, fbUser);
   };
 
   return {
     user,
-    session: null, // Clerk doesn't use sessions the same way, kept for compatibility
+    session: null, // compatibility with existing pages
     profile,
     isAdmin,
     loading,
