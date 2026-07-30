@@ -3,7 +3,14 @@ import useEmblaCarousel from "embla-carousel-react";
 import { Link } from "react-router-dom";
 import { ArrowRight, ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { getPlaceholder } from "@/lib/placeholders";
+const PLACEHOLDERS = {
+  trade: "https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=600&q=80",
+  events: "https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=600&q=80",
+  recover: "https://images.unsplash.com/photo-1586953208448-b95a79798f07?w=600&q=80",
+  expeditions: "https://images.unsplash.com/photo-1469474968028-56623f02e42e?w=600&q=80",
+  knowledge: "https://images.unsplash.com/photo-1497633762265-9d179a990aa6?w=600&q=80",
+  default: "/placeholder.svg",
+} as const;
 
 interface CarouselItem {
   id: string;
@@ -50,7 +57,7 @@ export default function SectionCarousel({ title, viewAllLink, items, renderCard,
 
   if (items.length === 0) return null;
 
-  const fallbackImg = getPlaceholder(placeholderCategory);
+  const fallbackImg = PLACEHOLDERS[placeholderCategory] || PLACEHOLDERS.default;
 
   const defaultCard = (item: CarouselItem) => (
     <div className="rounded-lg border border-border bg-card overflow-hidden hover:border-primary/30 transition-colors group/card">

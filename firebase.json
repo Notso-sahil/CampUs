@@ -1,4 +1,12 @@
 {
+  "auth": {
+    "providers": {
+      "googleSignIn": {
+        "oAuthBrandDisplayName": "CampUs",
+        "supportEmail": "campus91.official@gmail.com"
+      }
+    }
+  },
   "hosting": {
     "public": "dist",
     "ignore": [

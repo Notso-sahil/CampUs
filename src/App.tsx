@@ -24,6 +24,8 @@ import Expeditions from "./pages/Expeditions";
 import Recover from "./pages/Recover";
 import KnowledgeHub from "./pages/KnowledgeHub";
 import FindTeammates from "./pages/FindTeammates";
+import FindRoommate from "./pages/FindRoommate";
+import RoommateChat from "./pages/RoommateChat";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import TermsConditions from "./pages/TermsConditions";
 import Feedback from "./pages/Feedback";
@@ -58,6 +60,7 @@ const AppRoutes = () => (
       <Route path="/recover" element={<Recover />} />
       <Route path="/knowledge" element={<KnowledgeHub />} />
       <Route path="/find-teammates" element={<FindTeammates />} />
+      <Route path="/find-roommate" element={<FindRoommate />} />
       <Route path="/hire-peer" element={<HirePeer />} />
       <Route path="/hire-peer/:id" element={<PeerServiceDetail />} />
       <Route path="/hire-peer/list" element={
@@ -83,6 +86,9 @@ const AppRoutes = () => (
       } />
       <Route path="/team-chat" element={
         <ProtectedRoute><TeamChat /></ProtectedRoute>
+      } />
+      <Route path="/roommate-chat/:id" element={
+        <ProtectedRoute><RoommateChat /></ProtectedRoute>
       } />
       <Route path="*" element={<NotFound />} />
     </Routes>

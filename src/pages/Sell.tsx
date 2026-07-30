@@ -238,7 +238,7 @@ export default function Sell() {
             <div className="p-4 rounded-xl bg-primary/5 border border-primary/10 space-y-2">
               <div className="flex items-center gap-2 text-primary">
                 <ShieldCheck className="h-4 w-4" />
-                <span className="text-[11px] font-bold uppercase tracking-wider">CampusHub Trust Protocol</span>
+                <span className="text-[11px] font-bold uppercase tracking-wider">CampUs Trust Protocol</span>
               </div>
               <p className="text-[11px] text-muted-foreground leading-relaxed">
                 Transactions are completed **Cash on Delivery** when meeting on campus. Never share sensitive payment info before seeing the item.

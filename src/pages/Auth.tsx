@@ -1,319 +1,153 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { signInWithEmailAndPassword, createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
+import { GoogleAuthProvider, signInWithPopup } from "firebase/auth";
 import { auth } from "@/lib/firebase";
 import { useToast } from "@/hooks/use-toast";
-import { X, Mail, Lock, User, Eye, EyeOff, Loader2, AlertCircle, ShoppingBag, ArrowRight } from "lucide-react";
+import { AlertCircle, Loader2, ArrowRight } from "lucide-react";
 import logoImg from "@/assets/logo.png";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+
+const provider = new GoogleAuthProvider();
+provider.setCustomParameters({ prompt: "select_account" });
 
 export default function Auth() {
-  const [mode, setMode] = useState<"login" | "signup">("login");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
-  const [name, setName] = useState("");
-  const [showPassword, setShowPassword] = useState(false);
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
-
+  const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
   const { toast } = useToast();
 
-  const handleLogin = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleGoogleSignIn = async () => {
     setError(null);
     setLoading(true);
     try {
-      await signInWithEmailAndPassword(auth, email.trim(), password);
-      toast({
-        title: "Welcome back!",
-        description: "You have signed in successfully.",
-      });
-      navigate("/");
+      await signInWithPopup(auth, provider);
+      toast({ title: "Welcome to CampUs! 🎉", description: "You have signed in successfully." });
+      navigate("/dashboard");
     } catch (err: any) {
       console.error(err);
-      let msg = "Failed to sign in. Please check your credentials.";
-      if (err.code === "auth/invalid-credential" || err.code === "auth/wrong-password") {
-        msg = "Incorrect email or password.";
-      } else if (err.code === "auth/user-not-found") {
-        msg = "No account found with this email.";
-      } else if (err.code === "auth/invalid-email") {
-        msg = "Please enter a valid email address.";
+      if (err.code === "auth/popup-closed-by-user" || err.code === "auth/cancelled-popup-request") {
+        setLoading(false);
+        return;
       }
-      setError(msg);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleSignup = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError(null);
-
-    if (password !== confirmPassword) {
-      setError("Passwords do not match.");
-      return;
-    }
-    if (password.length < 6) {
-      setError("Password must be at least 6 characters.");
-      return;
-    }
-
-    setLoading(true);
-    try {
-      const userCredential = await createUserWithEmailAndPassword(auth, email.trim(), password);
-      if (name.trim()) {
-        await updateProfile(userCredential.user, {
-          displayName: name.trim()
-        });
+      if (err.code === "auth/popup-blocked") {
+        setError("Pop-up was blocked by your browser. Please allow pop-ups for this site and try again.");
+      } else {
+        setError("Failed to sign in with Google. Please try again.");
       }
-      toast({
-        title: "Account created!",
-        description: "Welcome to CampusHub!",
-      });
-      navigate("/");
-    } catch (err: any) {
-      console.error(err);
-      let msg = "Failed to create account. Please try again.";
-      if (err.code === "auth/email-already-in-use") {
-        msg = "An account already exists with this email address.";
-      } else if (err.code === "auth/invalid-email") {
-        msg = "Please enter a valid email address.";
-      } else if (err.code === "auth/weak-password") {
-        msg = "Password must be at least 6 characters.";
-      }
-      setError(msg);
-    } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-background overflow-x-hidden md:flex-row">
-      {/* Visual side panel - hidden on mobile */}
-      <div className="hidden md:flex md:w-1/2 bg-gradient-to-br from-primary/10 via-primary/5 to-background relative overflow-hidden items-center justify-center p-12 border-r border-border">
-        <div className="absolute inset-0 opacity-30">
-          <div className="absolute top-[-20%] left-[-20%] w-[60%] h-[60%] rounded-full bg-primary/20 blur-[120px]" />
-          <div className="absolute bottom-[-20%] right-[-20%] w-[60%] h-[60%] rounded-full bg-primary/30 blur-[120px]" />
-        </div>
-        <div className="max-w-md space-y-6 relative z-10 text-center md:text-left">
-          <div className="flex items-center gap-3">
-            <img src={logoImg} alt="CampusHub" className="h-12 w-12 object-contain" />
-            <span className="text-3xl font-display font-bold tracking-tight">
-              Campus<span className="text-primary">Hub</span>
-            </span>
+    <div className="min-h-screen flex bg-white overflow-hidden">
+      {/* ── Left panel ── */}
+      <div
+        className="hidden lg:flex lg:w-[52%] flex-col justify-between p-12"
+        style={{ background: "linear-gradient(135deg, #e8edf6 0%, #dde5f4 100%)" }}
+      >
+        {/* Logo */}
+        <div className="flex items-center gap-2.5">
+          <div className="w-9 h-9 rounded-lg bg-white flex items-center justify-center shadow-sm">
+            <img src={logoImg} alt="CampUs" className="h-5 w-5 object-contain" />
           </div>
-          <h2 className="text-4xl font-bold tracking-tight text-foreground leading-tight">
-            The exclusive community for VIPS students
-          </h2>
-          <p className="text-muted-foreground text-lg leading-relaxed">
-            Trade items, join teams, share study material, recover lost items, and explore campus events—all in one secure place.
-          </p>
-          <div className="pt-6 border-t border-border/60 grid grid-cols-2 gap-4">
-            <div className="p-4 rounded-2xl border border-border bg-card/60 backdrop-blur-sm">
-              <p className="text-2xl font-bold text-primary">VIPS</p>
-              <p className="text-xs text-muted-foreground uppercase font-semibold tracking-wider">Verified Campus</p>
+          <span className="text-lg font-bold">
+            <span className="text-gray-900">Campus</span>
+            <span style={{ color: "#2563EB" }}>Hub</span>
+          </span>
+        </div>
+
+        {/* Hero text */}
+        <div className="space-y-6 flex-1 flex flex-col justify-center py-12">
+          <div className="space-y-3">
+            <h1 className="text-[2.6rem] font-extrabold text-gray-900 leading-tight tracking-tight">
+              The exclusive community<br />for VIPS students
+            </h1>
+            <p className="text-gray-500 text-base leading-relaxed max-w-sm">
+              Trade items, join teams, share study material, recover lost items, and explore campus events—all in one secure place.
+            </p>
+          </div>
+
+          {/* Stats cards */}
+          <div className="flex gap-4 mt-4">
+            <div className="bg-white rounded-xl px-5 py-4 shadow-sm flex flex-col gap-1 flex-1">
+              <span className="text-xl font-extrabold" style={{ color: "#2563EB" }}>VIPS</span>
+              <span className="text-[10px] font-bold tracking-widest text-gray-400 uppercase">Verified Campus</span>
             </div>
-            <div className="p-4 rounded-2xl border border-border bg-card/60 backdrop-blur-sm">
-              <p className="text-2xl font-bold text-primary">100%</p>
-              <p className="text-xs text-muted-foreground uppercase font-semibold tracking-wider">Student Focused</p>
+            <div className="bg-white rounded-xl px-5 py-4 shadow-sm flex flex-col gap-1 flex-1">
+              <span className="text-xl font-extrabold" style={{ color: "#2563EB" }}>100%</span>
+              <span className="text-[10px] font-bold tracking-widest text-gray-400 uppercase">Student Focused</span>
             </div>
           </div>
         </div>
+
+        <p className="text-gray-400 text-xs">© {new Date().getFullYear()} CampUs</p>
       </div>
 
-      {/* Forms panel */}
-      <div className="flex-1 flex flex-col justify-between min-h-screen py-6">
-        {/* Header */}
-        <div className="flex items-center justify-between px-6 py-2">
-          <button
-            onClick={() => navigate("/")}
-            className="flex items-center gap-2 md:hidden"
-          >
-            <img src={logoImg} alt="CampusHub" className="h-7 w-7 object-contain" />
-            <span className="text-base font-semibold">CampusHub</span>
-          </button>
-          <div className="hidden md:block" /> {/* Spacer */}
-          <button
-            onClick={() => navigate("/")}
-            className="rounded-full p-2 text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors"
-            aria-label="Close"
-          >
-            <X className="h-4 w-4" />
-          </button>
-        </div>
-
-        {/* Main Content Form */}
-        <div className="flex-1 flex flex-col items-center justify-center px-4 py-8 max-w-sm w-full mx-auto gap-6">
-          <div className="text-center space-y-2 w-full">
-            <p className="text-xs uppercase tracking-widest text-primary font-bold">
-              {mode === "login" ? "Welcome back" : "Get started"}
-            </p>
-            <h1 className="text-3xl font-bold font-display">
-              {mode === "login" ? "Sign in to CampusHub" : "Create your account"}
-            </h1>
-            <p className="text-sm text-muted-foreground">
-              {mode === "login"
-                ? "Enter your details to access your account"
-                : "Join the community of student peers"}
-            </p>
+      {/* ── Right panel ── */}
+      <div className="flex-1 flex items-center justify-center px-8 py-12 bg-white relative">
+        <div className="w-full max-w-sm space-y-7">
+          {/* Mobile logo */}
+          <div className="flex lg:hidden items-center gap-2 justify-center mb-4">
+            <div className="w-8 h-8 rounded-lg bg-gray-100 flex items-center justify-center">
+              <img src={logoImg} alt="CampUs" className="h-5 w-5 object-contain" />
+            </div>
+            <span className="font-bold text-lg">
+              <span className="text-gray-900">Campus</span>
+              <span style={{ color: "#2563EB" }}>Hub</span>
+            </span>
           </div>
 
+          {/* Heading */}
+          <div className="space-y-1.5 text-center">
+            <p className="text-xs font-bold tracking-[0.2em] uppercase" style={{ color: "#2563EB" }}>
+              Welcome Back
+            </p>
+            <h2 className="text-3xl font-extrabold text-gray-900 tracking-tight">Sign in to CampUs</h2>
+            <p className="text-sm text-gray-400">Use your campus Google account to access your dashboard</p>
+          </div>
+
+          {/* Error */}
           {error && (
-            <div className="w-full p-3.5 rounded-xl border border-destructive/20 bg-destructive/10 text-destructive text-sm flex items-start gap-2.5">
+            <div className="p-3.5 rounded-xl border border-red-200 bg-red-50 text-red-600 text-sm flex items-start gap-2.5">
               <AlertCircle className="h-4 w-4 mt-0.5 flex-shrink-0" />
               <span>{error}</span>
             </div>
           )}
 
-          <form onSubmit={mode === "login" ? handleLogin : handleSignup} className="w-full space-y-4">
-            {mode === "signup" && (
-              <div className="space-y-1.5">
-                <Label htmlFor="name">Full Name</Label>
-                <div className="relative">
-                  <User className="absolute left-3.5 top-3.5 h-4 w-4 text-muted-foreground" />
-                  <Input
-                    id="name"
-                    type="text"
-                    required
-                    placeholder="John Doe"
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                    className="pl-10 h-11 rounded-xl"
-                  />
-                </div>
-              </div>
-            )}
-
-            <div className="space-y-1.5">
-              <Label htmlFor="email">Email Address</Label>
-              <div className="relative">
-                <Mail className="absolute left-3.5 top-3.5 h-4 w-4 text-muted-foreground" />
-                <Input
-                  id="email"
-                  type="email"
-                  required
-                  placeholder="name@example.com"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="pl-10 h-11 rounded-xl"
-                />
-              </div>
-            </div>
-
-            <div className="space-y-1.5">
-              <div className="flex justify-between items-center">
-                <Label htmlFor="password">Password</Label>
-                {mode === "login" && (
-                  <button
-                    type="button"
-                    onClick={() => navigate("/reset-password")}
-                    className="text-xs text-primary font-semibold hover:underline"
-                  >
-                    Forgot password?
-                  </button>
-                )}
-              </div>
-              <div className="relative">
-                <Lock className="absolute left-3.5 top-3.5 h-4 w-4 text-muted-foreground" />
-                <Input
-                  id="password"
-                  type={showPassword ? "text" : "password"}
-                  required
-                  placeholder="••••••••"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  className="pl-10 pr-10 h-11 rounded-xl"
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-3.5 text-muted-foreground hover:text-foreground"
-                >
-                  {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                </button>
-              </div>
-            </div>
-
-            {mode === "signup" && (
-              <div className="space-y-1.5">
-                <Label htmlFor="confirmPassword">Confirm Password</Label>
-                <div className="relative">
-                  <Lock className="absolute left-3.5 top-3.5 h-4 w-4 text-muted-foreground" />
-                  <Input
-                    id="confirmPassword"
-                    type={showConfirmPassword ? "text" : "password"}
-                    required
-                    placeholder="••••••••"
-                    value={confirmPassword}
-                    onChange={(e) => setConfirmPassword(e.target.value)}
-                    className="pl-10 pr-10 h-11 rounded-xl"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                    className="absolute right-3 top-3.5 text-muted-foreground hover:text-foreground"
-                  >
-                    {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                  </button>
-                </div>
-              </div>
-            )}
-
-            <Button
-              type="submit"
-              disabled={loading}
-              className="w-full h-11 rounded-xl font-medium mt-2 bg-primary hover:bg-primary/95 text-white gap-2 transition-all flex items-center justify-center shadow-lg hover:shadow-primary/25"
-            >
-              {loading ? (
-                <Loader2 className="h-4 w-4 animate-spin" />
-              ) : mode === "login" ? (
-                <>Sign In <ArrowRight className="h-4 w-4" /></>
-              ) : (
-                <>Sign Up <ArrowRight className="h-4 w-4" /></>
-              )}
-            </Button>
-          </form>
-
-          {/* Toggle login/signup mode */}
-          <p className="text-sm text-muted-foreground text-center">
-            {mode === "login" ? (
-              <>
-                Don't have an account?{" "}
-                <button
-                  onClick={() => {
-                    setMode("signup");
-                    setError(null);
-                  }}
-                  className="font-bold text-primary hover:underline underline-offset-4 transition-colors"
-                >
-                  Sign up free
-                </button>
-              </>
+          {/* Google button styled to match site's blue */}
+          <button
+            id="google-signin-btn"
+            onClick={handleGoogleSignIn}
+            disabled={loading}
+            className="w-full flex items-center justify-center gap-3 h-12 px-6 rounded-xl text-white font-semibold text-sm transition-all duration-200 active:scale-[0.98] disabled:opacity-60 disabled:cursor-not-allowed shadow-md hover:shadow-lg"
+            style={{
+              background: loading ? "#3b6fd4" : "#2563EB",
+            }}
+          >
+            {loading ? (
+              <Loader2 className="h-5 w-5 animate-spin" />
             ) : (
               <>
-                Already have an account?{" "}
-                <button
-                  onClick={() => {
-                    setMode("login");
-                    setError(null);
-                  }}
-                  className="font-bold text-primary hover:underline underline-offset-4 transition-colors"
-                >
-                  Sign in
-                </button>
+                {/* Google G icon in white circle */}
+                <span className="w-6 h-6 bg-white rounded-full flex items-center justify-center flex-shrink-0">
+                  <svg viewBox="0 0 24 24" className="h-3.5 w-3.5" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
+                    <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
+                    <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
+                    <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
+                  </svg>
+                </span>
+                Continue with Google
+                <ArrowRight className="h-4 w-4 ml-auto" />
               </>
             )}
-          </p>
-        </div>
+          </button>
 
-        {/* Footer */}
-        <div className="text-center text-xs text-muted-foreground px-6 mt-4">
-          By continuing, you agree to our Terms of Service and Privacy Policy.
+          <p className="text-center text-xs text-gray-400 leading-relaxed">
+            By continuing, you agree to our{" "}
+            <span className="underline cursor-pointer" style={{ color: "#2563EB" }}>Terms of Service</span>
+            {" "}and{" "}
+            <span className="underline cursor-pointer" style={{ color: "#2563EB" }}>Privacy Policy</span>.
+          </p>
         </div>
       </div>
     </div>

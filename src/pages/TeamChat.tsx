@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { api } from "@/lib/api";
 import { useAuthContext } from "@/contexts/AuthContext";
+import { useChatPolling } from "@/hooks/useChatPolling";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ArrowLeft, Send, Users, Clock } from "lucide-react";
@@ -71,17 +72,26 @@ export default function TeamChat() {
           } catch (e) { console.error(e); }
         };
 
+        // We only fetch team and members once, then set up polling for messages outside this block.
+        // Actually, the previous logic polled fetchMsgs inside this useEffect, which is fine, 
+        // but we'll extract the polling part out.
         await fetchMsgs();
         setLoading(false);
-        const interval = setInterval(fetchMsgs, 4000);
-        return () => clearInterval(interval);
       } catch (err) {
         console.error(err);
         setLoading(false);
       }
     };
     init();
-  }, [user]);
+  }, [teamId, user]);
+
+  useChatPolling(async () => {
+    if (!teamId) return;
+    try {
+      const msgs = await api.get(`/api/team-messages?team_id=${teamId}`);
+      setMessages(Array.isArray(msgs) ? msgs : []);
+    } catch (e) { console.error(e); }
+  }, 4000, [teamId]);
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });

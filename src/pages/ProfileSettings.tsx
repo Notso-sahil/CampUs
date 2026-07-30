@@ -1,8 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { api } from "@/lib/api";
-import { auth } from "@/lib/firebase";
-import { sendPasswordResetEmail } from "firebase/auth";
 import { useAuthContext } from "@/contexts/AuthContext";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
@@ -13,7 +11,7 @@ import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import {
   ArrowLeft, Save, User, Mail, Phone, ShieldCheck,
-  MapPin, ChevronRight, CheckCircle2, AlertCircle
+  MapPin, ExternalLink
 } from "lucide-react";
 
 export default function ProfileSettings() {
@@ -25,7 +23,6 @@ export default function ProfileSettings() {
   const [phoneNumber, setPhoneNumber] = useState("");
   const [email, setEmail] = useState("");
   const [saving, setSaving] = useState(false);
-  const [resettingPassword, setResettingPassword] = useState(false);
 
   useEffect(() => {
     if (profile) {
@@ -64,26 +61,7 @@ export default function ProfileSettings() {
     setSaving(false);
   };
 
-  const handleResetPassword = async () => {
-    if (!email) return;
-    setResettingPassword(true);
-    try {
-      await sendPasswordResetEmail(auth, email);
-      toast({
-        title: "Reset link sent!",
-        description: "A password reset link has been sent to your email inbox.",
-      });
-    } catch (err) {
-      console.error(err);
-      toast({
-        title: "Error",
-        description: "Failed to send password reset email. Please try again later.",
-        variant: "destructive",
-      });
-    } finally {
-      setResettingPassword(false);
-    }
-  };
+
 
   if (!user) {
     navigate("/auth");
@@ -185,17 +163,16 @@ export default function ProfileSettings() {
               <ShieldCheck className="h-5 w-5 text-primary" /> Security
             </h3>
             <p className="text-xs text-muted-foreground mb-4">
-              Need to change your password? Click the button below, and we'll email you a secure link to update it.
+              CampUs uses Google Sign-In. Your password and account security is managed directly through your Google account.
             </p>
-            <Button
-              variant="outline"
-              onClick={handleResetPassword}
-              disabled={resettingPassword}
-              className="w-full rounded-xl h-11 gap-2 justify-between font-medium hover:bg-secondary transition-colors"
+            <a
+              href="https://myaccount.google.com/security"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="w-full inline-flex items-center justify-center gap-2 h-11 rounded-xl border border-border bg-secondary/40 hover:bg-secondary text-sm font-medium transition-colors"
             >
-              <span>{resettingPassword ? "Sending reset link..." : "Change Password"}</span>
-              <ChevronRight className="h-4 w-4 text-muted-foreground" />
-            </Button>
+              Manage Google Account Security <ExternalLink className="h-4 w-4 text-muted-foreground" />
+            </a>
           </div>
         </FadeIn>
       </main>

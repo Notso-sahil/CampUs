@@ -2,16 +2,7 @@ import { useEffect, useState } from "react";
 import { auth } from "@/lib/firebase";
 import { onAuthStateChanged, signOut as firebaseSignOut, User as FirebaseUser } from "firebase/auth";
 import { api } from "@/lib/api";
-import type { WrappedFirebaseUser } from "@/contexts/AuthContext";
-
-interface Profile {
-  id: string;
-  user_id: string;
-  display_name: string | null;
-  college_name: string | null;
-  user_role: string | null;
-  onboarded: boolean;
-}
+import type { WrappedFirebaseUser, Profile } from "@/types";
 
 const wrapUser = (fbUser: FirebaseUser, profileRole?: string): WrappedFirebaseUser => {
   const email = fbUser.email;

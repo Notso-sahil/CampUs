@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import { api } from "@/lib/api";
 import { useAuthContext } from "@/contexts/AuthContext";
+import { useChatPolling } from "@/hooks/useChatPolling";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ArrowLeft, Send, ShoppingBag, Clock, MessageCircle } from "lucide-react";
@@ -62,10 +63,16 @@ export default function ChatRoom() {
 
     fetchDetails();
     fetchMessages();
-
-    const interval = setInterval(fetchMessages, 5000);
-    return () => clearInterval(interval);
   }, [id, user]);
+
+  useChatPolling(async () => {
+    if (!id || !user) return;
+    try {
+      const data = await api.get(`/api/messages?conversation_id=${id}`);
+      setMessages(Array.isArray(data) ? data : []);
+      await api.put('/api/messages', { conversation_id: id, user_id: user.id });
+    } catch (e) { console.error(e); }
+  }, 5000, [id, user]);
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });

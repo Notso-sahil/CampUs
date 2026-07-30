@@ -28,7 +28,7 @@ import {
 } from "@/components/ui/dialog";
 import { MessageCircle, MapPin, ArrowLeft, Pencil, Trash2, Camera } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { getPlaceholder } from "@/lib/placeholders";
+
 import { CATEGORY_VALUES } from "@/lib/categories";
 import AdBlock from "@/components/AdBlock";
 
@@ -118,7 +118,8 @@ export default function ProductDetail() {
     if (!product) return;
     try {
       const userConvs = await api.get(`/api/conversations?user_id=${user.id}`);
-      const existing = (userConvs as any[])?.find((c: any) => c.product_id === product.id && c.seller_id === product.seller_id);
+      const convArr = Array.isArray(userConvs) ? userConvs : Array.isArray(userConvs?.data) ? userConvs.data : [];
+      const existing = convArr.find((c: any) => c.product_id === product.id && c.seller_id === product.seller_id);
       if (existing) { navigate(`/chat/${existing.id}`); return; }
       
       const newConv = await api.post("/api/conversations", { buyer_id: user.id, seller_id: product.seller_id, product_id: product.id });

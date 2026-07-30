@@ -8,7 +8,7 @@ import SectionCarousel from "@/components/SectionCarousel";
 import FadeIn from "@/components/FadeIn";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
-import { getPlaceholder } from "@/lib/placeholders";
+
 import {
   ShoppingBag, CalendarDays, Search, BookOpen, Map,
   Users, Briefcase, ChevronRight, ArrowRight, Zap, Shield

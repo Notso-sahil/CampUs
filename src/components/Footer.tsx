@@ -12,8 +12,8 @@ export default function Footer() {
         <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
           <div className="col-span-2 md:col-span-1 space-y-3">
             <Link to="/" className="flex items-center gap-2">
-              <img src={logoImg} alt="CampusHub" className="h-6 w-6 object-contain" />
-              <span className="text-base font-semibold">CampusHub</span>
+              <img src={logoImg} alt="CampUs" className="h-6 w-6 object-contain" />
+              <span className="text-base font-semibold">CampUs</span>
             </Link>
             <p className="text-sm text-muted-foreground leading-relaxed">
               Built for VIPS students. Trade, connect, learn.
@@ -51,13 +51,13 @@ export default function Footer() {
             <h4 className="text-sm font-medium text-foreground">Contact</h4>
             <div className="flex items-center gap-2 text-sm text-muted-foreground">
               <Mail className="h-3.5 w-3.5 flex-shrink-0" />
-              <span>support@campushub.edu</span>
+              <span>campus91.official@gmail.com</span>
             </div>
           </div>
         </div>
 
         <div className="mt-10 pt-6 border-t border-border flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-muted-foreground">
-          <p>© {currentYear} CampusHub</p>
+          <p>© {currentYear} CampUs</p>
           <div className="flex items-center gap-4">
             <Link to="/privacy" className="hover:text-foreground transition-colors">Privacy</Link>
             <Link to="/terms" className="hover:text-foreground transition-colors">Terms</Link>
@@ -67,7 +67,7 @@ export default function Footer() {
 
       {/* Minimal footer — mobile only */}
       <div className="md:hidden px-4 py-3 flex items-center justify-between text-xs text-muted-foreground">
-        <p>© {currentYear} CampusHub</p>
+        <p>© {currentYear} CampUs</p>
         <div className="flex items-center gap-3">
           <Link to="/privacy" className="hover:text-foreground transition-colors">Privacy</Link>
           <Link to="/terms" className="hover:text-foreground transition-colors">Terms</Link>

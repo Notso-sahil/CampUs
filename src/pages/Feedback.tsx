@@ -56,7 +56,7 @@ export default function Feedback() {
             <Card className="shadow-soft border-border">
               <CardHeader>
                 <CardTitle className="font-display text-2xl">Send Feedback</CardTitle>
-                <CardDescription>Help us improve CampusHub. Your feedback matters!</CardDescription>
+                <CardDescription>Help us improve CampUs. Your feedback matters!</CardDescription>
               </CardHeader>
               <CardContent>
                 <form onSubmit={handleSubmit} className="space-y-4">

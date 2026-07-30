@@ -30,7 +30,7 @@ export default function PrivacyPolicy() {
 
             <section className="space-y-3">
               <h2 className="font-display text-xl font-semibold text-foreground">4. Cookies & Analytics</h2>
-              <p>CampusHub uses essential cookies for authentication and session management. We do not use third-party tracking cookies.</p>
+              <p>CampUs uses essential cookies for authentication and session management. We do not use third-party tracking cookies.</p>
             </section>
 
             <section className="space-y-3">
@@ -40,7 +40,7 @@ export default function PrivacyPolicy() {
 
             <section className="space-y-3">
               <h2 className="font-display text-xl font-semibold text-foreground">6. Contact</h2>
-              <p>For privacy-related inquiries, please use the Feedback form on our website or contact us at privacy@campushub.app.</p>
+              <p>For privacy-related inquiries, please use the Feedback form on our website or contact us at campus91.official@gmail.com.</p>
             </section>
           </div>
         </FadeIn>

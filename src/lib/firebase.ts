@@ -1,5 +1,5 @@
 import { initializeApp } from "firebase/app";
-import { getAuth } from "firebase/auth";
+import { getAuth, GoogleAuthProvider } from "firebase/auth";
 import { getAnalytics, isSupported } from "firebase/analytics";
 
 const firebaseConfig = {
@@ -14,8 +14,12 @@ const firebaseConfig = {
 
 export const app = initializeApp(firebaseConfig);
 export const auth = getAuth(app);
+export const googleProvider = new GoogleAuthProvider();
+googleProvider.setCustomParameters({ prompt: "select_account" });
 
 // Initialize analytics conditionally (browser only, avoids breaking in testing environments)
 export const analyticsPromise = typeof window !== "undefined"
   ? isSupported().then((supported) => supported ? getAnalytics(app) : null).catch(() => null)
   : Promise.resolve(null);
+
+

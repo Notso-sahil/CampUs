@@ -69,7 +69,7 @@ export default function OnboardingModal() {
     <Dialog open={isOpen}>
       <DialogContent className="sm:max-w-md" onInteractOutside={(e) => e.preventDefault()}>
         <DialogHeader>
-          <DialogTitle className="font-display text-2xl text-center">Welcome to CampusHub</DialogTitle>
+          <DialogTitle className="font-display text-2xl text-center">Welcome to CampUs</DialogTitle>
           <DialogDescription className="text-center">
             Join the VIPS campus community. Tell us what you're here for to get started.
           </DialogDescription>

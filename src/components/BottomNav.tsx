@@ -55,6 +55,7 @@ export default function BottomNav() {
               <MenuLink to="/knowledge" icon={<BookOpen />} label="Notes" />
               <MenuLink to="/expeditions" icon={<Map />} label="Trips" />
               <MenuLink to="/find-teammates" icon={<Users />} label="Teams" />
+              <MenuLink to="/find-roommate" icon={<Home />} label="Roommates" />
             </div>
 
             <div className="border-t border-border pt-4 space-y-2">

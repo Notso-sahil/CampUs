@@ -15,6 +15,7 @@ const NAV_LINKS = [
   { to: "/knowledge",     label: "Notes"                       },
   { to: "/expeditions",   label: "Expeditions"                 },
   { to: "/find-teammates",label: "Teams"                       },
+  { to: "/find-roommate", label: "Rooms"                       },
   { to: "/hire-peer",     label: "Services"                    },
 ];
 
@@ -50,9 +51,9 @@ export default function Navbar() {
         {/* Top row */}
         <div className="flex h-14 items-center justify-between gap-3">
           <Link to="/" className="flex-shrink-0 flex items-center gap-2">
-            <img src={logoImg} alt="CampusHub" className="h-7 w-7 object-contain" />
+            <img src={logoImg} alt="CampUs" className="h-7 w-7 object-contain" />
             <span className="text-lg font-semibold tracking-tight">
-              CampusHub
+              CampUs
             </span>
           </Link>
 
