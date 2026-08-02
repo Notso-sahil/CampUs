@@ -204,7 +204,7 @@ export default function ProductDetail() {
   return (
     <div className="min-h-screen">
       <Navbar />
-      <main className="container mx-auto px-4 py-8">
+      <main className="container mx-auto px-4 pt-8 pb-24 md:pb-8">
         <button
           onClick={() => navigate(-1)}
           className="mb-5 inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors tap-target"
