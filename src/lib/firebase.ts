@@ -24,4 +24,4 @@ export const analyticsPromise = typeof window !== "undefined"
   ? isSupported().then((supported) => supported ? getAnalytics(app) : null).catch(() => null)
   : Promise.resolve(null);
 
-export const db = getFirestore(app);
+export const db = getFirestore(app, "campus");
