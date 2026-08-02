@@ -38,12 +38,12 @@ export function useAuth() {
         setUser(wrapUser(fbUser, prof.user_role || undefined));
       } else {
         // New user — trigger onboarding modal
-        setProfile({ id: "", user_id: userId, display_name: null, college_name: null, user_role: null, onboarded: false });
+        setProfile({ id: "", user_id: userId, display_name: null, college_name: null, college_space_id: null, user_role: null, onboarded: false });
         setUser(wrapUser(fbUser));
       }
     } catch {
       // Network/server error — still let onboarding show so user isn't stuck
-      setProfile({ id: "", user_id: userId, display_name: null, college_name: null, user_role: null, onboarded: false });
+      setProfile({ id: "", user_id: userId, display_name: null, college_name: null, college_space_id: null, user_role: null, onboarded: false });
       setUser(wrapUser(fbUser));
     }
   };
