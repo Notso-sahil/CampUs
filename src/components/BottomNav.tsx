@@ -58,7 +58,7 @@ export default function BottomNav() {
               <MenuLink to="/find-roommate" icon={<Home />} label="Roommates" />
             </div>
 
-            <div className="border-t border-border pt-4 space-y-2">
+            <div className="border-t border-border pt-4 space-y-2 pb-20">
               {user ? (
                 <>
                   <Link to="/dashboard" className="flex items-center gap-3 p-3 rounded-xl hover:bg-secondary transition-colors font-medium">
