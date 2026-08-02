@@ -4,7 +4,6 @@ import { GoogleAuthProvider, signInWithPopup } from "firebase/auth";
 import { auth } from "@/lib/firebase";
 import { useToast } from "@/hooks/use-toast";
 import { AlertCircle, Loader2, ArrowRight, ArrowLeft } from "lucide-react";
-import logoImg from "@/assets/logo.png";
 
 const provider = new GoogleAuthProvider();
 provider.setCustomParameters({ prompt: "select_account" });
@@ -25,6 +24,7 @@ export default function Auth() {
     } catch (err: any) {
       console.error(err);
       if (err.code === "auth/popup-closed-by-user" || err.code === "auth/cancelled-popup-request") {
+        setError("Sign in cancelled.");
         setLoading(false);
         return;
       }
@@ -46,7 +46,6 @@ export default function Auth() {
       >
         {/* Logo */}
         <div className="flex items-center gap-2.5">
-          <img src={logoImg} alt="CampUs" className="h-7 w-7 object-contain" />
           <span className="text-xl font-bold tracking-tight">
             <span className="text-gray-900">Camp</span>
             <span style={{ color: "#2563EB" }}>Us</span>
@@ -93,7 +92,6 @@ export default function Auth() {
         <div className="w-full max-w-sm space-y-7 mx-auto my-auto">
           {/* Mobile logo */}
           <div className="flex lg:hidden items-center gap-2 justify-center mb-4">
-            <img src={logoImg} alt="CampUs" className="h-7 w-7 object-contain" />
             <span className="font-bold text-xl tracking-tight">
               <span className="text-gray-900">Camp</span>
               <span style={{ color: "#2563EB" }}>Us</span>

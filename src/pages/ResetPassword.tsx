@@ -1,7 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, ExternalLink, ShieldCheck } from "lucide-react";
-import logoImg from "@/assets/logo.png";
+
 
 export default function ResetPassword() {
   const navigate = useNavigate();
@@ -15,10 +15,7 @@ export default function ResetPassword() {
 
       <div className="w-full max-w-sm space-y-8 relative z-10 border border-border bg-card/60 backdrop-blur-md p-8 rounded-2xl shadow-soft text-center">
         <div className="space-y-3">
-          <div className="flex justify-center items-center gap-2.5">
-            <img src={logoImg} alt="CampUs" className="h-8 w-8 object-contain" />
-            <span className="text-xl font-semibold font-display">CampUs</span>
-          </div>
+          <span className="text-2xl font-bold tracking-tight">CampUs</span>
           <div className="flex justify-center">
             <div className="w-14 h-14 rounded-2xl bg-primary/10 flex items-center justify-center">
               <ShieldCheck className="h-7 w-7 text-primary" />

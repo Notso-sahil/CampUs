@@ -13,7 +13,7 @@ import {
   ShoppingBag, CalendarDays, Search, BookOpen, Map,
   Users, Briefcase, ChevronRight, ArrowRight, Zap, Shield
 } from "lucide-react";
-import logoImg from "@/assets/logo.png";
+
 
 interface CarouselItem {
   id: string;
