@@ -33,6 +33,14 @@ import HirePeer from "./pages/HirePeer";
 import PeerServiceDetail from "./pages/PeerServiceDetail";
 import ListPeerService from "./pages/ListPeerService";
 import NotFound from "./pages/NotFound";
+import AdminDashboard from "./pages/admin/AdminDashboard";
+import AdminOverview from "./pages/admin/AdminOverview";
+import AdminUsers from "./pages/admin/AdminUsers";
+import AdminListings from "./pages/admin/AdminListings";
+import AdminPeerServices from "./pages/admin/AdminPeerServices";
+import AdminEvents from "./pages/admin/AdminEvents";
+import AdminKnowledge from "./pages/admin/AdminKnowledge";
+import AdminCollegesPanel from "./pages/admin/AdminCollegesPanel";
 
 const queryClient = new QueryClient();
 
@@ -90,6 +98,17 @@ const AppRoutes = () => (
       <Route path="/roommate-chat/:id" element={
         <ProtectedRoute><RoommateChat /></ProtectedRoute>
       } />
+      <Route path="/admin" element={
+        <ProtectedRoute><AdminDashboard /></ProtectedRoute>
+      }>
+        <Route index element={<AdminOverview />} />
+        <Route path="users" element={<AdminUsers />} />
+        <Route path="listings" element={<AdminListings />} />
+        <Route path="services" element={<AdminPeerServices />} />
+        <Route path="events" element={<AdminEvents />} />
+        <Route path="knowledge" element={<AdminKnowledge />} />
+        <Route path="colleges" element={<AdminCollegesPanel />} />
+      </Route>
       <Route path="*" element={<NotFound />} />
     </Routes>
     </div>

@@ -17,9 +17,11 @@ export const auth = getAuth(app);
 export const googleProvider = new GoogleAuthProvider();
 googleProvider.setCustomParameters({ prompt: "select_account" });
 
+import { getFirestore } from "firebase/firestore";
+
 // Initialize analytics conditionally (browser only, avoids breaking in testing environments)
 export const analyticsPromise = typeof window !== "undefined"
   ? isSupported().then((supported) => supported ? getAnalytics(app) : null).catch(() => null)
   : Promise.resolve(null);
 
-
+export const db = getFirestore(app);

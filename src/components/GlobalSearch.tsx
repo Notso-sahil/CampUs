@@ -36,7 +36,7 @@ function getSearchScope(pathname: string): string | null {
 export default function GlobalSearch({ className }: { className?: string }) {
   const location = useLocation();
   const navigate = useNavigate();
-  const { selectedCollege } = useCollege();
+  const { browseCollege } = useCollege();
   const [query, setQuery] = useState("");
   const [results, setResults] = useState<SearchResult[]>([]);
   const [loading, setLoading] = useState(false);
@@ -64,7 +64,7 @@ export default function GlobalSearch({ className }: { className?: string }) {
     setLoading(true);
 
     const all: SearchResult[] = [];
-    const pattern = `%${q}%`;
+    const collegeQuery = browseCollege ? `&college_name=${encodeURIComponent(browseCollege)}` : '';
 
     const shouldSearch = (section: string) => !scope || scope === section;
 
@@ -72,7 +72,7 @@ export default function GlobalSearch({ className }: { className?: string }) {
 
     if (shouldSearch("trade")) {
       promises.push(
-        api.get(`/api/products?search=${encodeURIComponent(q)}`)
+        api.get(`/api/products?search=${encodeURIComponent(q)}${collegeQuery}`)
           .then((resp) => {
             const data = Array.isArray(resp) ? resp : (Array.isArray(resp?.data) ? resp.data : []);
             data.slice(0, 5).forEach((p: any) => all.push({ id: p.id, title: p.title, subtitle: `₹${p.price}`, section: "trade" as const, link: `/product/${p.id}` }));

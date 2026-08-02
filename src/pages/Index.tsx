@@ -33,7 +33,7 @@ const FEATURE_LINKS = [
 ];
 
 export default function Index() {
-  const { selectedCollege } = useCollege();
+  const { browseCollege } = useCollege();
   const { user } = useAuthContext();
   const navigate = useNavigate();
 
@@ -47,7 +47,7 @@ export default function Index() {
   useEffect(() => {
     const fetchAll = async () => {
       setLoading(true);
-      const college = selectedCollege;
+      const college = browseCollege;
       try {
         const [prodRes, evtRes, recRes, kbRes, expRes] = await Promise.all([
           api.get("/api/products"),
@@ -67,19 +67,19 @@ export default function Index() {
         };
 
         setTrade(processItems(prodRes).map((p: any) => ({
-          id: p.id, title: p.title, subtitle: `₹${p.price}`, imageUrl: p.image_urls?.[0] || getPlaceholder("trade"),
+          id: p.id, title: p.title, subtitle: `₹${p.price}`, imageUrl: p.image_urls?.[0] || "",
         })));
         setEvents(processItems(evtRes, "event_date").map((e: any) => ({
-          id: e.id, title: e.title, subtitle: e.location, imageUrl: e.image_url || getPlaceholder("events"),
+          id: e.id, title: e.title, subtitle: e.location, imageUrl: e.image_url || "",
         })));
         setRecover(processItems(recRes).map((r: any) => ({
-          id: r.id, title: r.title, subtitle: r.where_found, imageUrl: r.image_url || getPlaceholder("recover"),
+          id: r.id, title: r.title, subtitle: r.where_found, imageUrl: r.image_url || "",
         })));
         setKnowledge(processItems(kbRes).map((k: any) => ({
-          id: k.id, title: k.title, subtitle: [k.course, k.sub_course].filter(Boolean).join(" · "), imageUrl: getPlaceholder("knowledge"),
+          id: k.id, title: k.title, subtitle: [k.course, k.sub_course].filter(Boolean).join(" · "), imageUrl: "",
         })));
         setExpeditions(processItems(expRes, "event_date").map((x: any) => ({
-          id: x.id, title: x.title, subtitle: x.location, imageUrl: x.image_url || getPlaceholder("expeditions"),
+          id: x.id, title: x.title, subtitle: x.location, imageUrl: x.image_url || "",
         })));
       } catch (err) {
         console.error("Home fetch error:", err);
@@ -87,7 +87,7 @@ export default function Index() {
       setLoading(false);
     };
     fetchAll();
-  }, [selectedCollege, user]);
+  }, [browseCollege, user]);
 
   return (
     <div className="min-h-screen flex flex-col bg-background overflow-x-hidden">
@@ -100,7 +100,7 @@ export default function Index() {
             <div className="max-w-2xl">
               <FadeIn>
                 <p className="text-sm text-muted-foreground mb-4">
-                  {selectedCollege} &middot; Campus Platform
+                  {browseCollege} &middot; Campus Platform
                 </p>
                 <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold tracking-tight leading-[1.1] text-foreground">
                   Everything your
@@ -189,9 +189,9 @@ export default function Index() {
                   renderCard={(item) => (
                     <Link to={`/product/${item.id}`} className="block">
                       <div className="rounded-lg border border-border bg-card overflow-hidden hover:border-primary/30 transition-colors group/card">
-                        <div className="aspect-[4/3] bg-secondary overflow-hidden">
-                          <img src={item.imageUrl || getPlaceholder("trade")} alt={item.title}
-                            className="h-full w-full object-cover group-hover/card:scale-[1.03] transition-transform duration-300" loading="lazy" />
+                        <div className="relative aspect-video overflow-hidden">
+                          <img src={item.imageUrl || ""} alt={item.title}
+                            className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105" />
                         </div>
                         <div className="p-3">
                           <h4 className="text-sm font-medium line-clamp-1">{item.title}</h4>

@@ -1,11 +1,18 @@
 import { Link, useLocation } from "react-router-dom";
 import { useAuthContext } from "@/contexts/AuthContext";
-import { MessageCircle, LogOut, User, MapPin } from "lucide-react";
+import { MessageCircle, LogOut, User, MapPin, ChevronDown } from "lucide-react";
 import logoImg from "@/assets/logo.png";
 import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import GlobalSearch from "@/components/GlobalSearch";
 import { useState, useEffect } from "react";
 import { api } from "@/lib/api";
+import { useCollege } from "@/contexts/CollegeContext";
 
 const NAV_LINKS = [
   { to: "/",              label: "Home",           exact: true },
@@ -21,6 +28,7 @@ const NAV_LINKS = [
 
 export default function Navbar() {
   const { user, signOut } = useAuthContext();
+  const { browseCollege, colleges, setBrowseCollege } = useCollege();
   const location = useLocation();
   const [unreadCount, setUnreadCount] = useState(0);
 
@@ -60,11 +68,34 @@ export default function Navbar() {
           <GlobalSearch className="hidden md:flex flex-1 max-w-sm mx-4" />
 
           <div className="flex items-center gap-1 sm:gap-1.5 flex-shrink-0">
-            {/* Location chip */}
-            <div className="flex items-center gap-1 h-8 px-2.5 rounded-md bg-secondary text-xs font-medium text-muted-foreground">
-              <MapPin className="h-3 w-3 flex-shrink-0" />
-              <span className="truncate max-w-[80px]">VIPS</span>
-            </div>
+            {/* Location chip / College Switcher */}
+            {user ? (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <button className="flex items-center gap-1 h-8 px-2.5 rounded-md bg-secondary text-xs font-medium text-muted-foreground hover:bg-secondary/80 transition-colors">
+                    <MapPin className="h-3 w-3 flex-shrink-0" />
+                    <span className="truncate max-w-[80px]">{browseCollege || "Select"}</span>
+                    <ChevronDown className="h-3 w-3 opacity-50" />
+                  </button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-48">
+                  {colleges.map((c) => (
+                    <DropdownMenuItem
+                      key={c.id}
+                      onClick={() => setBrowseCollege(c.name)}
+                      className="text-sm cursor-pointer"
+                    >
+                      {c.name}
+                    </DropdownMenuItem>
+                  ))}
+                </DropdownMenuContent>
+              </DropdownMenu>
+            ) : (
+              <div className="flex items-center gap-1 h-8 px-2.5 rounded-md bg-secondary text-xs font-medium text-muted-foreground">
+                <MapPin className="h-3 w-3 flex-shrink-0" />
+                <span className="truncate max-w-[80px]">VIPS</span>
+              </div>
+            )}
 
             {user ? (
               <>

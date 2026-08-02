@@ -16,7 +16,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Tooltip, TooltipTrigger, TooltipContent } from "@/components/ui/tooltip";
+import { Card, CardContent } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
+import { uploadToCloudinary } from "@/lib/uploadToCloudinary";
 import { Download, Upload, Send, FileText, Lock } from "lucide-react";
 
 interface KnowledgeItem {
@@ -33,7 +36,7 @@ interface KnowledgeItem {
 
 export default function KnowledgeHub() {
   const { user, isAdmin } = useAuthContext();
-  const { selectedCollege } = useCollege();
+  const { browseCollege, userCollege } = useCollege();
   const navigate = useNavigate();
   const { toast } = useToast();
   const [items, setItems] = useState<KnowledgeItem[]>([]);
@@ -56,15 +59,15 @@ export default function KnowledgeHub() {
 
   useEffect(() => {
     fetchItems();
-  }, [selectedCourse, selectedSubCourse, selectedCollege]);
+  }, [selectedCourse, selectedSubCourse, browseCollege]);
 
   const fetchItems = async () => {
     setLoading(true);
     try {
       const resp = await api.get('/api/knowledge-hub');
       let result: KnowledgeItem[] = Array.isArray(resp) ? resp : (Array.isArray(resp?.data) ? resp.data : []);
-      const college = result.filter((k) => k.college_name === selectedCollege);
-      const other = result.filter((k) => k.college_name !== selectedCollege);
+      const college = result.filter((k) => k.college_name === browseCollege);
+      const other = result.filter((k) => k.college_name !== browseCollege);
       
       let filtered = [...college, ...other];
       if (selectedCourse !== "all") filtered = filtered.filter(k => k.course === selectedCourse);
@@ -112,8 +115,9 @@ export default function KnowledgeHub() {
     setUploading(true);
     try {
       let fileUrl: string | null = null;
-      // Upload logic removed since Supabase is being fully removed 
-      // and no Railway file upload endpoint is provided yet.
+      if (uploadFile) {
+        fileUrl = await uploadToCloudinary(uploadFile, "knowledge_hub");
+      }
 
       await api.post("/api/knowledge-hub", {
         title: uploadTitle,
@@ -123,7 +127,7 @@ export default function KnowledgeHub() {
         sub_course: uploadSubCourse || null,
         semester: uploadSemester || null,
         created_by: user.id,
-        college_name: selectedCollege,
+        college_name: browseCollege,
       });
       toast({ title: "Material uploaded!" });
       setShowUpload(false);
@@ -149,9 +153,24 @@ export default function KnowledgeHub() {
               </Button>
             )}
             {!isAdmin && user && (
-              <Button variant="outline" size="sm" onClick={handleRequestUpload} className="gap-2">
-                <Send className="h-4 w-4" /> Request to Upload
-              </Button>
+              userCollege === browseCollege ? (
+                <Button variant="outline" size="sm" onClick={handleRequestUpload} className="gap-2">
+                  <Send className="h-4 w-4" /> Request to Upload
+                </Button>
+              ) : (
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <div>
+                      <Button disabled variant="outline" size="sm" className="gap-2 opacity-50">
+                        <Send className="h-4 w-4" /> Request to Upload
+                      </Button>
+                    </div>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>Switch back to {userCollege} to request uploads</p>
+                  </TooltipContent>
+                </Tooltip>
+              )
             )}
           </div>
         </div>

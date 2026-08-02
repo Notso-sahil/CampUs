@@ -199,7 +199,7 @@ export default function ProductDetail() {
     );
   }
 
-  const images = product.image_urls && product.image_urls.length > 0 ? product.image_urls : [getPlaceholder("trade")];
+  const images = product.image_urls && product.image_urls.length > 0 ? product.image_urls : [""];
 
   return (
     <div className="min-h-screen">

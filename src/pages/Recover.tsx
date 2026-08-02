@@ -10,6 +10,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
+import { uploadToCloudinary } from "@/lib/uploadToCloudinary";
+import { Tooltip, TooltipTrigger, TooltipContent } from "@/components/ui/tooltip";
 import { Upload, MapPin, Phone, Search, Eye, HandHelping, X, CalendarDays } from "lucide-react";
 import { format } from "date-fns";
 
@@ -63,7 +65,9 @@ function LostItemForm({ onSuccess, user, selectedCollege }: { onSuccess: () => v
     setSubmitting(true);
     try {
       let imageUrl: string | null = null;
-      // Image upload via Supabase storage removed
+      if (image) {
+        imageUrl = await uploadToCloudinary(image, "recover_items");
+      }
 
       await api.post("/api/recover-items", {
         title,
@@ -167,7 +171,10 @@ function FoundItemForm({ onSuccess, user, selectedCollege }: { onSuccess: () => 
     }
     setSubmitting(true);
     try {
-      // Image upload via Supabase storage removed
+      let imageUrl: string | null = null;
+      if (image) {
+        imageUrl = await uploadToCloudinary(image, "recover_items");
+      }
 
       await api.post("/api/recover-items", {
         title,
@@ -176,7 +183,7 @@ function FoundItemForm({ onSuccess, user, selectedCollege }: { onSuccess: () => 
         where_currently: whereCurrently,
         contact_info: contactInfo,
         date_lost: format(dateLost, "yyyy-MM-dd"),
-        image_url: null, // Removed upload
+        image_url: imageUrl,
         created_by: user?.id || null,
         college_name: selectedCollege,
         type: "found" as const,
@@ -246,7 +253,7 @@ function FoundItemForm({ onSuccess, user, selectedCollege }: { onSuccess: () => 
 /* ─── Main Page ─── */
 export default function Recover() {
   const { user } = useAuthContext();
-  const { selectedCollege } = useCollege();
+  const { browseCollege, userCollege } = useCollege();
   const [items, setItems] = useState<RecoverItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<RecoverType | "all">("all");
@@ -254,7 +261,7 @@ export default function Recover() {
 
   useEffect(() => {
     fetchItems();
-  }, [selectedCollege]);
+  }, [browseCollege]);
 
   const fetchItems = async () => {
     setLoading(true);
@@ -264,8 +271,8 @@ export default function Recover() {
       // Assuming backend already sorts or we shouldn't strictly enforce sorting on frontend unless missing.
       // Easiest is to sort on frontend just in case:
       result.sort((a, b) => new Date(b.date_lost).getTime() - new Date(a.date_lost).getTime());
-      const college = result.filter((r) => r.college_name === selectedCollege);
-      const other = result.filter((r) => r.college_name !== selectedCollege);
+      const college = result.filter((r) => r.college_name === browseCollege);
+      const other = result.filter((r) => r.college_name !== browseCollege);
       setItems([...college, ...other]);
     } catch (err) {
       console.error("Recover fetch error:", err);
@@ -288,40 +295,78 @@ export default function Recover() {
         {/* Dual Option Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-10">
           {/* Lost Card */}
-          <button
-            onClick={() => setFormMode(formMode === "lost" ? null : "lost")}
-            className={`group relative rounded-2xl border p-6 text-left transition-all duration-300 ${
-              formMode === "lost"
-                ? "border-primary bg-accent/40 shadow-glow"
-                : "border-border bg-card hover:border-primary/40 hover:shadow-soft"
-            }`}
-          >
-            <div className="flex items-center gap-3 mb-3">
-              <div className="rounded-xl bg-destructive/10 p-3">
-                <Search className="h-6 w-6 text-destructive" />
+          {userCollege === browseCollege ? (
+            <button
+              onClick={() => setFormMode(formMode === "lost" ? null : "lost")}
+              className={`group relative rounded-2xl border p-6 text-left transition-all duration-300 ${
+                formMode === "lost"
+                  ? "border-primary bg-accent/40 shadow-glow"
+                  : "border-border bg-card hover:border-primary/40 hover:shadow-soft"
+              }`}
+            >
+              <div className="flex items-center gap-3 mb-3">
+                <div className="rounded-xl bg-destructive/10 p-3">
+                  <Search className="h-6 w-6 text-destructive" />
+                </div>
+                <h2 className="font-display text-xl font-semibold">My Item is Lost</h2>
               </div>
-              <h2 className="font-display text-xl font-semibold">My Item is Lost</h2>
-            </div>
-            <p className="text-sm text-muted-foreground">Broadcast what you're missing so others can help you find it.</p>
-          </button>
+              <p className="text-sm text-muted-foreground">Broadcast what you're missing so others can help you find it.</p>
+            </button>
+          ) : (
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <div className="group relative rounded-2xl border p-6 text-left transition-all duration-300 border-border bg-card opacity-50 cursor-not-allowed">
+                  <div className="flex items-center gap-3 mb-3">
+                    <div className="rounded-xl bg-destructive/10 p-3">
+                      <Search className="h-6 w-6 text-destructive" />
+                    </div>
+                    <h2 className="font-display text-xl font-semibold">My Item is Lost</h2>
+                  </div>
+                  <p className="text-sm text-muted-foreground">Broadcast what you're missing so others can help you find it.</p>
+                </div>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>Switch back to {userCollege} to report lost items</p>
+              </TooltipContent>
+            </Tooltip>
+          )}
 
           {/* Found Card */}
-          <button
-            onClick={() => setFormMode(formMode === "found" ? null : "found")}
-            className={`group relative rounded-2xl border p-6 text-left transition-all duration-300 ${
-              formMode === "found"
-                ? "border-primary bg-accent/40 shadow-glow"
-                : "border-border bg-card hover:border-primary/40 hover:shadow-soft"
-            }`}
-          >
-            <div className="flex items-center gap-3 mb-3">
-              <div className="rounded-xl bg-primary/10 p-3">
-                <HandHelping className="h-6 w-6 text-primary" />
+          {userCollege === browseCollege ? (
+            <button
+              onClick={() => setFormMode(formMode === "found" ? null : "found")}
+              className={`group relative rounded-2xl border p-6 text-left transition-all duration-300 ${
+                formMode === "found"
+                  ? "border-primary bg-accent/40 shadow-glow"
+                  : "border-border bg-card hover:border-primary/40 hover:shadow-soft"
+              }`}
+            >
+              <div className="flex items-center gap-3 mb-3">
+                <div className="rounded-xl bg-primary/10 p-3">
+                  <HandHelping className="h-6 w-6 text-primary" />
+                </div>
+                <h2 className="font-display text-xl font-semibold">Report a Found Item</h2>
               </div>
-              <h2 className="font-display text-xl font-semibold">Report a Found Item</h2>
-            </div>
-            <p className="text-sm text-muted-foreground">Found someone's property? Report it with a photo so they can claim it.</p>
-          </button>
+              <p className="text-sm text-muted-foreground">Found someone's property? Report it with a photo so they can claim it.</p>
+            </button>
+          ) : (
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <div className="group relative rounded-2xl border p-6 text-left transition-all duration-300 border-border bg-card opacity-50 cursor-not-allowed">
+                  <div className="flex items-center gap-3 mb-3">
+                    <div className="rounded-xl bg-primary/10 p-3">
+                      <HandHelping className="h-6 w-6 text-primary" />
+                    </div>
+                    <h2 className="font-display text-xl font-semibold">Report a Found Item</h2>
+                  </div>
+                  <p className="text-sm text-muted-foreground">Found someone's property? Report it with a photo so they can claim it.</p>
+                </div>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>Switch back to {userCollege} to report found items</p>
+              </TooltipContent>
+            </Tooltip>
+          )}
         </div>
 
         {/* Form */}
@@ -336,9 +381,9 @@ export default function Recover() {
               </Button>
             </div>
             {formMode === "lost" ? (
-              <LostItemForm onSuccess={() => { setFormMode(null); fetchItems(); }} user={user} selectedCollege={selectedCollege} />
+              <LostItemForm onSuccess={() => { setFormMode(null); fetchItems(); }} user={user} selectedCollege={browseCollege} />
             ) : (
-              <FoundItemForm onSuccess={() => { setFormMode(null); fetchItems(); }} user={user} selectedCollege={selectedCollege} />
+              <FoundItemForm onSuccess={() => { setFormMode(null); fetchItems(); }} user={user} selectedCollege={browseCollege} />
             )}
           </div>
         )}

@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { uploadToCloudinary } from "@/lib/uploadToCloudinary";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import { Upload, X, MapPin, Tag, ShieldCheck } from "lucide-react";
@@ -20,7 +21,7 @@ export default function Sell() {
   const { user, profile } = useAuthContext();
   const navigate = useNavigate();
   const { toast } = useToast();
-  
+
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [price, setPrice] = useState("");
@@ -43,7 +44,7 @@ export default function Sell() {
       toast({ title: "Max 4 images", variant: "destructive" });
       return;
     }
-    
+
     files.forEach((file) => {
       if (!ALLOWED_TYPES.includes(file.type)) {
         toast({ title: "Only JPEG, PNG, and WebP images allowed", variant: "destructive" });
@@ -76,10 +77,9 @@ export default function Sell() {
 
     setLoading(true);
     try {
-      // In a real app, we'd upload to Cloudinary/S3 here. 
-      // For now, we send the previews (base64) or a placeholder if the backend has size limits.
-      // We'll use the first preview as the main image.
-      const imageUrls = previews.slice(0, 4);
+      const imageUrls = await Promise.all(
+        images.slice(0, 4).map((file) => uploadToCloudinary(file, "products"))
+      );
 
       await api.post("/api/products", {
         seller_id: user.id,
@@ -113,7 +113,7 @@ export default function Sell() {
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-6 bg-card border border-border rounded-lg p-5">
-            
+
             {/* Image Upload */}
             <div className="space-y-3">
               <div className="flex items-center justify-between">
@@ -124,9 +124,9 @@ export default function Sell() {
                 {previews.map((src, i) => (
                   <div key={i} className="relative aspect-square overflow-hidden rounded-xl bg-secondary group shadow-sm">
                     <img src={src} alt="" className="h-full w-full object-cover transition-transform group-hover:scale-105" />
-                    <button 
-                      type="button" 
-                      onClick={() => removeImage(i)} 
+                    <button
+                      type="button"
+                      onClick={() => removeImage(i)}
                       className="absolute right-1.5 top-1.5 h-7 w-7 rounded-full bg-black/60 text-white flex items-center justify-center"
                     >
                       <X className="h-3.5 w-3.5" />
@@ -153,26 +153,26 @@ export default function Sell() {
             <div className="space-y-4 pt-4 border-t border-border/50">
               <div className="space-y-2">
                 <Label htmlFor="title" className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Item Title</Label>
-                <Input 
-                  id="title" 
-                  required 
-                  value={title} 
-                  onChange={(e) => setTitle(e.target.value)} 
-                  placeholder="e.g., Staedtler Mars Mini Drafter" 
-                  maxLength={150} 
+                <Input
+                  id="title"
+                  required
+                  value={title}
+                  onChange={(e) => setTitle(e.target.value)}
+                  placeholder="e.g., Staedtler Mars Mini Drafter"
+                  maxLength={150}
                   className="h-12 rounded-xl border-border bg-background focus:ring-primary/20"
                 />
               </div>
 
               <div className="space-y-2">
                 <Label htmlFor="description" className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Description</Label>
-                <Textarea 
-                  id="description" 
-                  value={description} 
-                  onChange={(e) => setDescription(e.target.value)} 
-                  placeholder="What is the condition? Any defects? Is the price negotiable?" 
-                  rows={4} 
-                  maxLength={2000} 
+                <Textarea
+                  id="description"
+                  value={description}
+                  onChange={(e) => setDescription(e.target.value)}
+                  placeholder="What is the condition? Any defects? Is the price negotiable?"
+                  rows={4}
+                  maxLength={2000}
                   className="rounded-xl border-border bg-background resize-none focus:ring-primary/20"
                 />
               </div>
@@ -182,14 +182,14 @@ export default function Sell() {
                   <Label htmlFor="price" className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Price (₹)</Label>
                   <div className="relative">
                     <span className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground font-bold text-lg">₹</span>
-                    <Input 
-                      id="price" 
-                      type="number" 
-                      required 
-                      min="0" 
-                      value={price} 
-                      onChange={(e) => setPrice(e.target.value)} 
-                      placeholder="0.00" 
+                    <Input
+                      id="price"
+                      type="number"
+                      required
+                      min="0"
+                      value={price}
+                      onChange={(e) => setPrice(e.target.value)}
+                      placeholder="0.00"
                       className="pl-9 h-12 rounded-xl border-border bg-background focus:ring-primary/20"
                     />
                   </div>
@@ -245,9 +245,9 @@ export default function Sell() {
               </p>
             </div>
 
-            <Button 
-              type="submit" 
-              className="w-full h-11 bg-primary text-primary-foreground font-medium rounded-lg hover:bg-primary/90 transition-colors" 
+            <Button
+              type="submit"
+              className="w-full h-11 bg-primary text-primary-foreground font-medium rounded-lg hover:bg-primary/90 transition-colors"
               disabled={loading}
             >
               {loading ? (

@@ -44,7 +44,7 @@ type View = "browse" | "create" | "my-room";
 
 export default function FindRoommate() {
   const { user } = useAuthContext();
-  const { selectedCollege } = useCollege();
+  const { browseCollege } = useCollege();
   const { toast } = useToast();
   const navigate = useNavigate();
 
@@ -72,7 +72,7 @@ export default function FindRoommate() {
     setLoading(true);
     try {
       // Get all listings for the college
-      const allListings = await api.get(`/api/roommate-listings${selectedCollege ? `?college_name=${encodeURIComponent(selectedCollege)}` : ''}`);
+      const allListings = await api.get(`/api/roommate-listings${browseCollege ? `?college_name=${encodeURIComponent(browseCollege)}` : ''}`);
       setListings((allListings as RoommateListing[]) || []);
 
       if (user) {
@@ -98,7 +98,7 @@ export default function FindRoommate() {
     setLoading(false);
   };
 
-  useEffect(() => { fetchData(); }, [user, selectedCollege]);
+  useEffect(() => { fetchData(); }, [user, browseCollege]);
 
   const handleCreate = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -113,7 +113,7 @@ export default function FindRoommate() {
         rent_per_head: rentPerHead.trim(),
         gender_preference: genderPref,
         roommates_needed: parseInt(roommatesNeeded, 10),
-        college_name: selectedCollege,
+        college_name: browseCollege,
       });
 
       // Automatically add creator as an approved member

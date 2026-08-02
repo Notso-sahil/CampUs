@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { api } from "@/lib/api";
 import { useAuthContext } from "@/contexts/AuthContext";
-import { useChatPolling } from "@/hooks/useChatPolling";
+import { useRealtimeChat } from "@/hooks/useRealtimeChat";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ArrowLeft, Send, Users, Clock } from "lucide-react";
@@ -85,13 +85,13 @@ export default function TeamChat() {
     init();
   }, [teamId, user]);
 
-  useChatPolling(async () => {
+  useRealtimeChat(teamId ? `team_signals/${teamId}` : null, async () => {
     if (!teamId) return;
     try {
       const msgs = await api.get(`/api/team-messages?team_id=${teamId}`);
       setMessages(Array.isArray(msgs) ? msgs : []);
     } catch (e) { console.error(e); }
-  }, 4000, [teamId]);
+  });
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });

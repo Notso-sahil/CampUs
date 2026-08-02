@@ -2,25 +2,35 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { api } from "@/lib/api";
 import { useAuthContext } from "@/contexts/AuthContext";
+import { useCollege } from "@/contexts/CollegeContext";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import FadeIn from "@/components/FadeIn";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import {
   ArrowLeft, Save, User, Mail, Phone, ShieldCheck,
-  MapPin, ExternalLink
+  MapPin, ExternalLink, School
 } from "lucide-react";
 
 export default function ProfileSettings() {
   const { user, profile, refreshProfile } = useAuthContext();
+  const { colleges } = useCollege();
   const navigate = useNavigate();
   const { toast } = useToast();
 
   const [displayName, setDisplayName] = useState("");
   const [phoneNumber, setPhoneNumber] = useState("");
+  const [collegeName, setCollegeName] = useState("");
   const [email, setEmail] = useState("");
   const [saving, setSaving] = useState(false);
 
@@ -28,6 +38,7 @@ export default function ProfileSettings() {
     if (profile) {
       setDisplayName(profile.display_name || "");
       setPhoneNumber((profile as any).phone_number || "");
+      setCollegeName(profile.college_name || "");
     }
     if (user) {
       setEmail(user.email || "");
@@ -48,10 +59,14 @@ export default function ProfileSettings() {
     }
     setSaving(true);
     try {
+      const selectedCollegeSpace = colleges.find(c => c.name === collegeName);
+      
       await api.put("/api/profile", {
         user_id: user.id,
         display_name: displayName.trim() || null,
         phone_number: phoneNumber.trim() || null,
+        college_name: collegeName || null,
+        college_space_id: selectedCollegeSpace ? selectedCollegeSpace.id : null,
       });
       await refreshProfile();
       toast({ title: "✅ Profile updated!", description: "Your changes have been saved." });
@@ -129,6 +144,23 @@ export default function ProfileSettings() {
                   className="h-11 rounded-xl"
                 />
                 <p className="text-xs text-muted-foreground">Optional. Only shared with your team members.</p>
+              </div>
+
+              <div className="space-y-1.5">
+                <Label className="text-xs font-bold uppercase tracking-widest text-muted-foreground flex items-center gap-1.5">
+                  <School className="h-3.5 w-3.5" /> My College
+                </Label>
+                <Select value={collegeName} onValueChange={setCollegeName}>
+                  <SelectTrigger className="h-11 rounded-xl">
+                    <SelectValue placeholder="Select your college" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {colleges.map((c) => (
+                      <SelectItem key={c.id} value={c.name}>{c.name}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <p className="text-xs text-muted-foreground">You can only post and interact in your home college.</p>
               </div>
 
               <Button

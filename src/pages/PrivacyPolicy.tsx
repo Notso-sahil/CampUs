@@ -20,7 +20,7 @@ export default function PrivacyPolicy() {
 
             <section className="space-y-3">
               <h2 className="font-display text-xl font-semibold text-foreground">2. Data Privacy</h2>
-              <p>Your contact information is hidden from unauthenticated users and is only shared with verified buyers or team members through secure, authenticated channels. All data is stored using industry-standard encryption via Supabase.</p>
+              <p>Your contact information is hidden from unauthenticated users and is only shared with verified buyers or team members through secure, authenticated channels. All data is stored using industry-standard encryption via our secure database.</p>
             </section>
 
             <section className="space-y-3">

@@ -12,11 +12,20 @@ export interface WrappedFirebaseUser {
   };
 }
 
+export interface CollegeSpace {
+  id: number;
+  name: string;
+  description: string | null;
+  location: string | null;
+  created_by: string;
+}
+
 export interface Profile {
   id: string;
   user_id: string;
   display_name: string | null;
   college_name: string | null;
+  college_space_id: number | null;
   user_role: string | null;
   onboarded: boolean;
 }

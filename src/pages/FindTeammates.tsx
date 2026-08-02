@@ -11,6 +11,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Tooltip, TooltipTrigger, TooltipContent } from "@/components/ui/tooltip";
 import { useToast } from "@/hooks/use-toast";
 import { Users, Plus, Search, Copy, UserPlus, Crown, Trash2, LogOut, ArrowRightLeft, MessageCircle } from "lucide-react";
 
@@ -47,7 +48,7 @@ type View = "browse" | "create" | "my-team";
 
 export default function FindTeammates() {
   const { user } = useAuthContext();
-  const { selectedCollege } = useCollege();
+  const { browseCollege, userCollege } = useCollege();
   const { toast } = useToast();
   const navigate = useNavigate();
 
@@ -71,8 +72,11 @@ export default function FindTeammates() {
   const fetchData = async () => {
     setLoading(true);
     try {
-      const allTeams = await api.get('/api/teams');
-      setTeams((allTeams as Team[]) || []);
+      const allTeamsData = await api.get('/api/teams');
+      const allTeams = (allTeamsData as Team[]) || [];
+      const collegeTeams = allTeams.filter(t => t.college_name === browseCollege);
+      const otherTeams = allTeams.filter(t => t.college_name !== browseCollege);
+      setTeams([...collegeTeams, ...otherTeams]);
 
       if (user) {
         const membersData = await api.get(`/api/team-members?user_id=${user.id}`);
@@ -105,7 +109,7 @@ export default function FindTeammates() {
     setLoading(false);
   };
 
-  useEffect(() => { fetchData(); }, [user]);
+  useEffect(() => { fetchData(); }, [user, browseCollege]);
 
   const handleCreate = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -116,7 +120,7 @@ export default function FindTeammates() {
         name: teamName.trim(),
         description: teamDesc.trim() || null,
         leader_id: user.id,
-        college_name: selectedCollege,
+        college_name: browseCollege,
         looking_for_role: lookingForRole.trim() || null,
         looking_for_description: lookingForDesc.trim() || null,
       });
@@ -345,13 +349,28 @@ export default function FindTeammates() {
                 >
                   <Search className="h-4 w-4 mr-1" /> Browse Teams
                 </Button>
-                <Button
-                  variant={view === "create" ? "default" : "outline"}
-                  className="rounded-lg"
-                  onClick={() => setView("create")}
-                >
-                  <Plus className="h-4 w-4 mr-1" /> Create Team
-                </Button>
+                {userCollege === browseCollege ? (
+                  <Button
+                    variant={view === "create" ? "default" : "outline"}
+                    className="rounded-lg"
+                    onClick={() => setView("create")}
+                  >
+                    <Plus className="h-4 w-4 mr-1" /> Create Team
+                  </Button>
+                ) : (
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <div>
+                        <Button disabled variant="outline" className="rounded-lg opacity-50">
+                          <Plus className="h-4 w-4 mr-1" /> Create Team
+                        </Button>
+                      </div>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>Switch back to {userCollege} to create a team</p>
+                    </TooltipContent>
+                  </Tooltip>
+                )}
               </div>
             </FadeIn>
 

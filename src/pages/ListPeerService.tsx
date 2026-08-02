@@ -20,7 +20,7 @@ const DELIVERY_METHODS = ["On-Campus Handover", "Digital PDF", "WhatsApp", "Digi
 // ── Multi-step form: Step 1 = Expert Profile, Step 2 = Service Listing ────────
 export default function ListPeerService() {
   const { user } = useAuthContext();
-  const { selectedCollege } = useCollege();
+  const { browseCollege } = useCollege();
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -28,7 +28,7 @@ export default function ListPeerService() {
   const [loading, setLoading] = useState(false);
 
   // Step 1 — Expert Profile
-  const [displayName, setDisplayName] = useState(user?.fullName || "");
+  const [displayName, setDisplayName] = useState(user?.displayName || "");
   const [bio, setBio] = useState("");
   const [skills, setSkills] = useState("");
   const [whatsapp, setWhatsapp] = useState("");
@@ -69,7 +69,7 @@ export default function ListPeerService() {
         user_id: user.id,
         display_name: displayName,
         bio,
-        college_name: selectedCollege,
+        college_name: browseCollege,
         skills: skills.split(",").map(s => s.trim()).filter(Boolean),
         availability,
         sample_work_urls: samplePreviews,
@@ -98,7 +98,7 @@ export default function ListPeerService() {
         delivery_method: deliveryMethod,
         portfolio_urls: portfolioPreviews,
         tags: tags.split(",").map(t => t.trim()).filter(Boolean),
-        college_name: selectedCollege,
+        college_name: browseCollege,
       });
       if (result?.error) {
         toast({ title: "Not Approved Yet", description: result.error, variant: "destructive" });
@@ -212,7 +212,7 @@ export default function ListPeerService() {
                 </div>
               </div>
 
-              <Button onClick={submitProfile} disabled={loading || !displayName || !bio || !selectedCollege}
+              <Button onClick={submitProfile} disabled={loading || !displayName || !bio || !browseCollege}
                 className="w-full h-11 bg-primary text-primary-foreground rounded-lg font-medium hover:bg-primary/90 transition-colors gap-2">
                 {loading ? <div className="h-5 w-5 border-2 border-white border-t-transparent rounded-full animate-spin" /> : <><ShieldCheck className="h-4 w-4" /> Submit for Verification</>}
               </Button>

@@ -1,6 +1,6 @@
 /**
  * Hire a Peer — Express Routes
- * Add these to your main Railway Express server.
+ * Add these to your main Express server.
  *
  * SETUP:
  *  1. Run the SQL in hire-peer-schema.sql against your Neon Postgres DB.

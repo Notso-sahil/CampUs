@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { api } from "@/lib/api";
 import { useAuthContext } from "@/contexts/AuthContext";
+import { useCollege } from "@/contexts/CollegeContext";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import {
@@ -28,7 +29,8 @@ const ROLES = [
 
 export default function OnboardingModal() {
   const { user, profile, refreshProfile } = useAuthContext();
-  const [college] = useState("VIPS");
+  const { colleges } = useCollege();
+  const [collegeName, setCollegeName] = useState("");
   const [role, setRole] = useState("");
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
@@ -37,12 +39,15 @@ export default function OnboardingModal() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!user || !college || !role) return;
+    if (!user || !collegeName || !role) return;
     setLoading(true);
     try {
+      const selectedCollegeSpace = colleges.find(c => c.name === collegeName);
+      
       const payload = {
         user_id: user.id,
-        college_name: college,
+        college_name: collegeName,
+        college_space_id: selectedCollegeSpace ? selectedCollegeSpace.id : null,
         user_role: role,
         onboarded: true,
       };
@@ -71,26 +76,24 @@ export default function OnboardingModal() {
         <DialogHeader>
           <DialogTitle className="font-display text-2xl text-center">Welcome to CampUs</DialogTitle>
           <DialogDescription className="text-center">
-            Join the VIPS campus community. Tell us what you're here for to get started.
+            Join your campus community. Tell us your college and what you're here for to get started.
           </DialogDescription>
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-6 pt-2">
           <div className="space-y-4">
-            <div className="p-4 bg-secondary/30 rounded-xl space-y-2 border border-border/50">
-              <div className="flex items-center justify-between">
-                <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Location</span>
-                <span className="text-[10px] font-bold text-primary px-2 py-0.5 bg-primary/10 rounded-full">Delhi Hub</span>
-              </div>
-              <div className="flex items-center gap-3">
-                <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
-                  <MapPin className="h-5 w-5 text-primary" />
-                </div>
-                <div>
-                  <p className="text-sm font-semibold">VIPS, Delhi</p>
-                  <p className="text-[10px] text-muted-foreground line-clamp-1">Vivekananda Institute of Professional Studies</p>
-                </div>
-              </div>
+            <div className="space-y-3">
+              <Label className="text-sm font-medium">Select your college</Label>
+              <Select value={collegeName} onValueChange={setCollegeName}>
+                <SelectTrigger className="h-12 border-border/50 bg-secondary/20 rounded-xl focus:ring-primary/20">
+                  <SelectValue placeholder="Choose a college" />
+                </SelectTrigger>
+                <SelectContent>
+                  {colleges.map((c) => (
+                    <SelectItem key={c.id} value={c.name}>{c.name}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
 
             <div className="space-y-3">
@@ -111,9 +114,9 @@ export default function OnboardingModal() {
           <Button
             type="submit"
             className="w-full h-12 bg-primary text-primary-foreground font-semibold rounded-xl hover:bg-primary/90 transition-colors"
-            disabled={loading || !role}
+            disabled={loading || !role || !collegeName}
           >
-            {loading ? "Setting up your profile..." : "Start Exploring VIPS Hub"}
+            {loading ? "Setting up your profile..." : "Start Exploring"}
           </Button>
         </form>
       </DialogContent>

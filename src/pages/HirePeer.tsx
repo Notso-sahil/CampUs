@@ -158,7 +158,7 @@ const MOCK_SERVICES: PeerService[] = [
 // ─── Component ────────────────────────────────────────────────────────────────
 export default function HirePeer() {
   const { user } = useAuthContext();
-  const { selectedCollege } = useCollege();
+  const { browseCollege, userCollege } = useCollege();
   const navigate = useNavigate();
 
   const [activeCategory, setActiveCategory] = useState("all");
@@ -176,8 +176,8 @@ export default function HirePeer() {
       setLoading(true);
       try {
         const params = new URLSearchParams();
+        if (browseCollege) params.set("college_name", browseCollege);
         if (activeCategory !== "all") params.set("category", activeCategory);
-        if (selectedCollege) params.set("college_name", selectedCollege);
         if (searchQuery) params.set("search", searchQuery);
 
         const resp = await api.get(`/api/peer-services?${params.toString()}`);
@@ -204,7 +204,7 @@ export default function HirePeer() {
       setLoading(false);
     };
     fetchServices();
-  }, [activeCategory, searchQuery, selectedCollege, sortBy]);
+  }, [activeCategory, searchQuery, browseCollege, sortBy]);
 
   function sortServices(data: PeerService[], sort: string): PeerService[] {
     const arr = [...data];

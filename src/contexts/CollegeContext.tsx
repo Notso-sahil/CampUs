@@ -1,34 +1,61 @@
-import { createContext, useContext, useState, ReactNode } from "react";
+import { createContext, useContext, useState, ReactNode, useEffect } from "react";
+import { useAuthContext } from "@/contexts/AuthContext";
+import { api } from "@/lib/api";
+import type { CollegeSpace } from "@/types";
 
 interface CollegeContextType {
-  selectedCollege: string;
-  selectedState: string;
-  setSelectedCollege: (college: string) => void;
-  setLocation: (state: string, college: string) => void;
+  userCollege: string | null;
+  browseCollege: string | null;
+  colleges: CollegeSpace[];
+  loading: boolean;
+  setBrowseCollege: (collegeName: string) => void;
 }
 
 const CollegeContext = createContext<CollegeContextType>({
-  selectedCollege: "VIPS",
-  selectedState: "Delhi",
-  setSelectedCollege: () => {},
-  setLocation: () => {},
+  userCollege: null,
+  browseCollege: null,
+  colleges: [],
+  loading: true,
+  setBrowseCollege: () => {},
 });
 
 export function CollegeProvider({ children }: { children: ReactNode }) {
-  // Hardcoded to VIPS and Delhi as per user request
-  const selectedCollege = "VIPS";
-  const selectedState = "Delhi";
+  const { profile } = useAuthContext();
+  const [colleges, setColleges] = useState<CollegeSpace[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [browseCollegeState, setBrowseCollegeState] = useState<string | null>(
+    sessionStorage.getItem("browseCollege")
+  );
 
-  const handleSetCollege = (_college: string) => {
-    // Disabled: only VIPS allowed
-  };
+  useEffect(() => {
+    const fetchColleges = async () => {
+      try {
+        const data = await api.get("/api/college-spaces");
+        setColleges(Array.isArray(data) ? data : Array.isArray((data as any)?.data) ? (data as any).data : []);
+      } catch (err) {
+        console.error("Failed to fetch college spaces", err);
+      }
+      setLoading(false);
+    };
+    fetchColleges();
+  }, []);
 
-  const handleSetLocation = (_state: string, _college: string) => {
-    // Disabled: only Delhi and VIPS allowed
+  const userCollege = profile?.college_name || null;
+  const browseCollege = browseCollegeState || userCollege || "VIPS";
+
+  const handleSetBrowseCollege = (collegeName: string) => {
+    setBrowseCollegeState(collegeName);
+    sessionStorage.setItem("browseCollege", collegeName);
   };
 
   return (
-    <CollegeContext.Provider value={{ selectedCollege, selectedState, setSelectedCollege: handleSetCollege, setLocation: handleSetLocation }}>
+    <CollegeContext.Provider value={{
+      userCollege,
+      browseCollege,
+      colleges,
+      loading,
+      setBrowseCollege: handleSetBrowseCollege
+    }}>
       {children}
     </CollegeContext.Provider>
   );

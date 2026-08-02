@@ -9,6 +9,7 @@ import FadeIn from "@/components/FadeIn";
 import ProductCard from "@/components/ProductCard";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Tooltip, TooltipTrigger, TooltipContent } from "@/components/ui/tooltip";
 import { PRODUCT_CATEGORIES } from "@/lib/categories";
 import {
   Plus, Search, X, SlidersHorizontal, ShoppingBag,
@@ -120,7 +121,7 @@ const CONDITION_FILTERS = ["New", "Like New", "Good", "Fair"];
 
 export default function Trade() {
   const { user } = useAuthContext();
-  const { selectedCollege } = useCollege();
+  const { browseCollege, userCollege } = useCollege();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
 
@@ -144,8 +145,8 @@ export default function Trade() {
           : Array.isArray(resp?.data) ? resp.data : [];
 
         // College priority
-        const college = items.filter(p => p.college_name === selectedCollege);
-        const other   = items.filter(p => p.college_name !== selectedCollege);
+        const college = items.filter(p => p.college_name === browseCollege);
+        const other   = items.filter(p => p.college_name !== browseCollege);
         items = [...college, ...other];
 
         if (items.length === 0) items = MOCK_PRODUCTS;
@@ -160,13 +161,13 @@ export default function Trade() {
         if (sortBy === "price_desc") items.sort((a, b) => b.price - a.price);
 
         setProducts(items);
-      } catch {
-        setProducts(MOCK_PRODUCTS);
+      } catch (error) {
+        console.error("Trade fetch error:", error);
       }
       setLoading(false);
     };
     fetchProducts();
-  }, [activeCategory, searchQuery, conditionFilter, sortBy, selectedCollege]);
+  }, [activeCategory, searchQuery, conditionFilter, sortBy, browseCollege]);
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -202,9 +203,24 @@ export default function Trade() {
                   </p>
                 </div>
                 {user && (
-                  <Button asChild className="h-10 px-5 bg-primary text-primary-foreground rounded-lg font-medium hover:bg-primary/90 transition-colors gap-2 self-start md:self-auto">
-                    <Link to="/sell"><Plus className="h-4 w-4" /> List item</Link>
-                  </Button>
+                  userCollege === browseCollege ? (
+                    <Button asChild className="h-10 px-5 bg-primary text-primary-foreground rounded-lg font-medium hover:bg-primary/90 transition-colors gap-2 self-start md:self-auto">
+                      <Link to="/sell"><Plus className="h-4 w-4" /> List item</Link>
+                    </Button>
+                  ) : (
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <div className="self-start md:self-auto">
+                          <Button disabled className="h-10 px-5 bg-primary/50 text-primary-foreground rounded-lg font-medium gap-2">
+                            <Plus className="h-4 w-4" /> List item
+                          </Button>
+                        </div>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>Switch back to {userCollege} to post here</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  )
                 )}
               </div>
             </FadeIn>

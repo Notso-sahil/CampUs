@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { useNavigate, useParams, Link } from "react-router-dom";
 import { api } from "@/lib/api";
 import { useAuthContext } from "@/contexts/AuthContext";
-import { useChatPolling } from "@/hooks/useChatPolling";
+import { useRealtimeChat } from "@/hooks/useRealtimeChat";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ArrowLeft, Send, Users, Clock, Home } from "lucide-react";
@@ -72,7 +72,7 @@ export default function RoommateChat() {
     init();
   }, [user, id]);
 
-  useChatPolling(async () => {
+  useRealtimeChat(id ? `roommate_signals/${id}` : null, async () => {
     if (!id) return;
     try {
       const msgs = await api.get(`/api/roommate-messages?listing_id=${id}`);
@@ -80,7 +80,7 @@ export default function RoommateChat() {
     } catch (e) { 
        console.error(e);
     }
-  }, 4000, [id]);
+  });
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -159,7 +159,7 @@ export default function RoommateChat() {
             const colorClass = MEMBER_COLORS[colorIndex % MEMBER_COLORS.length];
 
             return (
-              <FadeIn key={msg.id} duration={0.3}>
+              <FadeIn key={msg.id}>
                 <div className="space-y-1">
                   {showTime && (
                     <p className="text-[11px] text-muted-foreground text-center py-2 font-medium uppercase tracking-wider">

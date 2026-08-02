@@ -5,6 +5,7 @@ import { useAuthContext } from "@/contexts/AuthContext";
 import { useCollege } from "@/contexts/CollegeContext";
 import Navbar from "@/components/Navbar";
 import { Button } from "@/components/ui/button";
+import { Tooltip, TooltipTrigger, TooltipContent } from "@/components/ui/tooltip";
 import { useToast } from "@/hooks/use-toast";
 import { Calendar, MapPin, Lock, Send } from "lucide-react";
 import { format } from "date-fns";
@@ -21,7 +22,7 @@ interface Event {
 
 export default function Events() {
   const { user, isAdmin } = useAuthContext();
-  const { selectedCollege } = useCollege();
+  const { browseCollege, userCollege } = useCollege();
   const navigate = useNavigate();
   const { toast } = useToast();
   const [events, setEvents] = useState<Event[]>([]);
@@ -31,15 +32,15 @@ export default function Events() {
   useEffect(() => {
     api.get('/api/events').then((resp) => {
       let items: Event[] = Array.isArray(resp) ? resp : (Array.isArray(resp?.data) ? resp.data : []);
-      const college = items.filter((e) => e.college_name === selectedCollege);
-      const other = items.filter((e) => e.college_name !== selectedCollege);
+      const college = items.filter((e) => e.college_name === browseCollege);
+      const other = items.filter((e) => e.college_name !== browseCollege);
       setEvents([...college, ...other]);
       setLoading(false);
     }).catch((error) => {
       console.error("Events fetch error:", error);
       setLoading(false);
     });
-  }, [selectedCollege]);
+  }, [browseCollege]);
 
   const handleClick = (id: string) => {
     if (!user) {
@@ -73,9 +74,24 @@ export default function Events() {
         <div className="flex items-center justify-between mb-8">
           <h1 className="text-2xl font-bold">Events</h1>
           {!isAdmin && user && (
-            <Button variant="outline" size="sm" onClick={handleRequestUpload} className="gap-2">
-              <Send className="h-4 w-4" /> Request to Upload
-            </Button>
+            userCollege === browseCollege ? (
+              <Button variant="outline" size="sm" onClick={handleRequestUpload} className="gap-2">
+                <Send className="h-4 w-4" /> Request to Upload
+              </Button>
+            ) : (
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <div>
+                    <Button disabled variant="outline" size="sm" className="gap-2 opacity-50">
+                      <Send className="h-4 w-4" /> Request to Upload
+                    </Button>
+                  </div>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>Switch back to {userCollege} to request uploads</p>
+                </TooltipContent>
+              </Tooltip>
+            )
           )}
         </div>
 
