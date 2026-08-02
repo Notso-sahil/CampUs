@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { GoogleAuthProvider, signInWithPopup } from "firebase/auth";
 import { auth } from "@/lib/firebase";
 import { useToast } from "@/hooks/use-toast";
-import { AlertCircle, Loader2, ArrowRight } from "lucide-react";
+import { AlertCircle, Loader2, ArrowRight, ArrowLeft } from "lucide-react";
 import logoImg from "@/assets/logo.png";
 
 const provider = new GoogleAuthProvider();
@@ -46,12 +46,10 @@ export default function Auth() {
       >
         {/* Logo */}
         <div className="flex items-center gap-2.5">
-          <div className="w-9 h-9 rounded-lg bg-white flex items-center justify-center shadow-sm">
-            <img src={logoImg} alt="CampUs" className="h-5 w-5 object-contain" />
-          </div>
-          <span className="text-lg font-bold">
-            <span className="text-gray-900">Campus</span>
-            <span style={{ color: "#2563EB" }}>Hub</span>
+          <img src={logoImg} alt="CampUs" className="h-7 w-7 object-contain" />
+          <span className="text-xl font-bold tracking-tight">
+            <span className="text-gray-900">Camp</span>
+            <span style={{ color: "#2563EB" }}>Us</span>
           </span>
         </div>
 
@@ -83,16 +81,22 @@ export default function Auth() {
       </div>
 
       {/* ── Right panel ── */}
-      <div className="flex-1 flex items-center justify-center px-8 py-12 bg-white relative">
-        <div className="w-full max-w-sm space-y-7">
+      <div className="flex-1 flex flex-col px-8 py-8 bg-white relative">
+        {/* Back Button */}
+        <button 
+          onClick={() => navigate(-1)}
+          className="self-start inline-flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-900 transition-colors tap-target mb-auto"
+        >
+          <ArrowLeft className="h-4 w-4" /> Back
+        </button>
+
+        <div className="w-full max-w-sm space-y-7 mx-auto my-auto">
           {/* Mobile logo */}
           <div className="flex lg:hidden items-center gap-2 justify-center mb-4">
-            <div className="w-8 h-8 rounded-lg bg-gray-100 flex items-center justify-center">
-              <img src={logoImg} alt="CampUs" className="h-5 w-5 object-contain" />
-            </div>
-            <span className="font-bold text-lg">
-              <span className="text-gray-900">Campus</span>
-              <span style={{ color: "#2563EB" }}>Hub</span>
+            <img src={logoImg} alt="CampUs" className="h-7 w-7 object-contain" />
+            <span className="font-bold text-xl tracking-tight">
+              <span className="text-gray-900">Camp</span>
+              <span style={{ color: "#2563EB" }}>Us</span>
             </span>
           </div>
 
