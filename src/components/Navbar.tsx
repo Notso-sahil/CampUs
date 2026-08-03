@@ -1,6 +1,7 @@
 import { Link, useLocation } from "react-router-dom";
 import { useAuthContext } from "@/contexts/AuthContext";
 import { MessageCircle, LogOut, User, MapPin, ChevronDown } from "lucide-react";
+import logoImg from "@/assets/logo.png";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -59,9 +60,7 @@ export default function Navbar() {
         {/* Top row */}
         <div className="flex h-14 items-center justify-between gap-3">
           <Link to="/" className="flex-shrink-0 flex items-center gap-2">
-            <span className="text-lg font-semibold tracking-tight">
-              CampUs
-            </span>
+            <img src={logoImg} alt="CampUs" className="h-8 w-auto object-contain" />
           </Link>
 
           <GlobalSearch className="hidden md:flex flex-1 max-w-sm mx-4" />

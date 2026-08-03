@@ -4,6 +4,7 @@ import { GoogleAuthProvider, signInWithPopup } from "firebase/auth";
 import { auth } from "@/lib/firebase";
 import { useToast } from "@/hooks/use-toast";
 import { AlertCircle, Loader2, ArrowRight, ArrowLeft } from "lucide-react";
+import logoImg from "@/assets/logo.png";
 
 const provider = new GoogleAuthProvider();
 provider.setCustomParameters({ prompt: "select_account" });
@@ -46,10 +47,7 @@ export default function Auth() {
       >
         {/* Logo */}
         <div className="flex items-center gap-2.5">
-          <span className="text-xl font-bold tracking-tight">
-            <span className="text-gray-900">Camp</span>
-            <span style={{ color: "#2563EB" }}>Us</span>
-          </span>
+          <img src={logoImg} alt="CampUs" className="h-10 w-auto object-contain" />
         </div>
 
         {/* Hero text */}
@@ -92,10 +90,7 @@ export default function Auth() {
         <div className="w-full max-w-sm space-y-7 mx-auto my-auto">
           {/* Mobile logo */}
           <div className="flex lg:hidden items-center gap-2 justify-center mb-4">
-            <span className="font-bold text-xl tracking-tight">
-              <span className="text-gray-900">Camp</span>
-              <span style={{ color: "#2563EB" }}>Us</span>
-            </span>
+            <img src={logoImg} alt="CampUs" className="h-10 w-auto object-contain" />
           </div>
 
           {/* Heading */}

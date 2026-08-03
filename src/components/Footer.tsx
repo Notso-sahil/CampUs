@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-
+import logoImg from "@/assets/logo.png";
 import { Github, Twitter, Instagram, Mail } from "lucide-react";
 
 export default function Footer() {
@@ -12,7 +12,7 @@ export default function Footer() {
         <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
           <div className="col-span-2 md:col-span-1 space-y-3">
             <Link to="/" className="flex items-center gap-2">
-              <span className="text-xl font-bold tracking-tight">CampUs</span>
+              <img src={logoImg} alt="CampUs" className="h-8 w-auto object-contain" />
             </Link>
             <p className="text-sm text-muted-foreground leading-relaxed">
               Built for VIPS students. Trade, connect, learn.
