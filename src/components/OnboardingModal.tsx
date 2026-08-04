@@ -19,7 +19,8 @@ import {
   DialogDescription,
 } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
-import { MapPin } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
+import { MapPin, UserIcon } from "lucide-react";
 
 const ROLES = [
   { value: "buyer", label: "Buyer — I want to buy stuff" },
@@ -32,6 +33,7 @@ export default function OnboardingModal() {
   const { colleges } = useCollege();
   const [collegeName, setCollegeName] = useState("");
   const [role, setRole] = useState("");
+  const [gender, setGender] = useState("");
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
 
@@ -49,6 +51,7 @@ export default function OnboardingModal() {
         college_name: collegeName,
         college_space_id: selectedCollegeSpace ? selectedCollegeSpace.id : null,
         user_role: role,
+        gender: gender,
         onboarded: true,
       };
 
@@ -109,12 +112,27 @@ export default function OnboardingModal() {
                 </SelectContent>
               </Select>
             </div>
+
+            <div className="space-y-3">
+              <Label className="text-sm font-medium">Gender</Label>
+              <Select value={gender} onValueChange={setGender}>
+                <SelectTrigger className="h-12 border-border/50 bg-secondary/20 rounded-xl focus:ring-primary/20">
+                  <SelectValue placeholder="Select your gender" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="Male">Male</SelectItem>
+                  <SelectItem value="Female">Female</SelectItem>
+                  <SelectItem value="Other">Other</SelectItem>
+                  <SelectItem value="Prefer not to say">Prefer not to say</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
           </div>
 
           <Button
             type="submit"
             className="w-full h-12 bg-primary text-primary-foreground font-semibold rounded-xl hover:bg-primary/90 transition-colors"
-            disabled={loading || !role || !collegeName}
+            disabled={loading || !role || !collegeName || !gender}
           >
             {loading ? "Setting up your profile..." : "Start Exploring"}
           </Button>

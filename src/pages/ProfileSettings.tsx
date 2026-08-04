@@ -31,6 +31,7 @@ export default function ProfileSettings() {
   const [displayName, setDisplayName] = useState("");
   const [phoneNumber, setPhoneNumber] = useState("");
   const [collegeName, setCollegeName] = useState("");
+  const [gender, setGender] = useState("");
   const [email, setEmail] = useState("");
   const [saving, setSaving] = useState(false);
 
@@ -39,6 +40,7 @@ export default function ProfileSettings() {
       setDisplayName(profile.display_name || "");
       setPhoneNumber((profile as any).phone_number || "");
       setCollegeName(profile.college_name || "");
+      setGender((profile as any).gender || "");
     }
     if (user) {
       setEmail(user.email || "");
@@ -66,6 +68,7 @@ export default function ProfileSettings() {
         display_name: displayName.trim() || null,
         phone_number: phoneNumber.trim() || null,
         college_name: collegeName || null,
+        gender: gender || null,
         college_space_id: selectedCollegeSpace ? selectedCollegeSpace.id : null,
       });
       await refreshProfile();
@@ -144,6 +147,23 @@ export default function ProfileSettings() {
                   className="h-11 rounded-xl"
                 />
                 <p className="text-xs text-muted-foreground">Optional. Only shared with your team members.</p>
+              </div>
+
+              <div className="space-y-1.5">
+                <Label className="text-xs font-bold uppercase tracking-widest text-muted-foreground flex items-center gap-1.5">
+                  <User className="h-3.5 w-3.5" /> Gender
+                </Label>
+                <Select value={gender} onValueChange={setGender} required>
+                  <SelectTrigger className="h-11 rounded-xl">
+                    <SelectValue placeholder="Select your gender" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="Male">Male</SelectItem>
+                    <SelectItem value="Female">Female</SelectItem>
+                    <SelectItem value="Other">Other</SelectItem>
+                    <SelectItem value="Prefer not to say">Prefer not to say</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
 
               <div className="space-y-1.5">
