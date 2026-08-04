@@ -3,6 +3,17 @@ import { useAuthContext } from "@/contexts/AuthContext";
 import { Home, ShoppingBag, Briefcase, MessageCircle, Menu, User, BookOpen, CalendarDays, Search, Map, Users, LogOut, Settings } from "lucide-react";
 import React, { useState, useEffect } from "react";
 import { api } from "@/lib/api";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 
 export default function BottomNav() {
   const { user, signOut } = useAuthContext();
@@ -67,9 +78,25 @@ export default function BottomNav() {
                   <Link to="/settings" className="flex items-center gap-3 p-3 rounded-xl hover:bg-secondary transition-colors font-medium">
                     <Settings className="h-5 w-5 text-muted-foreground" /> Settings
                   </Link>
-                  <button onClick={() => { signOut(); setMenuOpen(false); }} className="w-full flex items-center gap-3 p-3 rounded-xl hover:bg-destructive/10 text-destructive transition-colors font-medium">
-                    <LogOut className="h-5 w-5" /> Sign Out
-                  </button>
+                  <AlertDialog>
+                    <AlertDialogTrigger asChild>
+                      <button className="w-full flex items-center gap-3 p-3 rounded-xl hover:bg-destructive/10 text-destructive transition-colors font-medium">
+                        <LogOut className="h-5 w-5" /> Sign Out
+                      </button>
+                    </AlertDialogTrigger>
+                    <AlertDialogContent className="w-[90vw] max-w-[400px] rounded-2xl">
+                      <AlertDialogHeader>
+                        <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                        <AlertDialogDescription>
+                          Do you want to logout?
+                        </AlertDialogDescription>
+                      </AlertDialogHeader>
+                      <AlertDialogFooter>
+                        <AlertDialogCancel>No</AlertDialogCancel>
+                        <AlertDialogAction onClick={() => { signOut(); setMenuOpen(false); }}>Yes</AlertDialogAction>
+                      </AlertDialogFooter>
+                    </AlertDialogContent>
+                  </AlertDialog>
                 </>
               ) : (
                 <button onClick={() => { navigate("/auth"); setMenuOpen(false); }} className="w-full flex items-center justify-center gap-2 p-3 rounded-xl bg-primary text-primary-foreground font-bold hover:bg-primary/90 transition-colors">

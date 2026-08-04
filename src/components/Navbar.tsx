@@ -10,6 +10,17 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import GlobalSearch from "@/components/GlobalSearch";
 import { useState, useEffect } from "react";
 import { api } from "@/lib/api";
@@ -118,9 +129,25 @@ export default function Navbar() {
                 <Button variant="ghost" size="icon" asChild className="hidden sm:inline-flex h-9 w-9 rounded-md">
                   <Link to="/dashboard"><User className="h-4.5 w-4.5" /></Link>
                 </Button>
-                <Button variant="ghost" size="icon" onClick={signOut} className="hidden sm:inline-flex h-9 w-9 rounded-md">
-                  <LogOut className="h-4.5 w-4.5" />
-                </Button>
+                <AlertDialog>
+                  <AlertDialogTrigger asChild>
+                    <Button variant="ghost" size="icon" className="hidden sm:inline-flex h-9 w-9 rounded-md">
+                      <LogOut className="h-4.5 w-4.5" />
+                    </Button>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent className="w-[90vw] max-w-[400px] rounded-2xl">
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                      <AlertDialogDescription>
+                        Do you want to logout?
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel>No</AlertDialogCancel>
+                      <AlertDialogAction onClick={signOut}>Yes</AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
               </>
             ) : (
               <Button asChild size="sm" className="h-8 px-3 bg-primary text-primary-foreground rounded-md text-xs font-medium hover:bg-primary/90 transition-colors">

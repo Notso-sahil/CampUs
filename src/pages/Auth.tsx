@@ -8,7 +8,6 @@ import logoImg from "@/assets/logo.png";
 import { useCollege } from "@/contexts/CollegeContext";
 
 const provider = new GoogleAuthProvider();
-provider.setCustomParameters({ prompt: "select_account" });
 
 export default function Auth() {
   const [loading, setLoading] = useState(false);

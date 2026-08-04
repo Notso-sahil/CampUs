@@ -4,6 +4,7 @@ import calculatorImg from "@/assets/categories/calculator.jpg";
 import labCoatImg from "@/assets/categories/lab-coat.jpg";
 import apronImg from "@/assets/categories/apron.jpg";
 import otherImg from "@/assets/categories/other.jpg";
+import bookImg from "@/assets/categories/book.jpg";
 
 export interface Category {
   value: string;
@@ -17,6 +18,7 @@ export const PRODUCT_CATEGORIES: Category[] = [
   { value: "Calculator", label: "Calculator", image: calculatorImg },
   { value: "Lab Coat", label: "Lab Coat", image: labCoatImg },
   { value: "Apron", label: "Apron", image: apronImg },
+  { value: "Book", label: "Book", image: bookImg },
   { value: "Other", label: "Other", image: otherImg },
 ];
 
