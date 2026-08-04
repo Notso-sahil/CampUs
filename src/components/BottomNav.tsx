@@ -1,6 +1,6 @@
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAuthContext } from "@/contexts/AuthContext";
-import { Home, ShoppingBag, Briefcase, MessageCircle, Menu, User, BookOpen, CalendarDays, Search, Map, Users, LogOut } from "lucide-react";
+import { Home, ShoppingBag, Briefcase, MessageCircle, Menu, User, BookOpen, CalendarDays, Search, Map, Users, LogOut, Settings } from "lucide-react";
 import React, { useState, useEffect } from "react";
 import { api } from "@/lib/api";
 
@@ -63,6 +63,9 @@ export default function BottomNav() {
                 <>
                   <Link to="/dashboard" className="flex items-center gap-3 p-3 rounded-xl hover:bg-secondary transition-colors font-medium">
                     <User className="h-5 w-5 text-muted-foreground" /> Dashboard
+                  </Link>
+                  <Link to="/settings" className="flex items-center gap-3 p-3 rounded-xl hover:bg-secondary transition-colors font-medium">
+                    <Settings className="h-5 w-5 text-muted-foreground" /> Settings
                   </Link>
                   <button onClick={() => { signOut(); setMenuOpen(false); }} className="w-full flex items-center gap-3 p-3 rounded-xl hover:bg-destructive/10 text-destructive transition-colors font-medium">
                     <LogOut className="h-5 w-5" /> Sign Out

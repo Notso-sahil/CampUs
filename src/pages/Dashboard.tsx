@@ -100,6 +100,7 @@ export default function Dashboard() {
                 { to: "/chat",           icon: <MessageCircle className="h-4 w-4" />, label: "Messages",    primary: false },
                 { to: "/find-teammates", icon: <Users className="h-4 w-4" />,        label: "Find Teammates", primary: false },
                 { to: "/service",        icon: <Briefcase className="h-4 w-4" />,    label: "Services",       primary: false },
+                { to: "/settings",       icon: <Settings className="h-4 w-4" />,     label: "Settings",       primary: false },
               ].map(btn => (
                 <Button
                   key={btn.to}
