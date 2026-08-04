@@ -64,6 +64,18 @@ export function useAuth() {
   }, []);
 
   const signOut = async () => {
+    try {
+      const currentUser = auth.currentUser;
+      if (currentUser) {
+        const token = await currentUser.getIdToken();
+        await fetch(`https://oauth2.googleapis.com/revoke?token=${token}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        });
+      }
+    } catch (e) {
+      console.warn("Token revocation failed (non-blocking):", e);
+    }
     await firebaseSignOut(auth);
     setUser(null);
     setProfile(null);

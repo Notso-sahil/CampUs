@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { GoogleAuthProvider, signInWithPopup } from "firebase/auth";
+import { GoogleAuthProvider, signInWithPopup, signOut as firebaseSignOut } from "firebase/auth";
 import { auth } from "@/lib/firebase";
 import { useToast } from "@/hooks/use-toast";
 import { AlertCircle, Loader2, ArrowRight, ArrowLeft } from "lucide-react";
@@ -20,8 +20,18 @@ export default function Auth() {
   const handleGoogleSignIn = async () => {
     setError(null);
     setLoading(true);
+    const csrfNonce = crypto.randomUUID();
+    sessionStorage.setItem("oauth_csrf_nonce", csrfNonce);
     try {
       await signInWithPopup(auth, provider);
+      const storedNonce = sessionStorage.getItem("oauth_csrf_nonce");
+      sessionStorage.removeItem("oauth_csrf_nonce");
+      if (!storedNonce || storedNonce !== csrfNonce) {
+        await firebaseSignOut(auth);
+        setError("Authentication failed: CSRF check failed. Please try again.");
+        setLoading(false);
+        return;
+      }
       toast({ title: "Welcome to CampUs! 🎉", description: "You have signed in successfully." });
       navigate("/dashboard");
     } catch (err: any) {
