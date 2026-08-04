@@ -46,10 +46,10 @@ export const DUMMY_NOTES = [
 ];
 
 export const DUMMY_SERVICES = [
-  { id: "dummy-srv-1", title: "Python Lab File", category: "Python / Coding", price_basic: 199, expert_name: "Priya Verma", expert_verified: "approved", avg_rating: 5.0, review_count: 12, delivery_method: "Digital PDF", delivery_days: 1, availability: "Available", isDummy: true, college_name: null, portfolio_urls: ["/dummy/service-generic.png"] },
-  { id: "dummy-srv-2", title: "Complete EG Portfolio", category: "Engineering Graphics", price_basic: 499, expert_name: "Rahul Sharma", expert_verified: "approved", avg_rating: 4.9, review_count: 8, delivery_method: "Digital PDF", delivery_days: 2, availability: "Available", isDummy: true, college_name: null, portfolio_urls: ["/dummy/service-generic.png"] },
-  { id: "dummy-srv-3", title: "Hardware Circuit Assembly", category: "Hardware & Circuits", price_basic: 349, expert_name: "Arjun Mehta", expert_verified: "approved", avg_rating: 4.9, review_count: 5, delivery_method: "Digital PDF", delivery_days: 3, availability: "Available", isDummy: true, college_name: null, portfolio_urls: ["/dummy/service-generic.png"] },
-  { id: "dummy-srv-4", title: "Full Semester Lab Manual Writing", category: "Lab Files", price_basic: 799, expert_name: "Sanya Gupta", expert_verified: "approved", avg_rating: 4.8, review_count: 15, delivery_method: "Digital PDF", delivery_days: 5, availability: "Available", isDummy: true, college_name: null, portfolio_urls: ["/dummy/service-generic.png"] },
+  { id: "dummy-srv-1", title: "Python Lab File", category: "Python / Coding", price_basic: 199, expert_name: "Priya Verma", expert_verified: "approved", avg_rating: 5.0, review_count: 12, delivery_method: "Digital PDF", delivery_days: 1, availability: "Available", isDummy: true, college_name: null, portfolio_urls: ["/dummy/python-lab-file.png"] },
+  { id: "dummy-srv-2", title: "Complete EG Portfolio", category: "Engineering Graphics", price_basic: 499, expert_name: "Rahul Sharma", expert_verified: "approved", avg_rating: 4.9, review_count: 8, delivery_method: "Digital PDF", delivery_days: 2, availability: "Available", isDummy: true, college_name: null, portfolio_urls: ["/dummy/eg-portfolio.png"] },
+  { id: "dummy-srv-3", title: "Hardware Circuit Assembly", category: "Hardware & Circuits", price_basic: 349, expert_name: "Arjun Mehta", expert_verified: "approved", avg_rating: 4.9, review_count: 5, delivery_method: "Digital PDF", delivery_days: 3, availability: "Available", isDummy: true, college_name: null, portfolio_urls: ["/dummy/hardware-circuit.png"] },
+  { id: "dummy-srv-4", title: "Full Semester Lab Manual Writing", category: "Lab Files", price_basic: 799, expert_name: "Sanya Gupta", expert_verified: "approved", avg_rating: 4.8, review_count: 15, delivery_method: "Digital PDF", delivery_days: 5, availability: "Available", isDummy: true, college_name: null, portfolio_urls: ["/dummy/lab-manual.png"] },
 ];
 
 export const DUMMY_TEAMS = [

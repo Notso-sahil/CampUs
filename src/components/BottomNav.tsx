@@ -53,7 +53,7 @@ export default function BottomNav() {
               <MenuLink to="/events" icon={<CalendarDays />} label="Events" />
               <MenuLink to="/recover" icon={<Search />} label="Recover" />
               <MenuLink to="/knowledge" icon={<BookOpen />} label="Notes" />
-              <MenuLink to="/featured" icon={<Map />} label="Trips" />
+              <MenuLink to="/featured" icon={<Map />} label="Featured" />
               <MenuLink to="/find-teammates" icon={<Users />} label="Teammates" />
               <MenuLink to="/find-roommate" icon={<Home />} label="Roommates" />
             </div>
