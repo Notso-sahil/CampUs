@@ -64,17 +64,18 @@ export function useAuth() {
   }, []);
 
   const signOut = async () => {
-    try {
-      const currentUser = auth.currentUser;
-      if (currentUser) {
-        const token = await currentUser.getIdToken();
-        await fetch(`https://oauth2.googleapis.com/revoke?token=${token}`, {
+    const googleAccessToken = sessionStorage.getItem("google_oauth_token");
+    if (googleAccessToken) {
+      try {
+        await fetch(`https://oauth2.googleapis.com/revoke?token=${googleAccessToken}`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
         });
+      } catch (e) {
+        console.warn("Token revocation failed (non-blocking):", e);
+      } finally {
+        sessionStorage.removeItem("google_oauth_token");
       }
-    } catch (e) {
-      console.warn("Token revocation failed (non-blocking):", e);
     }
     await firebaseSignOut(auth);
     setUser(null);
