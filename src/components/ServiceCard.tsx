@@ -1,5 +1,8 @@
-import { Link } from "react-router-dom";
-import { Star, MapPin, CheckCircle2, Clock, Zap } from "lucide-react";
+import { Link, useNavigate } from "react-router-dom";
+import { Star, CheckCircle2 } from "lucide-react";
+import { DUMMY_MSG } from "@/lib/dummyMessages";
+import { useToast } from "@/hooks/use-toast";
+import { Button } from "@/components/ui/button";
 
 const DELIVERY_ICON: Record<string, string> = {
   "On-Campus Handover": "📍",
@@ -21,15 +24,19 @@ export interface PeerService {
   is_verified?: boolean;
   expert_verified?: string;
   delivery_method: string;
-  delivery_days?: number;
-  availability?: string;
+  delivery_days: number;
+  availability: string;
+  isDummy?: boolean;
 }
 
 interface ServiceCardProps {
   service: PeerService;
+  onClick?: (e: React.MouseEvent) => void;
 }
 
-export default function ServiceCard({ service }: ServiceCardProps) {
+export default function ServiceCard({ service, onClick }: ServiceCardProps) {
+  const { toast } = useToast();
+  const navigate = useNavigate();
   const thumbnail = service.portfolio_urls?.[0];
   const isVerified = service.expert_verified === "approved" || service.is_verified;
   const initials = (service.expert_name || "?")
@@ -39,11 +46,37 @@ export default function ServiceCard({ service }: ServiceCardProps) {
     .toUpperCase()
     .slice(0, 2);
 
+  const handleHireClick = (e: React.MouseEvent) => {
+    if (service.isDummy || service.id.startsWith("dummy-")) {
+      e.preventDefault();
+      toast({ title: DUMMY_MSG.order, variant: "destructive" });
+    } else if (onClick) {
+      onClick(e);
+    }
+  };
+
+  const handleCardClick = () => {
+    navigate(`/service/${service.id}`);
+  };
+
   return (
-    <Link
-      to={`/hire-peer/${service.id}`}
-      className="group block rounded-xl border border-border bg-card overflow-hidden transition-colors active:bg-secondary/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+    <Link 
+      to={`/service/${service.id}`}
+      onClick={(e) => {
+        if (service.isDummy || service.id.startsWith("dummy-")) {
+          e.preventDefault();
+          toast({ title: DUMMY_MSG.order, variant: "destructive" });
+        } else if (onClick) {
+          onClick(e);
+        }
+      }}
+      className="group relative block rounded-xl border border-border bg-card overflow-hidden transition-colors active:bg-secondary/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary cursor-pointer"
     >
+      {service.isDummy && (
+        <span className="absolute top-3 right-3 z-10 rounded-full bg-amber-100 text-amber-800 text-[10px] font-semibold px-2 py-0.5 border border-amber-300">
+          Demo Entry
+        </span>
+      )}
       {/* Thumbnail */}
       <div className="relative aspect-[16/10] overflow-hidden bg-secondary">
         {thumbnail ? (
@@ -95,25 +128,27 @@ export default function ServiceCard({ service }: ServiceCardProps) {
         </h3>
 
         {/* Rating */}
-        <div className="flex items-center gap-1.5">
-          <div className="flex items-center gap-0.5">
-            {[1, 2, 3, 4, 5].map((star) => (
-              <Star
-                key={star}
-                className={`h-3 w-3 ${
-                  star <= Math.round(service.avg_rating)
-                    ? "fill-yellow-400 text-yellow-400"
-                    : "text-border fill-border"
-                }`}
-              />
-            ))}
+        <div className="flex items-center justify-between gap-1.5">
+          <div className="flex items-center gap-1.5">
+            <div className="flex items-center gap-0.5">
+              {[1, 2, 3, 4, 5].map((star) => (
+                <Star
+                  key={star}
+                  className={`h-3 w-3 ${
+                    star <= Math.round(service.avg_rating)
+                      ? "fill-yellow-400 text-yellow-400"
+                      : "text-border fill-border"
+                  }`}
+                />
+              ))}
+            </div>
+            <span className="text-xs font-bold text-foreground">
+              {Number(service.avg_rating).toFixed(1)}
+            </span>
           </div>
-          <span className="text-xs font-bold text-foreground">
-            {Number(service.avg_rating).toFixed(1)}
-          </span>
-          <span className="text-xs text-muted-foreground">
-            ({service.review_count})
-          </span>
+          <Button size="sm" className="h-7 text-xs px-3" onClick={handleHireClick}>
+            Hire
+          </Button>
         </div>
 
         {/* Footer */}

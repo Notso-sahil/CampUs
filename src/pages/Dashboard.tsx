@@ -8,7 +8,7 @@ import FadeIn from "@/components/FadeIn";
 import { Button } from "@/components/ui/button";
 import {
   Plus, Trash2, Settings, ShoppingBag, MessageCircle,
-  MapPin, User, Briefcase, ChevronRight, Package
+  MapPin, User, Users, Briefcase, ChevronRight, Package
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import {
@@ -96,10 +96,10 @@ export default function Dashboard() {
             {/* Quick action buttons */}
             <div className="grid grid-cols-2 gap-2 mt-5">
               {[
-                { to: "/sell",      icon: <Plus className="h-4 w-4" />,          label: "List Item",  primary: true  },
-                { to: "/chat",      icon: <MessageCircle className="h-4 w-4" />, label: "Messages",   primary: false },
-                { to: "/hire-peer", icon: <Briefcase className="h-4 w-4" />,     label: "Hire a Peer",primary: false },
-                { to: "/settings",  icon: <Settings className="h-4 w-4" />,      label: "Settings",   primary: false },
+                { to: "/sell",           icon: <Plus className="h-4 w-4" />,        label: "List Item",      primary: true  },
+                { to: "/chat",           icon: <MessageCircle className="h-4 w-4" />, label: "Messages",    primary: false },
+                { to: "/find-teammates", icon: <Users className="h-4 w-4" />,        label: "Find Teammates", primary: false },
+                { to: "/service",        icon: <Briefcase className="h-4 w-4" />,    label: "Services",       primary: false },
               ].map(btn => (
                 <Button
                   key={btn.to}

@@ -12,6 +12,9 @@ import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { api } from "@/lib/api";
 import { useAuthContext } from "@/contexts/AuthContext";
+import { DUMMY_SERVICES } from "@/lib/dummyData";
+import { DUMMY_MSG } from "@/lib/dummyMessages";
+import { AlertTriangle } from "lucide-react";
 
 const MOCK_DETAIL: Record<string, any> = {
   "mock-1": {
@@ -54,10 +57,23 @@ const MOCK_DETAIL: Record<string, any> = {
   },
 };
 
+// Add DUMMY_SERVICES to MOCK_DETAIL
+DUMMY_SERVICES.forEach(s => {
+  MOCK_DETAIL[s.id] = {
+    ...s,
+    description: "This is a demo listing to showcase the Peer Services section. Real listings will contain detailed descriptions of what the expert provides, their workflow, and deliverables.",
+    portfolio_urls: [],
+    expert_bio: "Demo expert bio",
+    expert_skills: [s.category],
+    tags: ["demo", s.category],
+    reviews: []
+  };
+});
+
 const buildFallback = (id: string) => MOCK_DETAIL[id] || MOCK_DETAIL["mock-1"];
 const HANDOVER_SPOTS = ["Library (2nd Floor)", "Main Cafeteria", "Hostel Gate", "Workshop Block", "Department Office"];
 
-export default function PeerServiceDetail() {
+export default function ServiceDetail() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -87,6 +103,10 @@ export default function PeerServiceDetail() {
   }, [id]);
 
   const handleOrder = async () => {
+    if (service?.isDummy || id?.startsWith("dummy-")) {
+      toast({ title: DUMMY_MSG.order, variant: "destructive" });
+      return;
+    }
     if (!user) { navigate("/auth"); return; }
     setOrdering(true);
     try {
@@ -100,9 +120,27 @@ export default function PeerServiceDetail() {
       toast({ title: "Order Placed! 🎉", description: "The expert will confirm shortly." });
       navigate("/dashboard");
     } catch {
-      toast({ title: "Error", description: "Failed to place order.", variant: "destructive" });
+      toast({ title: "Failed to place order", variant: "destructive" });
     } finally {
       setOrdering(false);
+    }
+  };
+
+  const handleChat = async () => {
+    if (service?.isDummy || id?.startsWith("dummy-")) {
+      toast({ title: DUMMY_MSG.chat, variant: "destructive" });
+      return;
+    }
+    if (!user) { navigate("/auth"); return; }
+    try {
+      const conv = await api.post("/api/conversations", {
+        seller_id: service.expert_user_id,
+        context_id: service.id,
+        context_type: "service",
+      });
+      navigate(`/chat/${conv.id}`);
+    } catch {
+      toast({ title: "Could not start chat. Please try again.", variant: "destructive" });
     }
   };
 
@@ -152,9 +190,17 @@ export default function PeerServiceDetail() {
         </div>
       )}
 
-      <main className="flex-1 container mx-auto px-4 py-6 max-w-5xl">
-        <button onClick={() => navigate("/hire-peer")} className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground mb-5 transition-colors tap-target">
-          <ArrowLeft className="h-4 w-4" /> Back
+      <main className="container mx-auto px-4 py-8 pb-32 lg:pb-12 max-w-6xl">
+        {(service?.isDummy || id?.startsWith("dummy-")) && (
+          <div className="bg-amber-50 border border-amber-200 rounded-lg p-4 mb-6 flex gap-2">
+            <AlertTriangle className="h-5 w-5 text-amber-600 flex-shrink-0" />
+            <p className="text-sm text-amber-800">
+              <strong>Demo entry.</strong> This listing is for illustration only. Real listings will be posted by verified students.
+            </p>
+          </div>
+        )}
+        <button onClick={() => navigate("/service")} className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground mb-5 transition-colors tap-target">
+          <ArrowLeft className="h-4 w-4" /> Back to Services
         </button>
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
@@ -381,11 +427,16 @@ export default function PeerServiceDetail() {
                     )}
 
                     {user ? (
-                      <Button onClick={handleOrder} disabled={ordering} className="w-full h-11 bg-primary text-primary-foreground rounded-lg font-medium hover:bg-primary/90 gap-2">
-                        {ordering
-                          ? <div className="h-5 w-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                          : <><Package className="h-4 w-4" /> Place Order</>}
-                      </Button>
+                      <>
+                        <Button onClick={handleChat} variant="outline" className="w-full h-11 rounded-lg font-medium gap-2 border-primary text-primary hover:bg-primary/5">
+                          <MessageCircle className="h-4 w-4" /> Message {service.expert_name.split(' ')[0]}
+                        </Button>
+                        <Button onClick={handleOrder} disabled={ordering} className="w-full h-11 bg-primary text-primary-foreground rounded-lg font-medium hover:bg-primary/90 gap-2 mt-2">
+                          {ordering
+                            ? <div className="h-5 w-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                            : <><Package className="h-4 w-4" /> Place Order</>}
+                        </Button>
+                      </>
                     ) : (
                       <Button onClick={() => navigate("/auth")} className="w-full h-11 bg-primary text-primary-foreground rounded-lg font-medium gap-2">
                         <MessageCircle className="h-4 w-4" /> Sign In to Hire

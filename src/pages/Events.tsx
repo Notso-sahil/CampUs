@@ -9,8 +9,10 @@ import { Tooltip, TooltipTrigger, TooltipContent } from "@/components/ui/tooltip
 import { useToast } from "@/hooks/use-toast";
 import { Calendar, MapPin, Lock, Send } from "lucide-react";
 import { format } from "date-fns";
+import { DUMMY_EVENTS, mergeWithDummies } from "@/lib/dummyData";
+import { DUMMY_MSG } from "@/lib/dummyMessages";
 
-interface Event {
+interface CampusEvent {
   id: string;
   title: string;
   description: string | null;
@@ -18,6 +20,7 @@ interface Event {
   location: string | null;
   college_name: string | null;
   created_at: string;
+  isDummy?: boolean;
 }
 
 export default function Events() {
@@ -25,16 +28,15 @@ export default function Events() {
   const { browseCollege, userCollege } = useCollege();
   const navigate = useNavigate();
   const { toast } = useToast();
-  const [events, setEvents] = useState<Event[]>([]);
+  const [events, setEvents] = useState<CampusEvent[]>([]);
   const [loading, setLoading] = useState(true);
   const [expandedId, setExpandedId] = useState<string | null>(null);
 
   useEffect(() => {
-    api.get('/api/events').then((resp) => {
-      let items: Event[] = Array.isArray(resp) ? resp : (Array.isArray(resp?.data) ? resp.data : []);
-      const college = items.filter((e) => e.college_name === browseCollege);
-      const other = items.filter((e) => e.college_name !== browseCollege);
-      setEvents([...college, ...other]);
+    api.get(`/api/events?college_name=${encodeURIComponent(browseCollege || "")}`).then((resp) => {
+      const respData = resp as { data?: CampusEvent[] };
+      const items: CampusEvent[] = Array.isArray(resp) ? resp : (Array.isArray(respData?.data) ? respData.data : []);
+      setEvents(mergeWithDummies(items, DUMMY_EVENTS as CampusEvent[], 100)); // 100 because full page
       setLoading(false);
     }).catch((error) => {
       console.error("Events fetch error:", error);
@@ -42,12 +44,16 @@ export default function Events() {
     });
   }, [browseCollege]);
 
-  const handleClick = (id: string) => {
+  const handleClick = (event: CampusEvent) => {
+    if (event.isDummy) {
+      toast({ title: DUMMY_MSG.contact, variant: "destructive" });
+      return;
+    }
     if (!user) {
       navigate("/auth");
       return;
     }
-    setExpandedId(expandedId === id ? null : id);
+    setExpandedId(expandedId === event.id ? null : event.id);
   };
 
   const handleRequestUpload = async () => {
@@ -106,13 +112,18 @@ export default function Events() {
         ) : (
           <div className="space-y-3 animate-fade-in">
             {events.map((event) => (
-              <div key={event.id} className="rounded-lg border border-border bg-card overflow-hidden transition-shadow hover:shadow-sm">
+              <div key={event.id} className="relative rounded-lg border border-border bg-card overflow-hidden transition-shadow hover:shadow-sm">
+                {event.isDummy && (
+                  <span className="absolute top-3 right-4 z-10 rounded-full bg-amber-100 text-amber-800 text-[10px] font-semibold px-2 py-0.5 border border-amber-300">
+                    Demo Entry
+                  </span>
+                )}
                 <button
-                  onClick={() => handleClick(event.id)}
+                  onClick={() => handleClick(event)}
                   className="w-full text-left px-4 py-4 flex items-center justify-between min-h-[56px]"
                 >
                   <div className="flex-1 min-w-0">
-                    <h3 className="font-display text-lg font-semibold">{event.title}</h3>
+                    <h3 className="font-display text-lg font-semibold pr-20">{event.title}</h3>
                     {event.event_date && (
                       <p className="text-xs text-muted-foreground mt-1 flex items-center gap-1">
                         <Calendar className="h-3 w-3" />

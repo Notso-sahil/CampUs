@@ -50,6 +50,7 @@ export default function FindRoommate() {
 
   const [view, setView] = useState<View>("browse");
   const [loading, setLoading] = useState(true);
+  const [requestedIds, setRequestedIds] = useState<Record<string, boolean>>({});
   const [listings, setListings] = useState<RoommateListing[]>([]);
   const [myListing, setMyListing] = useState<RoommateListing | null>(null);
   const [myMembers, setMyMembers] = useState<RoommateMember[]>([]);
@@ -488,10 +489,10 @@ export default function FindRoommate() {
                     <div className="grid gap-5 grid-cols-1 md:grid-cols-2">
                       {filteredListings.map((listing) => {
                         // Optimistic UI for pending requests
-                        const [isRequested, setIsRequested] = useState(false);
+                        const isRequested = !!requestedIds[listing.id];
                         const handleJoin = async () => {
                            await handleRequestJoin(listing.id);
-                           setIsRequested(true);
+                           setRequestedIds(prev => ({ ...prev, [listing.id]: true }));
                         }
 
                         return (

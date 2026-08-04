@@ -4,11 +4,11 @@ import { Link } from "react-router-dom";
 import { ArrowRight, ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 const PLACEHOLDERS = {
-  trade: "https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=600&q=80",
-  events: "https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=600&q=80",
-  recover: "https://images.unsplash.com/photo-1586953208448-b95a79798f07?w=600&q=80",
-  expeditions: "https://images.unsplash.com/photo-1469474968028-56623f02e42e?w=600&q=80",
-  knowledge: "https://images.unsplash.com/photo-1497633762265-9d179a990aa6?w=600&q=80",
+  trade: "/placeholder.svg",
+  events: "/dummy/hackathon.png",
+  recover: "/dummy/lost_wallet.png",
+  featured: "/dummy/manali_snow_trek.png",
+  knowledge: "/placeholder.svg",
   default: "/placeholder.svg",
 } as const;
 
@@ -17,6 +17,7 @@ interface CarouselItem {
   title: string;
   subtitle?: string;
   imageUrl?: string;
+  isDummy?: boolean;
 }
 
 interface SectionCarouselProps {
@@ -25,7 +26,7 @@ interface SectionCarouselProps {
   items: CarouselItem[];
   renderCard?: (item: CarouselItem) => React.ReactNode;
   icon?: React.ReactNode;
-  placeholderCategory?: "trade" | "events" | "recover" | "expeditions" | "knowledge";
+  placeholderCategory?: "trade" | "events" | "recover" | "featured" | "knowledge";
 }
 
 export default function SectionCarousel({ title, viewAllLink, items, renderCard, icon, placeholderCategory = "default" as any }: SectionCarouselProps) {
@@ -55,12 +56,31 @@ export default function SectionCarousel({ title, viewAllLink, items, renderCard,
     };
   }, [emblaApi, onSelect]);
 
-  if (items.length === 0) return null;
+  if (items.length === 0) {
+    return (
+      <section className="space-y-4">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            {icon && <span className="text-muted-foreground">{icon}</span>}
+            <h2 className="text-lg font-semibold">{title}</h2>
+          </div>
+        </div>
+        <div className="rounded-lg border border-dashed border-border p-8 text-center bg-card/50">
+          <p className="text-sm text-muted-foreground">No items found yet.</p>
+        </div>
+      </section>
+    );
+  }
 
   const fallbackImg = PLACEHOLDERS[placeholderCategory] || PLACEHOLDERS.default;
 
   const defaultCard = (item: CarouselItem) => (
-    <div className="rounded-lg border border-border bg-card overflow-hidden hover:border-primary/30 transition-colors group/card">
+    <div className="relative rounded-lg border border-border bg-card overflow-hidden hover:border-primary/30 transition-colors group/card">
+      {item.isDummy && (
+        <span className="absolute top-2 left-2 z-10 rounded-full bg-amber-100 text-amber-800 text-[10px] font-semibold px-2 py-0.5 border border-amber-300">
+          Demo
+        </span>
+      )}
       <div className="aspect-[4/3] overflow-hidden bg-secondary">
         <img
           src={item.imageUrl || fallbackImg}

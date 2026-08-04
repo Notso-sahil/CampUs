@@ -11,7 +11,7 @@ interface SearchResult {
   id: string;
   title: string;
   subtitle?: string;
-  section: "trade" | "events" | "recover" | "knowledge" | "expeditions";
+  section: "trade" | "events" | "recover" | "knowledge" | "featured";
   link: string;
 }
 
@@ -20,7 +20,7 @@ const SECTION_META: Record<string, { icon: React.ReactNode; label: string }> = {
   events: { icon: <CalendarDays className="h-4 w-4" />, label: "Events" },
   recover: { icon: <Eye className="h-4 w-4" />, label: "Recover" },
   knowledge: { icon: <BookOpen className="h-4 w-4" />, label: "Knowledge Hub" },
-  expeditions: { icon: <Map className="h-4 w-4" />, label: "Expeditions" },
+  featured: { icon: <Map className="h-4 w-4" />, label: "Featured" },
 };
 
 // Map URL path to search scope
@@ -29,7 +29,7 @@ function getSearchScope(pathname: string): string | null {
   if (pathname.startsWith("/events")) return "events";
   if (pathname.startsWith("/recover")) return "recover";
   if (pathname.startsWith("/knowledge")) return "knowledge";
-  if (pathname.startsWith("/expeditions")) return "expeditions";
+  if (pathname.startsWith("/featured")) return "featured";
   return null; // global
 }
 
@@ -115,7 +115,7 @@ export default function GlobalSearch({ className }: { className?: string }) {
           }).catch(console.error)
       );
     }
-    if (shouldSearch("expeditions")) {
+    if (shouldSearch("featured")) {
       promises.push(
         api.get('/api/expeditions')
           .then((resp) => {
@@ -123,7 +123,7 @@ export default function GlobalSearch({ className }: { className?: string }) {
             data
               .filter((x: any) => x.title?.toLowerCase().includes(q.toLowerCase()))
               .slice(0, 5)
-              .forEach((x: any) => all.push({ id: x.id, title: x.title, subtitle: x.location, section: "expeditions" as const, link: `/expeditions` }));
+              .forEach((x: any) => all.push({ id: x.id, title: x.title, subtitle: x.location, section: "featured" as const, link: `/featured` }));
           }).catch(console.error)
       );
     }

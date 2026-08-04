@@ -14,6 +14,8 @@ import { uploadToCloudinary } from "@/lib/uploadToCloudinary";
 import { Tooltip, TooltipTrigger, TooltipContent } from "@/components/ui/tooltip";
 import { Upload, MapPin, Phone, Search, Eye, HandHelping, X, CalendarDays } from "lucide-react";
 import { format } from "date-fns";
+import { DUMMY_RECOVER, mergeWithDummies } from "@/lib/dummyData";
+import { DUMMY_MSG } from "@/lib/dummyMessages";
 
 type RecoverType = "lost" | "found";
 
@@ -30,6 +32,7 @@ interface RecoverItem {
   created_by: string | null;
   created_at: string;
   type: RecoverType;
+  isDummy?: boolean;
 }
 
 /* ─── Lost Item Form ─── */
@@ -258,29 +261,27 @@ export default function Recover() {
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<RecoverType | "all">("all");
   const [formMode, setFormMode] = useState<RecoverType | null>(null);
+  const filterType = activeTab;
 
   useEffect(() => {
     fetchItems();
-  }, [browseCollege]);
+  }, [browseCollege, filterType]);
 
   const fetchItems = async () => {
     setLoading(true);
     try {
-      const data = await api.get('/api/recover-items');
-      let result = (data as RecoverItem[]) || [];
-      // Assuming backend already sorts or we shouldn't strictly enforce sorting on frontend unless missing.
-      // Easiest is to sort on frontend just in case:
-      result.sort((a, b) => new Date(b.date_lost).getTime() - new Date(a.date_lost).getTime());
-      const college = result.filter((r) => r.college_name === browseCollege);
-      const other = result.filter((r) => r.college_name !== browseCollege);
-      setItems([...college, ...other]);
-    } catch (err) {
-      console.error("Recover fetch error:", err);
+      const resp = await api.get(`/api/recover-items?college_name=${encodeURIComponent(browseCollege)}`);
+      let items: RecoverItem[] = Array.isArray(resp) ? resp : (Array.isArray((resp as any)?.data) ? (resp as any).data : []);
+      if (filterType !== "all") {
+        items = items.filter((i) => i.type === filterType);
+      }
+      setItems(mergeWithDummies(items, DUMMY_RECOVER as RecoverItem[], 100));
+    } catch (error) {
+      console.error("Recover fetch error:", error);
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   };
-
-  const filtered = activeTab === "all" ? items : items.filter((i) => i.type === activeTab);
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -421,12 +422,17 @@ export default function Recover() {
               <div key={i} className="h-24 animate-pulse rounded-xl bg-secondary" />
             ))}
           </div>
-        ) : filtered.length === 0 ? (
+        ) : items.length === 0 ? (
           <p className="py-20 text-center text-muted-foreground">No items to show.</p>
         ) : (
           <div className="space-y-4">
-            {filtered.map((item) => (
-              <div key={item.id} className="flex gap-4 rounded-xl border border-border bg-card p-4 shadow-soft">
+            {items.map((item) => (
+              <div key={item.id} className="relative flex gap-4 rounded-xl border border-border bg-card p-4 shadow-soft hover:border-primary/30 transition-colors">
+                {item.isDummy && (
+                  <span className="absolute top-3 right-4 z-10 rounded-full bg-amber-100 text-amber-800 text-[10px] font-semibold px-2 py-0.5 border border-amber-300">
+                    Demo Entry
+                  </span>
+                )}
                 {item.image_url && (
                   <div className="h-20 w-20 flex-shrink-0 overflow-hidden rounded-lg bg-secondary">
                     <img src={item.image_url} alt={item.title} className="h-full w-full object-cover" loading="lazy" />
@@ -458,7 +464,7 @@ export default function Recover() {
                   </div>
                   <p className="text-xs text-muted-foreground">
                     <CalendarDays className="inline h-3 w-3 mr-1" />
-                    {item.type === "lost" ? "Lost" : "Found"}: {format(new Date(item.date_lost), "PPP")}
+                    {item.type === "lost" ? "Lost" : "Found"}: {item.date_lost ? format(new Date(item.date_lost), "PPP") : (item.created_at ? format(new Date(item.created_at), "PPP") : "Unknown Date")}
                     {item.college_name && ` · ${item.college_name}`}
                   </p>
                 </div>

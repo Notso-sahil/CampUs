@@ -5,6 +5,7 @@ import { auth } from "@/lib/firebase";
 import { useToast } from "@/hooks/use-toast";
 import { AlertCircle, Loader2, ArrowRight, ArrowLeft } from "lucide-react";
 import logoImg from "@/assets/logo.png";
+import { useCollege } from "@/contexts/CollegeContext";
 
 const provider = new GoogleAuthProvider();
 provider.setCustomParameters({ prompt: "select_account" });
@@ -14,6 +15,7 @@ export default function Auth() {
   const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { browseCollege } = useCollege();
 
   const handleGoogleSignIn = async () => {
     setError(null);
@@ -54,7 +56,7 @@ export default function Auth() {
         <div className="space-y-6 flex-1 flex flex-col justify-center py-12">
           <div className="space-y-3">
             <h1 className="text-[2.6rem] font-extrabold text-gray-900 leading-tight tracking-tight">
-              The exclusive community<br />for VIPS students
+              The exclusive community<br />for {browseCollege || "your college"} students
             </h1>
             <p className="text-gray-500 text-base leading-relaxed max-w-sm">
               Trade items, join teams, share study material, recover lost items, and explore campus events—all in one secure place.
@@ -64,8 +66,8 @@ export default function Auth() {
           {/* Stats cards */}
           <div className="flex gap-4 mt-4">
             <div className="bg-white rounded-xl px-5 py-4 shadow-sm flex flex-col gap-1 flex-1">
-              <span className="text-xl font-extrabold" style={{ color: "#2563EB" }}>VIPS</span>
-              <span className="text-[10px] font-bold tracking-widest text-gray-400 uppercase">Verified Campus</span>
+              <span className="text-xl font-extrabold truncate" style={{ color: "#2563EB" }}>{browseCollege || "Verified"}</span>
+              <span className="text-[10px] font-bold tracking-widest text-gray-400 uppercase">Campus</span>
             </div>
             <div className="bg-white rounded-xl px-5 py-4 shadow-sm flex flex-col gap-1 flex-1">
               <span className="text-xl font-extrabold" style={{ color: "#2563EB" }}>100%</span>

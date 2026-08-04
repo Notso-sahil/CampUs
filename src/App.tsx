@@ -20,18 +20,18 @@ import ChatList from "./pages/ChatList";
 import ChatRoom from "./pages/ChatRoom";
 import TeamChat from "./pages/TeamChat";
 import Events from "./pages/Events";
-import Expeditions from "./pages/Expeditions";
-import Recover from "./pages/Recover";
+import Featured from "@/pages/Featured";
+import Recover from "@/pages/Recover";
 import KnowledgeHub from "./pages/KnowledgeHub";
 import FindTeammates from "./pages/FindTeammates";
 import FindRoommate from "./pages/FindRoommate";
+import Service from "@/pages/Service";
+import ListService from "@/pages/ListService";
+import ServiceDetail from "@/pages/ServiceDetail";
 import RoommateChat from "./pages/RoommateChat";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import TermsConditions from "./pages/TermsConditions";
 import Feedback from "./pages/Feedback";
-import HirePeer from "./pages/HirePeer";
-import PeerServiceDetail from "./pages/PeerServiceDetail";
-import ListPeerService from "./pages/ListPeerService";
 import NotFound from "./pages/NotFound";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import AdminOverview from "./pages/admin/AdminOverview";
@@ -64,15 +64,15 @@ const AppRoutes = () => (
       <Route path="/reset-password" element={<ResetPassword />} />
       <Route path="/product/:id" element={<ProductDetail />} />
       <Route path="/events" element={<Events />} />
-      <Route path="/expeditions" element={<Expeditions />} />
+      <Route path="/featured" element={<Featured />} />
       <Route path="/recover" element={<Recover />} />
       <Route path="/knowledge" element={<KnowledgeHub />} />
       <Route path="/find-teammates" element={<FindTeammates />} />
       <Route path="/find-roommate" element={<FindRoommate />} />
-      <Route path="/hire-peer" element={<HirePeer />} />
-      <Route path="/hire-peer/:id" element={<PeerServiceDetail />} />
-      <Route path="/hire-peer/list" element={
-        <ProtectedRoute requireOnboarded><ListPeerService /></ProtectedRoute>
+      <Route path="/service" element={<Service />} />
+      <Route path="/service/:id" element={<ServiceDetail />} />
+      <Route path="/service/list" element={
+        <ProtectedRoute requireOnboarded><ListService /></ProtectedRoute>
       } />
       <Route path="/privacy" element={<PrivacyPolicy />} />
       <Route path="/terms" element={<TermsConditions />} />

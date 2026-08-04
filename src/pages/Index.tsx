@@ -8,10 +8,11 @@ import SectionCarousel from "@/components/SectionCarousel";
 import FadeIn from "@/components/FadeIn";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
+import { DUMMY_FEATURED, DUMMY_EVENTS, DUMMY_RECOVER, DUMMY_NOTES, mergeWithDummies } from "@/lib/dummyData";
 
 import {
   ShoppingBag, CalendarDays, Search, BookOpen, Map,
-  Users, Briefcase, ChevronRight, ArrowRight, Zap, Shield
+  Users, Briefcase, ChevronRight, ArrowRight, Zap, Shield, FileText
 } from "lucide-react";
 
 
@@ -20,6 +21,7 @@ interface CarouselItem {
   title: string;
   subtitle?: string;
   imageUrl?: string;
+  isDummy?: boolean;
 }
 
 const FEATURE_LINKS = [
@@ -27,9 +29,9 @@ const FEATURE_LINKS = [
   { to: "/events",         icon: <CalendarDays className="h-5 w-5" />, label: "Events",         desc: "Campus events & workshops"  },
   { to: "/recover",        icon: <Search className="h-5 w-5" />,       label: "Lost & Found",   desc: "Report or find lost items"  },
   { to: "/knowledge",      icon: <BookOpen className="h-5 w-5" />,     label: "Notes",          desc: "Study materials & notes"    },
-  { to: "/expeditions",    icon: <Map className="h-5 w-5" />,          label: "Expeditions",    desc: "Adventure & outdoor trips"  },
+  { to: "/featured",       icon: <Map className="h-5 w-5" />,          label: "Featured",       desc: "Featured and highlighted items"  },
   { to: "/find-teammates", icon: <Users className="h-5 w-5" />,        label: "Teammates",      desc: "Team up for hackathons"     },
-  { to: "/hire-peer",      icon: <Briefcase className="h-5 w-5" />,    label: "Peer Services",  desc: "Get academic help from peers"},
+  { to: "/service",        icon: <Briefcase className="h-5 w-5" />,    label: "Peer Services",  desc: "Get academic help from peers"},
 ];
 
 export default function Index() {
@@ -40,47 +42,41 @@ export default function Index() {
   const [trade, setTrade] = useState<CarouselItem[]>([]);
   const [events, setEvents] = useState<CarouselItem[]>([]);
   const [recover, setRecover] = useState<CarouselItem[]>([]);
-  const [knowledge, setKnowledge] = useState<CarouselItem[]>([]);
-  const [expeditions, setExpeditions] = useState<CarouselItem[]>([]);
+  const [knowledge, setKnowledge] = useState<any[]>([]);
+  const [featured, setFeatured] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchAll = async () => {
       setLoading(true);
-      const college = browseCollege;
       try {
+        const qs = `?college_name=${encodeURIComponent(browseCollege)}`;
         const [prodRes, evtRes, recRes, kbRes, expRes] = await Promise.all([
-          api.get("/api/products"),
-          api.get("/api/events"),
-          user ? api.get("/api/recover-items") : Promise.resolve([]),
-          api.get("/api/knowledge-hub"),
-          api.get("/api/expeditions"),
+          api.get(`/api/products${qs}`),
+          api.get(`/api/events${qs}`),
+          user ? api.get(`/api/recover-items${qs}`) : Promise.resolve([]),
+          api.get(`/api/knowledge-hub${qs}`),
+          api.get(`/api/featured${qs}`),
         ]);
 
-        const processItems = (resp: any, dateField = "created_at") => {
-          let arr = Array.isArray(resp) ? resp : Array.isArray(resp?.data) ? resp.data : [];
-          const filtered = arr.filter((x: any) => x.college_name === college);
-          const src = filtered.length > 0 ? filtered : arr;
-          return [...src].sort((a: any, b: any) =>
-            new Date(b[dateField] || 0).getTime() - new Date(a[dateField] || 0).getTime()
-          ).slice(0, 6);
+        const processItems = (resp: any) => {
+          if (!resp) return [];
+          return Array.isArray(resp) ? resp : (Array.isArray(resp.data) ? resp.data : []);
         };
 
-        setTrade(processItems(prodRes).map((p: any) => ({
+        const realProducts = processItems(prodRes);
+        const realEvents = processItems(evtRes);
+        const realRecover = processItems(recRes);
+        const realKnowledge = processItems(kbRes);
+        const realFeatured = processItems(expRes);
+
+        setTrade(realProducts.slice(0, 6).map((p: any) => ({
           id: p.id, title: p.title, subtitle: `₹${p.price}`, imageUrl: p.image_urls?.[0] || "",
         })));
-        setEvents(processItems(evtRes, "event_date").map((e: any) => ({
-          id: e.id, title: e.title, subtitle: e.location, imageUrl: e.image_url || "",
-        })));
-        setRecover(processItems(recRes).map((r: any) => ({
-          id: r.id, title: r.title, subtitle: r.where_found, imageUrl: r.image_url || "",
-        })));
-        setKnowledge(processItems(kbRes).map((k: any) => ({
-          id: k.id, title: k.title, subtitle: [k.course, k.sub_course].filter(Boolean).join(" · "), imageUrl: "",
-        })));
-        setExpeditions(processItems(expRes, "event_date").map((x: any) => ({
-          id: x.id, title: x.title, subtitle: x.location, imageUrl: x.image_url || "",
-        })));
+        setEvents(mergeWithDummies(realEvents, DUMMY_EVENTS, 6));
+        setRecover(mergeWithDummies(realRecover, DUMMY_RECOVER, 6));
+        setKnowledge(mergeWithDummies(realKnowledge, DUMMY_NOTES, 6));
+        setFeatured(mergeWithDummies(realFeatured, DUMMY_FEATURED, 6));
       } catch (err) {
         console.error("Home fetch error:", err);
       }
@@ -94,7 +90,6 @@ export default function Index() {
       <Navbar />
 
       <main className="flex-1 w-full">
-        {/* ─── Hero ─────────────────────────────────────────────────── */}
         <section className="pt-12 sm:pt-20 pb-16 sm:pb-24">
           <div className="container mx-auto px-4">
             <div className="max-w-2xl">
@@ -139,7 +134,6 @@ export default function Index() {
           </div>
         </section>
 
-        {/* ─── Quick Links ────────────────────────────────────────────── */}
         <section className="container mx-auto px-4 pb-16">
           <FadeIn>
             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2 sm:gap-3">
@@ -162,7 +156,6 @@ export default function Index() {
           </FadeIn>
         </section>
 
-        {/* ─── Carousels ────────────────────────────────────────────── */}
         <div className="container mx-auto px-4 pb-20 space-y-14">
           {loading ? (
             <div className="space-y-10">
@@ -204,13 +197,24 @@ export default function Index() {
               </FadeIn>
 
               <FadeIn delay={50}>
-                <SectionCarousel title="Events" viewAllLink="/events" items={events}
-                  icon={<CalendarDays className="h-5 w-5" />} placeholderCategory="events" />
+                <SectionCarousel title="Featured" viewAllLink="/featured" items={featured.map((e: any) => ({
+                  id: e.id, title: e.title, subtitle: e.location, imageUrl: e.imageUrl, isDummy: e.isDummy
+                }))}
+                  icon={<Map className="h-5 w-5" />} placeholderCategory="featured" />
               </FadeIn>
 
               <FadeIn delay={100}>
+                <SectionCarousel title="Events" viewAllLink="/events" items={events.map((e: any) => ({
+                  id: e.id, title: e.title, subtitle: e.event_date ? new Date(e.event_date).toLocaleDateString() : undefined, imageUrl: e.image_url, isDummy: e.isDummy
+                }))}
+                  icon={<CalendarDays className="h-5 w-5" />} placeholderCategory="events" />
+              </FadeIn>
+
+              <FadeIn delay={150}>
                 {user ? (
-                  <SectionCarousel title="Lost & Found" viewAllLink="/recover" items={recover}
+                  <SectionCarousel title="Lost & Found" viewAllLink="/recover" items={recover.map((r: any) => ({
+                    id: r.id, title: r.title, subtitle: r.where_found, imageUrl: r.image_url, isDummy: r.isDummy
+                  }))}
                     icon={<Search className="h-5 w-5" />} placeholderCategory="recover" />
                 ) : (
                   <section className="space-y-3">
@@ -233,14 +237,26 @@ export default function Index() {
                 )}
               </FadeIn>
 
-              <FadeIn delay={150}>
-                <SectionCarousel title="Notes & Resources" viewAllLink="/knowledge" items={knowledge}
-                  icon={<BookOpen className="h-5 w-5" />} placeholderCategory="knowledge" />
-              </FadeIn>
-
               <FadeIn delay={200}>
-                <SectionCarousel title="Expeditions" viewAllLink="/expeditions" items={expeditions}
-                  icon={<Map className="h-5 w-5" />} placeholderCategory="expeditions" />
+                <SectionCarousel title="Notes & Resources" viewAllLink="/knowledge" items={knowledge.map((k: any) => ({
+                  id: k.id, title: k.title, subtitle: `${k.course || ''} ${k.semester ? `Sem ${k.semester}` : ''}`.trim(), isDummy: k.isDummy
+                }))}
+                  icon={<BookOpen className="h-5 w-5" />} placeholderCategory="knowledge"
+                  renderCard={(item) => (
+                    <div className="relative rounded-lg border border-border bg-card p-4 flex gap-3 h-full items-start hover:border-primary/30 transition-colors group/card">
+                      {item.isDummy && (
+                        <span className="absolute top-2 right-2 z-10 rounded-full bg-amber-100 text-amber-800 text-[10px] font-semibold px-2 py-0.5 border border-amber-300">
+                          Demo
+                        </span>
+                      )}
+                      <FileText className="h-8 w-8 text-primary flex-shrink-0 mt-0.5" />
+                      <div className="min-w-0">
+                        <h4 className="text-sm font-medium line-clamp-2">{item.title}</h4>
+                        {item.subtitle && <p className="text-xs text-muted-foreground mt-1">{item.subtitle}</p>}
+                      </div>
+                    </div>
+                  )}
+                />
               </FadeIn>
             </>
           )}
@@ -260,7 +276,7 @@ export default function Index() {
                 </p>
                 <div className="flex flex-wrap justify-center gap-3">
                   <Button asChild className="h-11 px-6 bg-primary text-primary-foreground rounded-lg font-medium hover:bg-primary/90 transition-colors">
-                    <Link to="/hire-peer">Browse services</Link>
+                    <Link to="/service">Browse services</Link>
                   </Button>
                   <Button asChild variant="outline" className="h-11 px-6 rounded-lg font-medium">
                     <Link to="/list-peer-service">Offer your skills</Link>

@@ -22,6 +22,9 @@ import { useToast } from "@/hooks/use-toast";
 import { uploadToCloudinary } from "@/lib/uploadToCloudinary";
 import { Download, Upload, Send, FileText, Lock } from "lucide-react";
 
+import { DUMMY_NOTES, mergeWithDummies } from "@/lib/dummyData";
+import { DUMMY_MSG } from "@/lib/dummyMessages";
+
 interface KnowledgeItem {
   id: string;
   title: string;
@@ -32,6 +35,7 @@ interface KnowledgeItem {
   semester: string | null;
   college_name: string | null;
   created_at: string;
+  isDummy?: boolean;
 }
 
 export default function KnowledgeHub() {
@@ -57,30 +61,33 @@ export default function KnowledgeHub() {
   const currentCourseObj = COURSES.find((c) => c.value === selectedCourse);
   const hasSubCourses = currentCourseObj && "subCourses" in currentCourseObj;
 
+  const fetchItems = async () => {
+    setLoading(true);
+    try {
+      const resp = await api.get(`/api/knowledge-hub?college_name=${encodeURIComponent(browseCollege)}`);
+      let arr: KnowledgeItem[] = Array.isArray(resp) ? resp : (Array.isArray(resp?.data) ? resp.data : []);
+      
+      let filtered = [...arr];
+      if (selectedCourse !== "all") filtered = filtered.filter(k => k.course === selectedCourse);
+      if (selectedSubCourse !== "all") filtered = filtered.filter(k => k.sub_course === selectedSubCourse);
+
+      setItems(mergeWithDummies(filtered, DUMMY_NOTES as KnowledgeItem[], 100));
+    } catch (err) {
+      console.error("Failed to fetch knowledge hub items", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
     fetchItems();
   }, [selectedCourse, selectedSubCourse, browseCollege]);
 
-  const fetchItems = async () => {
-    setLoading(true);
-    try {
-      const resp = await api.get('/api/knowledge-hub');
-      let result: KnowledgeItem[] = Array.isArray(resp) ? resp : (Array.isArray(resp?.data) ? resp.data : []);
-      const college = result.filter((k) => k.college_name === browseCollege);
-      const other = result.filter((k) => k.college_name !== browseCollege);
-      
-      let filtered = [...college, ...other];
-      if (selectedCourse !== "all") filtered = filtered.filter(k => k.course === selectedCourse);
-      if (selectedSubCourse !== "all") filtered = filtered.filter(k => k.sub_course === selectedSubCourse);
-
-      setItems(filtered.slice(0, 10));
-    } catch (error) {
-      console.error("Knowledge Hub fetch error:", error);
-    }
-    setLoading(false);
-  };
-
   const handleDownload = (item: KnowledgeItem) => {
+    if (item.isDummy) {
+      toast({ title: DUMMY_MSG.download, variant: "destructive" });
+      return;
+    }
     if (!user) {
       navigate("/auth");
       return;
@@ -288,7 +295,12 @@ export default function KnowledgeHub() {
         ) : (
           <div className="space-y-3 animate-fade-in">
             {items.map((item) => (
-              <div key={item.id} className="flex items-center gap-4 rounded-lg border border-border bg-card p-4">
+              <div key={item.id} className="relative flex items-center gap-4 rounded-lg border border-border bg-card p-4 transition-all hover:border-primary/30 hover:shadow-sm">
+                {item.isDummy && (
+                  <span className="absolute top-3 right-4 z-10 rounded-full bg-amber-100 text-amber-800 text-[10px] font-semibold px-2 py-0.5 border border-amber-300">
+                    Demo Entry
+                  </span>
+                )}
                 <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-secondary">
                   <FileText className="h-5 w-5 text-muted-foreground" />
                 </div>

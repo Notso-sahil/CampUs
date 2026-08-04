@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import {
   Search, Plus, ShieldCheck, Zap, MapPin,
   Star, ChevronRight, X, SlidersHorizontal, TrendingUp, Users, Award
@@ -9,10 +9,13 @@ import Footer from "@/components/Footer";
 import FadeIn from "@/components/FadeIn";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { useToast } from "@/components/ui/use-toast";
 import ServiceCard, { type PeerService } from "@/components/ServiceCard";
 import { api } from "@/lib/api";
 import { useAuthContext } from "@/contexts/AuthContext";
 import { useCollege } from "@/contexts/CollegeContext";
+import { DUMMY_SERVICES, mergeWithDummies } from "@/lib/dummyData";
+import { DUMMY_MSG } from "@/lib/dummyMessages";
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 const CATEGORIES = [
@@ -31,134 +34,11 @@ const SORT_OPTIONS = [
   { id: "price_desc", label: "Price: High" },
 ];
 
-// ─── Fallback MNC-grade mock data (shown when backend is empty) ────────────────
-const MOCK_SERVICES: PeerService[] = [
-  {
-    id: "mock-1",
-    title: "Precision EG Sheets — First & Third Angle Projection",
-    expert_name: "Rahul Sharma",
-    expert_user_id: "seed_expert_1",
-    avg_rating: 4.9,
-    review_count: 24,
-    price_basic: 299,
-    category: "Engineering Graphics",
-    portfolio_urls: ["https://images.unsplash.com/photo-1503387762-592dea58ef23?w=800&auto=format&fit=crop"],
-    expert_verified: "approved",
-    delivery_method: "On-Campus Handover",
-    delivery_days: 3,
-    availability: "Available",
-  },
-  {
-    id: "mock-2",
-    title: "Complete EG Portfolio — All 10 Sheets (Semester Bundle)",
-    expert_name: "Rahul Sharma",
-    expert_user_id: "seed_expert_1",
-    avg_rating: 4.9,
-    review_count: 18,
-    price_basic: 1999,
-    category: "Engineering Graphics",
-    portfolio_urls: ["https://images.unsplash.com/photo-1581094794329-c8112a89af12?w=800&auto=format&fit=crop"],
-    expert_verified: "approved",
-    delivery_method: "On-Campus Handover",
-    delivery_days: 7,
-    availability: "Available",
-  },
-  {
-    id: "mock-3",
-    title: "Python Lab File (BCA/B.Tech) — 15+ Programs with Output",
-    expert_name: "Priya Verma",
-    expert_user_id: "seed_expert_2",
-    avg_rating: 5.0,
-    review_count: 32,
-    price_basic: 450,
-    category: "Python/Coding",
-    portfolio_urls: ["https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=800&auto=format&fit=crop"],
-    expert_verified: "approved",
-    delivery_method: "Digital PDF",
-    delivery_days: 2,
-    availability: "Available",
-  },
-  {
-    id: "mock-4",
-    title: "Full-Stack Mini Project (Django/React) with Report",
-    expert_name: "Priya Verma",
-    expert_user_id: "seed_expert_2",
-    avg_rating: 4.8,
-    review_count: 12,
-    price_basic: 2500,
-    category: "Python/Coding",
-    portfolio_urls: ["https://images.unsplash.com/photo-1555949963-aa79dcee981c?w=800&auto=format&fit=crop"],
-    expert_verified: "approved",
-    delivery_method: "Digital PDF",
-    delivery_days: 14,
-    availability: "Available",
-  },
-  {
-    id: "mock-5",
-    title: "Hardware Circuit Assembly — Arduino/Raspberry Pi Projects",
-    expert_name: "Arjun Mehta",
-    expert_user_id: "seed_expert_3",
-    avg_rating: 4.8,
-    review_count: 9,
-    price_basic: 800,
-    category: "Hardware/Circuit",
-    portfolio_urls: ["https://images.unsplash.com/photo-1518770660439-4636190af475?w=800&auto=format&fit=crop"],
-    expert_verified: "approved",
-    delivery_method: "On-Campus Handover",
-    delivery_days: 5,
-    availability: "Available",
-  },
-  {
-    id: "mock-6",
-    title: "PCB Design + Soldering — Custom Circuits for Lab Exams",
-    expert_name: "Arjun Mehta",
-    expert_user_id: "seed_expert_3",
-    avg_rating: 4.7,
-    review_count: 6,
-    price_basic: 1200,
-    category: "Hardware/Circuit",
-    portfolio_urls: ["https://images.unsplash.com/photo-1635070041078-e363dbe005cb?w=800&auto=format&fit=crop"],
-    expert_verified: "approved",
-    delivery_method: "On-Campus Handover",
-    delivery_days: 7,
-    availability: "Available",
-  },
-  {
-    id: "mock-7",
-    title: "Viva-Voce Prep Notes — Engineering Physics & Chemistry",
-    expert_name: "Sanya Gupta",
-    expert_user_id: "seed_expert_4",
-    avg_rating: 4.9,
-    review_count: 61,
-    price_basic: 149,
-    category: "Viva Prep",
-    portfolio_urls: ["https://images.unsplash.com/photo-1456513080510-7bf3a84b82f8?w=800&auto=format&fit=crop"],
-    expert_verified: "approved",
-    delivery_method: "Digital PDF",
-    delivery_days: 1,
-    availability: "Available",
-  },
-  {
-    id: "mock-8",
-    title: "Full Semester Lab Manual Writing — Any Subject",
-    expert_name: "Sanya Gupta",
-    expert_user_id: "seed_expert_4",
-    avg_rating: 4.8,
-    review_count: 27,
-    price_basic: 599,
-    category: "Lab Files",
-    portfolio_urls: ["https://images.unsplash.com/photo-1456513080510-7bf3a84b82f8?w=800&auto=format&fit=crop"],
-    expert_verified: "approved",
-    delivery_method: "Digital PDF",
-    delivery_days: 4,
-    availability: "Available",
-  },
-];
-
 // ─── Component ────────────────────────────────────────────────────────────────
-export default function HirePeer() {
+export default function Service() {
   const { user } = useAuthContext();
-  const { browseCollege, userCollege } = useCollege();
+  const { browseCollege } = useCollege();
+  const { toast } = useToast();
   const navigate = useNavigate();
 
   const [activeCategory, setActiveCategory] = useState("all");
@@ -170,41 +50,41 @@ export default function HirePeer() {
   const [loading, setLoading] = useState(true);
   const searchRef = useRef<HTMLInputElement>(null);
 
-  // Fetch services from backend, fall back to mock data
+  // Fetch services from backend, combine with dummy data
   useEffect(() => {
     const fetchServices = async () => {
       setLoading(true);
       try {
         const params = new URLSearchParams();
         if (browseCollege) params.set("college_name", browseCollege);
-        if (activeCategory !== "all") params.set("category", activeCategory);
-        if (searchQuery) params.set("search", searchQuery);
-
+        
         const resp = await api.get(`/api/peer-services?${params.toString()}`);
-        const data: PeerService[] = Array.isArray(resp) ? resp : (Array.isArray(resp?.data) ? resp.data : []);
-
-        if (data.length > 0) {
-          const sorted = sortServices(data, sortBy);
-          setServices(sorted);
-        } else {
-          // Use mock fallback
-          const filtered = MOCK_SERVICES.filter(s =>
-            (activeCategory === "all" || s.category === activeCategory) &&
-            (!searchQuery || s.title.toLowerCase().includes(searchQuery.toLowerCase()))
-          );
-          setServices(sortServices(filtered, sortBy));
-        }
-      } catch {
-        const filtered = MOCK_SERVICES.filter(s =>
-          (activeCategory === "all" || s.category === activeCategory) &&
-          (!searchQuery || s.title.toLowerCase().includes(searchQuery.toLowerCase()))
-        );
-        setServices(sortServices(filtered, sortBy));
+        const respData = resp as { data?: PeerService[] };
+        const realData: PeerService[] = Array.isArray(resp) ? resp : (Array.isArray(respData?.data) ? respData.data : []);
+        setServices(mergeWithDummies(realData, DUMMY_SERVICES as PeerService[], 4));
+      } catch (err) {
+        console.error("Failed to fetch services", err);
+        setServices(mergeWithDummies([], DUMMY_SERVICES as PeerService[], 4));
       }
       setLoading(false);
     };
     fetchServices();
-  }, [activeCategory, searchQuery, browseCollege, sortBy]);
+  }, [browseCollege]);
+
+  const handleHireClick = (service: PeerService, e: React.MouseEvent) => {
+    if (service.id.startsWith("mock-")) {
+      e.preventDefault();
+      toast({ title: DUMMY_MSG.order, variant: "destructive" });
+    }
+  };
+
+  const filteredServices = services
+    .filter(s => 
+      (activeCategory === "all" || s.category === activeCategory) &&
+      (!searchQuery || s.title.toLowerCase().includes(searchQuery.toLowerCase()))
+    );
+
+  const sortedServices = sortServices(filteredServices, sortBy);
 
   function sortServices(data: PeerService[], sort: string): PeerService[] {
     const arr = [...data];
@@ -278,9 +158,7 @@ export default function HirePeer() {
 
         {/* ─── Marketplace ────────────────────────────────────────────────── */}
         <section className="container mx-auto px-4 pb-24">
-          {/* Toolbar */}
           <div className="flex flex-col gap-4 mb-8">
-            {/* Category pills — horizontally scrollable on mobile */}
             <div className="flex gap-2 overflow-x-auto pb-1 -mx-4 px-4 md:mx-0 md:px-0 scrollbar-none">
               {CATEGORIES.map((cat) => (
                 <button
@@ -298,17 +176,15 @@ export default function HirePeer() {
               ))}
             </div>
 
-            {/* Second row: results count + sort + CTA */}
             <div className="flex items-center justify-between gap-3 flex-wrap">
               <p className="text-sm text-muted-foreground font-medium">
-                {loading ? "Loading…" : `${services.length} service${services.length !== 1 ? "s" : ""} found`}
+                {loading ? "Loading…" : `${sortedServices.length} service${sortedServices.length !== 1 ? "s" : ""} found`}
                 {searchQuery && (
                   <span className="ml-2 text-primary font-bold">for "{searchQuery}"</span>
                 )}
               </p>
 
               <div className="flex items-center gap-2">
-                {/* Sort dropdown */}
                 <div className="relative">
                   <Button
                     variant="outline"
@@ -338,11 +214,10 @@ export default function HirePeer() {
                   )}
                 </div>
 
-                {/* Start selling CTA */}
                 <Button
                   onClick={() => {
                     if (!user) navigate("/auth");
-                    else navigate("/hire-peer/list");
+                    else navigate("/service/list");
                   }}
                   size="sm"
                   className="rounded-md h-8 px-3 gap-1.5 bg-primary text-primary-foreground font-medium text-xs hover:bg-primary/90 transition-colors"
@@ -354,17 +229,18 @@ export default function HirePeer() {
             </div>
           </div>
 
-          {/* Grid */}
           {loading ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
               {Array.from({ length: 8 }).map((_, i) => (
                 <div key={i} className="rounded-2xl bg-secondary/40 animate-pulse aspect-[4/5]" />
               ))}
             </div>
-          ) : services.length > 0 ? (
+          ) : sortedServices.length > 0 ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5 animate-fade-in">
-              {services.map((service) => (
-                <ServiceCard key={service.id} service={service} />
+              {sortedServices.map((service) => (
+                <div key={service.id} className="relative">
+                  <ServiceCard service={service} onClick={(e) => handleHireClick(service, e as any)} />
+                </div>
               ))}
             </div>
           ) : (
@@ -443,7 +319,7 @@ export default function HirePeer() {
               <Button
                 onClick={() => {
                   if (!user) navigate("/auth");
-                  else navigate("/hire-peer/list");
+                  else navigate("/service/list");
                 }}
                 className="h-11 px-6 bg-primary text-primary-foreground rounded-lg font-medium hover:bg-primary/90 transition-colors gap-2"
               >

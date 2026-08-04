@@ -1,5 +1,8 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { format } from "date-fns";
+import { DUMMY_TEAMS, mergeWithDummies } from "@/lib/dummyData";
+import { DUMMY_MSG } from "@/lib/dummyMessages";
 import { api } from "@/lib/api";
 import { useAuthContext } from "@/contexts/AuthContext";
 import { useCollege } from "@/contexts/CollegeContext";
@@ -13,7 +16,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Tooltip, TooltipTrigger, TooltipContent } from "@/components/ui/tooltip";
 import { useToast } from "@/hooks/use-toast";
-import { Users, Plus, Search, Copy, UserPlus, Crown, Trash2, LogOut, ArrowRightLeft, MessageCircle } from "lucide-react";
+import { Users, Plus, Search, Copy, UserPlus, Crown, Trash2, LogOut, ArrowRightLeft, MessageCircle, User } from "lucide-react";
 
 interface Team {
   id: string;
@@ -25,6 +28,9 @@ interface Team {
   looking_for_role: string | null;
   looking_for_description: string | null;
   created_at: string;
+  isDummy?: boolean;
+  contact_info?: string;
+  created_by?: string;
 }
 
 interface TeamMember {
@@ -69,16 +75,41 @@ export default function FindTeammates() {
   const [lookingForDesc, setLookingForDesc] = useState("");
   const [creating, setCreating] = useState(false);
 
-  const fetchData = async () => {
+  const fetchTeams = async () => {
     setLoading(true);
     try {
-      const allTeamsData = await api.get('/api/teams');
-      const allTeams = (allTeamsData as Team[]) || [];
-      const collegeTeams = allTeams.filter(t => t.college_name === browseCollege);
-      const otherTeams = allTeams.filter(t => t.college_name !== browseCollege);
-      setTeams([...collegeTeams, ...otherTeams]);
+      const resp = await api.get(`/api/teams?college_name=${encodeURIComponent(browseCollege)}`);
+      let arr: Team[] = Array.isArray(resp) ? resp : (Array.isArray((resp as any)?.data) ? (resp as any).data : []);
+      setTeams(mergeWithDummies(arr, DUMMY_TEAMS as Team[], 100));
+    } catch (error) {
+      console.error("Teams fetch error:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
-      if (user) {
+  const handleApply = async (team: Team) => {
+    if (team.isDummy) {
+      toast({ title: DUMMY_MSG.chat, variant: "destructive" });
+      return;
+    }
+    if (!user) { navigate("/auth"); return; }
+    try {
+      const conv = await api.post("/api/conversations", {
+        seller_id: team.created_by,
+        context_id: team.id,
+        context_type: "team",
+      });
+      navigate(`/chat/${conv.id}`);
+    } catch (error) {
+      toast({ title: "Could not start chat", variant: "destructive" });
+    }
+  };
+
+  const fetchData = async () => {
+    await fetchTeams();
+    if (user) {
+      try {
         const membersData = await api.get(`/api/team-members?user_id=${user.id}`);
         const membership = membersData?.[0];
 
@@ -102,9 +133,9 @@ export default function FindTeammates() {
           const pending = new Set<string>((userReqs || []).filter((r: any) => r.status === 'pending').map((r: any) => r.team_id as string));
           setPendingRequests(pending);
         }
+      } catch (err) {
+        console.error(err);
       }
-    } catch (err) {
-      console.error(err);
     }
     setLoading(false);
   };
@@ -254,7 +285,6 @@ export default function FindTeammates() {
         {loading ? (
           <PageSpinner />
         ) : myTeam && view === "my-team" ? (
-          /* MY TEAM VIEW */
           <FadeIn>
             <Card className="shadow-soft border-border">
               <CardHeader>
@@ -428,9 +458,14 @@ export default function FindTeammates() {
                   ) : (
                     <div className="grid gap-3 grid-cols-1 sm:grid-cols-2">
                       {filteredTeams.map((team) => (
-                        <Card key={team.id} className="border-border">
+                        <Card key={team.id} className="border-border relative">
+                          {team.isDummy && (
+                            <span className="absolute top-3 right-4 z-10 rounded-full bg-amber-100 text-amber-800 text-[10px] font-semibold px-2 py-0.5 border border-amber-300">
+                              Demo Entry
+                            </span>
+                          )}
                           <CardHeader className="pb-3">
-                            <CardTitle className="font-display text-lg">{team.name}</CardTitle>
+                            <CardTitle className="font-display text-lg pr-20">{team.name}</CardTitle>
                             {team.description && <CardDescription className="line-clamp-2">{team.description}</CardDescription>}
                           </CardHeader>
                           <CardContent className="space-y-3">
@@ -439,15 +474,22 @@ export default function FindTeammates() {
                                 <p className="text-xs font-medium text-accent-foreground">Looking for: {team.looking_for_role}</p>
                               </div>
                             )}
-                            <div className="flex items-center justify-between">
+                            <div className="flex items-center justify-between mt-2 pt-2 border-t border-border/50">
                               <span className="text-xs text-muted-foreground font-mono">{team.team_code}</span>
-                              {pendingRequests.has(team.id) ? (
-                                <span className="text-xs text-muted-foreground font-medium">Requested</span>
-                              ) : (
-                                <Button size="sm" className="bg-primary text-primary-foreground rounded-lg" onClick={() => handleRequestJoin(team.id)}>
-                                  <UserPlus className="h-3.5 w-3.5 mr-1" /> Request to Join
+                              <div className="flex gap-2">
+                                <Button size="sm" variant="outline" className="text-xs h-8" onClick={() => handleApply(team)}>
+                                  <MessageCircle className="h-3.5 w-3.5 mr-1" /> Message
                                 </Button>
-                              )}
+                                {!team.isDummy && (
+                                  pendingRequests.has(team.id) ? (
+                                    <span className="text-xs text-muted-foreground font-medium px-3 py-1.5 flex items-center">Requested</span>
+                                  ) : (
+                                    <Button size="sm" className="bg-primary text-primary-foreground rounded-lg h-8 text-xs" onClick={() => handleRequestJoin(team.id)}>
+                                      <UserPlus className="h-3.5 w-3.5 mr-1" /> Request to Join
+                                    </Button>
+                                  )
+                                )}
+                              </div>
                             </div>
                           </CardContent>
                         </Card>

@@ -1,9 +1,11 @@
 import { Link } from "react-router-dom";
 import logoImg from "@/assets/logo.png";
-import { Github, Twitter, Instagram, Mail } from "lucide-react";
+import { Mail } from "lucide-react";
+import { useCollege } from "@/contexts/CollegeContext";
 
 export default function Footer() {
   const currentYear = new Date().getFullYear();
+  const { browseCollege } = useCollege();
 
   return (
     <footer className="border-t border-border">
@@ -15,22 +17,15 @@ export default function Footer() {
               <img src={logoImg} alt="CampUs" className="h-8 w-auto object-contain" />
             </Link>
             <p className="text-sm text-muted-foreground leading-relaxed">
-              Built for VIPS students. Trade, connect, learn.
+              Built for {browseCollege || "your college"} students. Trade, connect, learn.
             </p>
-            <div className="flex items-center gap-2 pt-1">
-              {[Github, Twitter, Instagram].map((Icon, i) => (
-                <a key={i} href="#" className="text-muted-foreground hover:text-foreground transition-colors p-1.5">
-                  <Icon className="h-4 w-4" />
-                </a>
-              ))}
-            </div>
           </div>
 
           <div className="space-y-3">
             <h4 className="text-sm font-medium text-foreground">Platform</h4>
             <ul className="space-y-2">
               <li><Link to="/trade" className="text-sm text-muted-foreground hover:text-foreground transition-colors">Trade</Link></li>
-              <li><Link to="/hire-peer" className="text-sm text-muted-foreground hover:text-foreground transition-colors">Peer Services</Link></li>
+              <li><Link to="/service" className="text-sm text-muted-foreground hover:text-foreground transition-colors">Peer Services</Link></li>
               <li><Link to="/knowledge" className="text-sm text-muted-foreground hover:text-foreground transition-colors">Notes</Link></li>
               <li><Link to="/sell" className="text-sm text-muted-foreground hover:text-foreground transition-colors">Sell</Link></li>
             </ul>

@@ -18,7 +18,7 @@ const CATEGORIES = ["Engineering Graphics", "Python/Coding", "Hardware/Circuit",
 const DELIVERY_METHODS = ["On-Campus Handover", "Digital PDF", "WhatsApp", "Digital + Printout"];
 
 // ── Multi-step form: Step 1 = Expert Profile, Step 2 = Service Listing ────────
-export default function ListPeerService() {
+export default function ListService() {
   const { user } = useAuthContext();
   const { browseCollege } = useCollege();
   const navigate = useNavigate();
@@ -103,8 +103,8 @@ export default function ListPeerService() {
       if (result?.error) {
         toast({ title: "Not Approved Yet", description: result.error, variant: "destructive" });
       } else {
-        toast({ title: "Service Listed! 🎉", description: "Pending admin approval. It will appear in the marketplace once approved." });
-        navigate("/hire-peer");
+        toast({ title: "Success", description: "Your service has been listed." });
+        navigate("/service");
       }
     } catch {
       toast({ title: "Error", description: "Failed to list service. Please ensure your expert profile is approved.", variant: "destructive" });
@@ -117,8 +117,8 @@ export default function ListPeerService() {
     <div className="min-h-screen flex flex-col bg-background overflow-x-hidden">
       <Navbar />
       <main className="flex-1 container mx-auto max-w-2xl px-4 py-8">
-        <button onClick={() => navigate("/hire-peer")} className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground mb-8 transition-colors">
-          <ArrowLeft className="h-4 w-4" /> Back to Marketplace
+        <button onClick={() => navigate("/service")} className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground mb-8 transition-colors">
+          <ArrowLeft className="h-4 w-4" /> Back to Services
         </button>
 
         {/* Step indicator */}

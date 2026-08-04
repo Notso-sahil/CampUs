@@ -53,8 +53,8 @@ export default function BottomNav() {
               <MenuLink to="/events" icon={<CalendarDays />} label="Events" />
               <MenuLink to="/recover" icon={<Search />} label="Recover" />
               <MenuLink to="/knowledge" icon={<BookOpen />} label="Notes" />
-              <MenuLink to="/expeditions" icon={<Map />} label="Trips" />
-              <MenuLink to="/find-teammates" icon={<Users />} label="Teams" />
+              <MenuLink to="/featured" icon={<Map />} label="Trips" />
+              <MenuLink to="/find-teammates" icon={<Users />} label="Teammates" />
               <MenuLink to="/find-roommate" icon={<Home />} label="Roommates" />
             </div>
 
@@ -83,7 +83,7 @@ export default function BottomNav() {
         <div className="flex items-center justify-around h-16 px-2">
           <NavItem to="/" icon={<Home />} label="Home" active={isHome} />
           <NavItem to="/trade" icon={<ShoppingBag />} label="Trade" active={!isHome && isActive("/trade")} />
-          <NavItem to="/hire-peer" icon={<Briefcase />} label="Services" active={!isHome && isActive("/hire-peer")} />
+          <NavItem to="/service" icon={<Briefcase />} label="Services" active={!isHome && isActive("/service")} />
           
           <Link to={user ? "/chat" : "/auth"} className="relative flex flex-col items-center justify-center w-full h-full space-y-1 text-muted-foreground hover:text-foreground transition-colors tap-target">
             <div className={`p-1.5 rounded-full transition-colors ${!isHome && isActive("/chat") ? "bg-primary/10 text-primary" : ""}`}>

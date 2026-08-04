@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { api } from "@/lib/api";
 import { useAuthContext } from "@/contexts/AuthContext";
+import { useCollege } from "@/contexts/CollegeContext";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import FadeIn from "@/components/FadeIn";
@@ -19,6 +20,7 @@ const CONDITIONS = ["New", "Like New", "Good", "Fair"];
 
 export default function Sell() {
   const { user, profile } = useAuthContext();
+  const { browseCollege } = useCollege();
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -109,7 +111,7 @@ export default function Sell() {
         <FadeIn>
           <div className="mb-8">
             <h1 className="text-2xl font-bold">List your item</h1>
-            <p className="text-muted-foreground mt-1 text-sm">Sell to your peers on the VIPS campus. It's fast and free.</p>
+            <p className="text-muted-foreground mt-1 text-sm">Sell to your peers on the {profile?.college_name || browseCollege || "college"} campus. It's fast and free.</p>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-6 bg-card border border-border rounded-lg p-5">
@@ -228,7 +230,7 @@ export default function Sell() {
                     <MapPin className="h-3.5 w-3.5" /> Campus
                   </Label>
                   <div className="h-12 px-4 flex items-center bg-secondary/30 rounded-xl text-sm font-bold border border-border/50 text-foreground/80">
-                    VIPS, Delhi Hub
+                    {profile?.college_name || browseCollege || "College"} Hub
                   </div>
                 </div>
               </div>

@@ -21,10 +21,10 @@ const NAV_LINKS = [
   { to: "/events",        label: "Events"                      },
   { to: "/recover",       label: "Lost & Found"                },
   { to: "/knowledge",     label: "Notes"                       },
-  { to: "/expeditions",   label: "Expeditions"                 },
+  { to: "/featured",      label: "Featured"                    },
   { to: "/find-teammates",label: "Teams"                       },
-  { to: "/find-roommate", label: "Rooms"                       },
-  { to: "/hire-peer",     label: "Services"                    },
+  { to: "/find-roommate", label: "Roommate"                    },
+  { to: "/service",       label: "Services"                    },
 ];
 
 export default function Navbar() {
@@ -67,17 +67,21 @@ export default function Navbar() {
 
           <div className="flex items-center gap-1 sm:gap-1.5 flex-shrink-0">
             {/* Location chip / College Switcher */}
-            {user ? (
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <button className="flex items-center gap-1 h-8 px-2.5 rounded-md bg-secondary text-xs font-medium text-muted-foreground hover:bg-secondary/80 transition-colors">
-                    <MapPin className="h-3 w-3 flex-shrink-0" />
-                    <span className="truncate max-w-[80px]">{browseCollege || "Select"}</span>
-                    <ChevronDown className="h-3 w-3 opacity-50" />
-                  </button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-48">
-                  {colleges.map((c) => (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button className="flex items-center gap-1 h-8 px-2.5 rounded-md bg-secondary text-xs font-medium text-muted-foreground hover:bg-secondary/80 transition-colors">
+                  <MapPin className="h-3 w-3 flex-shrink-0" />
+                  <span className="truncate max-w-[80px]">{browseCollege || "Select"}</span>
+                  <ChevronDown className="h-3 w-3 opacity-50" />
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-48">
+                {colleges.length === 0 ? (
+                  <div className="p-2 text-xs text-center text-muted-foreground">
+                    Loading...
+                  </div>
+                ) : (
+                  colleges.map((c) => (
                     <DropdownMenuItem
                       key={c.id}
                       onClick={() => setBrowseCollege(c.name)}
@@ -85,15 +89,10 @@ export default function Navbar() {
                     >
                       {c.name}
                     </DropdownMenuItem>
-                  ))}
-                </DropdownMenuContent>
-              </DropdownMenu>
-            ) : (
-              <div className="flex items-center gap-1 h-8 px-2.5 rounded-md bg-secondary text-xs font-medium text-muted-foreground">
-                <MapPin className="h-3 w-3 flex-shrink-0" />
-                <span className="truncate max-w-[80px]">VIPS</span>
-              </div>
-            )}
+                  ))
+                )}
+              </DropdownMenuContent>
+            </DropdownMenu>
 
             {user ? (
               <>
