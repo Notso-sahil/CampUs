@@ -1,11 +1,12 @@
 import { Outlet, NavLink, useNavigate, useLocation } from "react-router-dom";
 import { useAuthContext } from "@/contexts/AuthContext";
-import { ShieldAlert, LayoutDashboard, Users, ShoppingCart, Star, Calendar, BookOpen, School, LogOut, ArrowLeft } from "lucide-react";
+import { ShieldAlert, LayoutDashboard, Users, ShoppingCart, Star, Calendar, BookOpen, School, LogOut, ArrowLeft, Inbox } from "lucide-react";
 import FadeIn from "@/components/FadeIn";
 import { Button } from "@/components/ui/button";
 
 const navItems = [
   { path: "/admin", label: "Overview", icon: LayoutDashboard, exact: true },
+  { path: "/admin/requests", label: "Inbox & Requests", icon: Inbox },
   { path: "/admin/users", label: "Users", icon: Users },
   { path: "/admin/listings", label: "Listings", icon: ShoppingCart },
   { path: "/admin/services", label: "Peer Services", icon: Star },

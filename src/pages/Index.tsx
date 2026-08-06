@@ -45,7 +45,6 @@ export default function Index() {
   const [recover, setRecover] = useState<CarouselItem[]>([]);
   const [knowledge, setKnowledge] = useState<any[]>([]);
   const [featured, setFeatured] = useState<any[]>([]);
-  const [featured, setFeatured] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   
   const [feedbackEmail, setFeedbackEmail] = useState(user?.primaryEmailAddress?.emailAddress || "");
@@ -59,7 +58,6 @@ export default function Index() {
     try {
       await api.post("/api/admin-feedback", {
         user_id: user?.id || null,
-        name: user?.fullName || "Anonymous",
         email: feedbackEmail.trim(),
         message: feedbackMessage.trim(),
       });

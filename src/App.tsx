@@ -41,6 +41,7 @@ import AdminPeerServices from "./pages/admin/AdminPeerServices";
 import AdminEvents from "./pages/admin/AdminEvents";
 import AdminKnowledge from "./pages/admin/AdminKnowledge";
 import AdminCollegesPanel from "./pages/admin/AdminCollegesPanel";
+import AdminRequests from "./pages/admin/AdminRequests";
 
 const queryClient = new QueryClient();
 
@@ -102,10 +103,12 @@ const AppRoutes = () => (
       <Route path="/roommate-chat/:id" element={
         <ProtectedRoute><RoommateChat /></ProtectedRoute>
       } />
+      {/* Admin Panel */}
       <Route path="/admin" element={
         <ProtectedRoute><AdminDashboard /></ProtectedRoute>
       }>
         <Route index element={<AdminOverview />} />
+        <Route path="requests" element={<AdminRequests />} />
         <Route path="users" element={<AdminUsers />} />
         <Route path="listings" element={<AdminListings />} />
         <Route path="services" element={<AdminPeerServices />} />
