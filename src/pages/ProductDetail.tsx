@@ -119,10 +119,10 @@ export default function ProductDetail() {
     try {
       const userConvs = await api.get(`/api/conversations?user_id=${user.id}`);
       const convArr = Array.isArray(userConvs) ? userConvs : Array.isArray(userConvs?.data) ? userConvs.data : [];
-      const existing = convArr.find((c: any) => c.product_id === product.id && c.seller_id === product.seller_id);
+      const existing = convArr.find((c: any) => c.context_id === product.id && c.seller_id === product.seller_id);
       if (existing) { navigate(`/chat/${existing.id}`); return; }
       
-      const newConv = await api.post("/api/conversations", { buyer_id: user.id, seller_id: product.seller_id, product_id: product.id });
+      const newConv = await api.post("/api/conversations", { seller_id: product.seller_id, context_id: product.id, context_type: 'product' });
       navigate(`/chat/${newConv.id}`);
     } catch {
       toast({ title: "Error", description: "Could not start conversation.", variant: "destructive" });

@@ -134,7 +134,7 @@ export default function ServiceDetail() {
     if (!user) { navigate("/auth"); return; }
     try {
       const conv = await api.post("/api/conversations", {
-        seller_id: service.expert_user_id,
+        seller_id: service.provider_id || service.expert_user_id,
         context_id: service.id,
         context_type: "service",
       });
