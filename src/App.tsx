@@ -67,8 +67,12 @@ const AppRoutes = () => (
       <Route path="/featured" element={<Featured />} />
       <Route path="/recover" element={<Recover />} />
       <Route path="/knowledge" element={<KnowledgeHub />} />
-      <Route path="/find-teammates" element={<FindTeammates />} />
-      <Route path="/find-roommate" element={<FindRoommate />} />
+      <Route path="/find-teammates" element={
+        <ProtectedRoute requireOnboarded><FindTeammates /></ProtectedRoute>
+      } />
+      <Route path="/find-roommate" element={
+        <ProtectedRoute requireOnboarded><FindRoommate /></ProtectedRoute>
+      } />
       <Route path="/service" element={<Service />} />
       <Route path="/service/:id" element={<ServiceDetail />} />
       <Route path="/service/list" element={
