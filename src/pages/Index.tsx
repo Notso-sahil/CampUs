@@ -47,18 +47,17 @@ export default function Index() {
   const [featured, setFeatured] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   
-  const [feedbackEmail, setFeedbackEmail] = useState(user?.primaryEmailAddress?.emailAddress || "");
   const [feedbackMessage, setFeedbackMessage] = useState("");
   const [sendingFeedback, setSendingFeedback] = useState(false);
 
   const handleFeedbackSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!feedbackEmail.trim() || !feedbackMessage.trim()) return;
+    if (!feedbackMessage.trim()) return;
     setSendingFeedback(true);
     try {
       await api.post("/api/admin-feedback", {
         user_id: user?.id || null,
-        email: feedbackEmail.trim(),
+        email: user?.primaryEmailAddress?.emailAddress || "anonymous@campus.com",
         message: feedbackMessage.trim(),
       });
       toast({ title: "Feedback Sent", description: "Thank you for your feedback!" });
@@ -180,41 +179,35 @@ export default function Index() {
         </section>
 
         {/* ─── Inline Feedback Widget ─────────────────────────────────────── */}
-        <section className="container mx-auto px-4 pb-16">
-          <FadeIn>
-            <div className="bg-gradient-to-r from-primary/10 via-primary/5 to-background border border-primary/20 rounded-2xl p-6 sm:p-8 flex flex-col md:flex-row items-center gap-6 shadow-sm">
-              <div className="flex-1">
-                <h3 className="text-xl font-bold mb-2 text-foreground">Help Us Improve CampUs! 🚀</h3>
-                <p className="text-muted-foreground text-sm max-w-md">
-                  Notice a bug? Have a feature request? Let us know directly. Your feedback goes straight to the developers.
-                </p>
-              </div>
-              <form onSubmit={handleFeedbackSubmit} className="flex-1 w-full max-w-lg flex flex-col sm:flex-row gap-3">
-                <div className="flex-1 space-y-2 sm:space-y-0 flex flex-col gap-2">
-                  <input
-                    type="email"
-                    placeholder="Your email"
-                    value={feedbackEmail}
-                    onChange={(e) => setFeedbackEmail(e.target.value)}
-                    required
-                    className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-                  />
-                  <input
-                    type="text"
-                    placeholder="Tell us what you think..."
-                    value={feedbackMessage}
-                    onChange={(e) => setFeedbackMessage(e.target.value)}
-                    required
-                    className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-                  />
+        {user && (
+          <section className="container mx-auto px-4 pb-16">
+            <FadeIn>
+              <div className="bg-gradient-to-r from-primary/10 via-primary/5 to-background border border-primary/20 rounded-2xl p-6 sm:p-8 flex flex-col md:flex-row items-center gap-6 shadow-sm">
+                <div className="flex-1">
+                  <h3 className="text-xl font-bold mb-2 text-foreground">Help Us Improve CampUs! 🚀</h3>
+                  <p className="text-muted-foreground text-sm max-w-md">
+                    Notice a bug? Have a feature request? Let us know directly. Your feedback goes straight to the developers.
+                  </p>
                 </div>
-                <Button type="submit" disabled={sendingFeedback} className="h-full min-h-[40px] sm:min-h-full">
-                  {sendingFeedback ? "Sending..." : <><Send className="h-4 w-4 mr-2" /> Send</>}
-                </Button>
-              </form>
-            </div>
-          </FadeIn>
-        </section>
+                <form onSubmit={handleFeedbackSubmit} className="flex-1 w-full max-w-lg flex flex-col sm:flex-row gap-3">
+                  <div className="flex-1 space-y-2 sm:space-y-0 flex flex-col gap-2">
+                    <input
+                      type="text"
+                      placeholder="Tell us what you think..."
+                      value={feedbackMessage}
+                      onChange={(e) => setFeedbackMessage(e.target.value)}
+                      required
+                      className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                    />
+                  </div>
+                  <Button type="submit" disabled={sendingFeedback} className="h-full min-h-[40px] sm:min-h-full">
+                    {sendingFeedback ? "Sending..." : <><Send className="h-4 w-4 mr-2" /> Send</>}
+                  </Button>
+                </form>
+              </div>
+            </FadeIn>
+          </section>
+        )}
 
         <div className="container mx-auto px-4 pb-20 space-y-14">
           {loading ? (
