@@ -10,6 +10,7 @@ interface Product {
   college_name: string | null;
   image_urls: string[];
   created_at: string;
+  seller_name?: string;
 }
 
 const CONDITION_COLORS: Record<string, string> = {
@@ -85,6 +86,11 @@ export default function ProductCard({ product }: { product: Product }) {
             </span>
           )}
         </div>
+        {product.seller_name && (
+          <div className="text-[10px] text-muted-foreground truncate pt-1">
+            Seller: <span className="font-medium text-foreground">{product.seller_name}</span>
+          </div>
+        )}
       </div>
     </Link>
   );
