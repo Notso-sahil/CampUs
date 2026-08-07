@@ -39,6 +39,7 @@ import AdminUsers from "./pages/admin/AdminUsers";
 import AdminListings from "./pages/admin/AdminListings";
 import AdminPeerServices from "./pages/admin/AdminPeerServices";
 import AdminEvents from "./pages/admin/AdminEvents";
+import AdminFeatured from "./pages/admin/AdminFeatured";
 import AdminKnowledge from "./pages/admin/AdminKnowledge";
 import AdminCollegesPanel from "./pages/admin/AdminCollegesPanel";
 import AdminRequests from "./pages/admin/AdminRequests";
@@ -113,6 +114,7 @@ const AppRoutes = () => (
         <Route path="listings" element={<AdminListings />} />
         <Route path="services" element={<AdminPeerServices />} />
         <Route path="events" element={<AdminEvents />} />
+        <Route path="featured" element={<AdminFeatured />} />
         <Route path="knowledge" element={<AdminKnowledge />} />
         <Route path="colleges" element={<AdminCollegesPanel />} />
       </Route>

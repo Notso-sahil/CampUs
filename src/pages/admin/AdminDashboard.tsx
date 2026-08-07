@@ -10,7 +10,8 @@ const navItems = [
   { path: "/admin/users", label: "Users", icon: Users },
   { path: "/admin/listings", label: "Listings", icon: ShoppingCart },
   { path: "/admin/services", label: "Peer Services", icon: Star },
-  { path: "/admin/events", label: "Events & Expeditions", icon: Calendar },
+  { path: "/admin/events", label: "Events", icon: Calendar },
+  { path: "/admin/featured", label: "Featured", icon: Star },
   { path: "/admin/knowledge", label: "Knowledge Hub", icon: BookOpen },
   { path: "/admin/colleges", label: "Colleges", icon: School },
 ];
