@@ -24,7 +24,7 @@ export default function Feedback() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!name.trim() || !email.trim() || !message.trim()) return;
+    if (!message.trim()) return;
 
     setSending(true);
     try {
@@ -61,19 +61,19 @@ export default function Feedback() {
               <CardContent>
                 <form onSubmit={handleSubmit} className="space-y-4">
                   <div className="space-y-2">
-                    <Label>Name *</Label>
-                    <Input value={name} onChange={(e) => setName(e.target.value)} required placeholder="Your name" maxLength={100} />
+                    <Label htmlFor="name">Name (Optional)</Label>
+                    <Input id="name" placeholder="Your name" value={name} onChange={(e) => setName(e.target.value)} maxLength={100} />
                   </div>
                   <div className="space-y-2">
-                    <Label>Email *</Label>
-                    <Input type="email" value={email} onChange={(e) => setEmail(e.target.value)} required placeholder="you@college.edu" maxLength={255} />
+                    <Label htmlFor="email">Email (Optional)</Label>
+                    <Input id="email" type="email" placeholder="you@college.edu" value={email} onChange={(e) => setEmail(e.target.value)} maxLength={255} />
                   </div>
                   <div className="space-y-2">
-                    <Label>Message *</Label>
-                    <Textarea value={message} onChange={(e) => setMessage(e.target.value)} required placeholder="Share your thoughts, suggestions, or report an issue..." maxLength={2000} rows={5} />
+                    <Label htmlFor="message">Message *</Label>
+                    <Textarea id="message" value={message} onChange={(e) => setMessage(e.target.value)} required placeholder="Share your thoughts, suggestions, or report an issue..." maxLength={2000} rows={5} />
                     <p className="text-xs text-muted-foreground text-right">{message.length}/2000</p>
                   </div>
-                  <Button type="submit" className="w-full bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors" disabled={sending}>
+                  <Button type="submit" className="w-full bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors" disabled={sending || !message.trim()}>
                     <Send className="h-4 w-4 mr-1" /> {sending ? "Sending..." : "Submit Feedback"}
                   </Button>
                 </form>
