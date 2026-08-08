@@ -51,7 +51,7 @@ export default function OnboardingModal() {
         college_space_id: selectedCollegeSpace ? selectedCollegeSpace.id : null,
         user_role: role,
         gender: gender,
-        display_name: user.fullName || user.firstName || "User",
+        display_name: user.displayName || user.firstName || "User",
         onboarded: true,
       };
 
