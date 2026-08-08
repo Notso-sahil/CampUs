@@ -41,7 +41,7 @@ export default function ChatRoom() {
 
     const fetchDetails = async () => {
       try {
-        const convs = await api.get(`/api/conversations?user_id=${user.id}`);
+        const convs = await api.get(`/api/conversations?user_id=${user.id}&id=${id}`);
         const arr = Array.isArray(convs) ? convs : Array.isArray(convs?.data) ? convs.data : [];
         const conv = arr.find((c: any) => c.id === id);
         if (conv) {

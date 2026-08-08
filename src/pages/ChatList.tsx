@@ -17,6 +17,7 @@ interface Conversation {
   product_title?: string;
   other_name?: string;
   unread_count?: number;
+  context_type?: string;
 }
 
 function timeAgo(dateStr: string): string {
@@ -34,6 +35,7 @@ export default function ChatList() {
   const navigate = useNavigate();
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [loading, setLoading] = useState(true);
+  const [activeTab, setActiveTab] = useState<"product" | "service" | "team">("product");
 
   useEffect(() => {
     if (!user) { navigate("/auth"); return; }
@@ -79,6 +81,30 @@ export default function ChatList() {
           </div>
         </FadeIn>
 
+        {/* Tabs */}
+        <FadeIn>
+          <div className="flex gap-4 border-b border-border mb-6">
+            <button 
+              onClick={() => setActiveTab("product")}
+              className={`pb-2 font-medium transition-colors ${activeTab === "product" ? "text-primary border-b-2 border-primary" : "text-muted-foreground hover:text-foreground"}`}
+            >
+              Trade
+            </button>
+            <button 
+              onClick={() => setActiveTab("service")}
+              className={`pb-2 font-medium transition-colors ${activeTab === "service" ? "text-primary border-b-2 border-primary" : "text-muted-foreground hover:text-foreground"}`}
+            >
+              Services
+            </button>
+            <button 
+              onClick={() => setActiveTab("team")}
+              className={`pb-2 font-medium transition-colors ${activeTab === "team" ? "text-primary border-b-2 border-primary" : "text-muted-foreground hover:text-foreground"}`}
+            >
+              Teams
+            </button>
+          </div>
+        </FadeIn>
+
         {/* List */}
         {loading ? (
           <div className="space-y-3">
@@ -86,7 +112,7 @@ export default function ChatList() {
               <div key={i} className="h-20 rounded-2xl bg-secondary/40 animate-pulse" />
             ))}
           </div>
-        ) : conversations.length === 0 ? (
+        ) : conversations.filter(c => c.context_type === activeTab).length === 0 ? (
           <FadeIn>
             <div className="text-center py-24 rounded-3xl bg-secondary/20 border border-dashed border-border">
               <div className="mx-auto w-16 h-16 rounded-full bg-secondary flex items-center justify-center mb-4">
@@ -102,8 +128,10 @@ export default function ChatList() {
             </div>
           </FadeIn>
         ) : (
-          <div className="space-y-2">
-            {conversations.map((conv, i) => (
+          <div className="space-y-3">
+            {conversations
+              .filter(c => c.context_type === activeTab)
+              .map((conv, i) => (
               <FadeIn key={conv.id} delay={i * 40}>
                 <Link
                   to={`/chat/${conv.id}`}
