@@ -44,7 +44,7 @@ export default function RequestUploadModal({ isOpen, onClose, targetSection, col
   const [subCourse, setSubCourse] = useState("");
   const [semester, setSemester] = useState("");
 
-  const selectedCourseObj = COURSES.find(c => c.name === course);
+  const selectedCourseObj = COURSES.find(c => c.value === course);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -176,18 +176,18 @@ export default function RequestUploadModal({ isOpen, onClose, targetSection, col
                 <Select value={course} onValueChange={setCourse} required>
                   <SelectTrigger><SelectValue placeholder="Select course" /></SelectTrigger>
                   <SelectContent>
-                    {COURSES.map(c => <SelectItem key={c.name} value={c.name}>{c.name}</SelectItem>)}
+                    {COURSES.map(c => <SelectItem key={c.value} value={c.value}>{c.label}</SelectItem>)}
                   </SelectContent>
                 </Select>
               </div>
 
-              {selectedCourseObj && selectedCourseObj.branches.length > 0 && (
+              {selectedCourseObj && "subCourses" in selectedCourseObj && selectedCourseObj.subCourses.length > 0 && (
                 <div className="space-y-1.5">
                   <Label>Branch / Specialization *</Label>
                   <Select value={subCourse} onValueChange={setSubCourse} required>
                     <SelectTrigger><SelectValue placeholder="Select branch" /></SelectTrigger>
                     <SelectContent>
-                      {selectedCourseObj.branches.map((b: string) => <SelectItem key={b} value={b}>{b}</SelectItem>)}
+                      {selectedCourseObj.subCourses.map((b: string) => <SelectItem key={b} value={b}>{b}</SelectItem>)}
                     </SelectContent>
                   </Select>
                 </div>
