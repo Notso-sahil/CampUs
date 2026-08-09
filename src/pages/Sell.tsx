@@ -90,7 +90,7 @@ export default function Sell() {
         price: parseFloat(price),
         condition,
         category,
-        college_name: profile?.college_name || "VIPS",
+        college_name: profile?.college_name || null,
         image_urls: imageUrls,
       });
 
