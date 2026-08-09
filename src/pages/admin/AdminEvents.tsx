@@ -98,7 +98,7 @@ export default function AdminEvents() {
 
             <div className="space-y-1.5">
               <Label>Image (Optional)</Label>
-              <Input type="file" accept="image/*" onChange={e => setFile(e.target.files?.[0] || null)} />
+              <Input type="file" accept=".jpg,.jpeg,.png,.heic" onChange={e => setFile(e.target.files?.[0] || null)} />
               <p className="text-xs text-muted-foreground mt-1">Leave empty to use a default placeholder.</p>
             </div>
 

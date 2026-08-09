@@ -320,6 +320,7 @@ export default function KnowledgeHub() {
         isOpen={showRequestModal}
         onClose={() => setShowRequestModal(false)}
         targetSection="knowledge"
+        collegeName={browseCollege || ""}
       />
 
       <Footer />

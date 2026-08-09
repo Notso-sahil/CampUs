@@ -199,7 +199,7 @@ export default function ListService() {
                     <label className="aspect-square rounded-xl border-2 border-dashed border-border flex flex-col items-center justify-center cursor-pointer hover:border-primary hover:bg-primary/5 transition-all">
                       <Upload className="h-5 w-5 text-muted-foreground" />
                       <span className="text-[10px] font-bold text-muted-foreground mt-1">Add</span>
-                      <input type="file" accept="image/*" multiple className="hidden"
+                      <input type="file" accept=".jpg,.jpeg,.png,.heic" multiple className="hidden"
                         onChange={e => handleImages(e.target.files, setSamplePreviews, 3)} />
                     </label>
                   )}
@@ -301,7 +301,7 @@ export default function ListService() {
                   {portfolioPreviews.length < 5 && (
                     <label className="aspect-square rounded-xl border-2 border-dashed border-border flex flex-col items-center justify-center cursor-pointer hover:border-primary hover:bg-primary/5 transition-all">
                       <Plus className="h-5 w-5 text-muted-foreground" />
-                      <input type="file" accept="image/*" multiple className="hidden"
+                      <input type="file" accept=".jpg,.jpeg,.png,.heic" multiple className="hidden"
                         onChange={e => handleImages(e.target.files, setPortfolioPreviews, 5)} />
                     </label>
                   )}

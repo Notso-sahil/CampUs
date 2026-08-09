@@ -217,7 +217,7 @@ export default function ProductDetail() {
                   <div className="flex items-center gap-2 rounded-full bg-background/90 px-4 py-2 text-sm font-medium shadow-soft">
                     <Camera className="h-4 w-4" /> Change Image
                   </div>
-                  <input type="file" accept=".jpg,.jpeg,.png,.webp" onChange={handleImageSwap} className="hidden" />
+                  <input type="file" accept=".jpg,.jpeg,.png,.heic" onChange={handleImageSwap} className="hidden" />
                 </label>
               )}
             </div>

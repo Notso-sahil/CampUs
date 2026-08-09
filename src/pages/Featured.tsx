@@ -146,6 +146,7 @@ export default function Featured() {
         isOpen={showRequestModal}
         onClose={() => setShowRequestModal(false)}
         targetSection="featured"
+        collegeName={browseCollege || ""}
       />
     </div>
   );

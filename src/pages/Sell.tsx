@@ -144,7 +144,7 @@ export default function Sell() {
                   <label className="flex aspect-square cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed border-border hover:border-primary hover:bg-primary/5 transition-all group">
                     <Upload className="h-6 w-6 text-muted-foreground group-hover:text-primary transition-colors" />
                     <span className="text-[10px] font-bold text-muted-foreground mt-1 group-hover:text-primary">Add Photo</span>
-                    <input type="file" accept=".jpg,.jpeg,.png,.webp" multiple onChange={handleImageChange} className="hidden" />
+                    <input type="file" accept=".jpg,.jpeg,.png,.heic" multiple onChange={handleImageChange} className="hidden" />
                   </label>
                 )}
               </div>

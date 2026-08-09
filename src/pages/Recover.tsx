@@ -107,7 +107,7 @@ function LostItemForm({ onSuccess, user, selectedCollege }: { onSuccess: () => v
         ) : (
           <label className="flex h-28 w-28 cursor-pointer items-center justify-center rounded-xl border-2 border-dashed border-border hover:border-primary transition-colors">
             <Upload className="h-5 w-5 text-muted-foreground" />
-            <input type="file" accept=".jpg,.jpeg,.png,.webp" onChange={handleImageChange} className="hidden" />
+            <input type="file" accept=".jpg,.jpeg,.png,.heic" onChange={handleImageChange} className="hidden" />
           </label>
         )}
       </div>
@@ -214,7 +214,7 @@ function FoundItemForm({ onSuccess, user, selectedCollege }: { onSuccess: () => 
         ) : (
           <label className="flex h-28 w-28 cursor-pointer items-center justify-center rounded-xl border-2 border-dashed border-primary/40 hover:border-primary transition-colors bg-accent/30">
             <Upload className="h-5 w-5 text-primary" />
-            <input type="file" accept=".jpg,.jpeg,.png,.webp" onChange={handleImageChange} className="hidden" />
+            <input type="file" accept=".jpg,.jpeg,.png,.heic" onChange={handleImageChange} className="hidden" />
           </label>
         )}
       </div>

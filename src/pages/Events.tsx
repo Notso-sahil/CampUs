@@ -148,6 +148,7 @@ export default function Events() {
         isOpen={showRequestModal}
         onClose={() => setShowRequestModal(false)}
         targetSection="events"
+        collegeName={browseCollege || ""}
       />
 
       <Footer />

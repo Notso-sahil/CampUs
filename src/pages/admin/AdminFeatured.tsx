@@ -116,7 +116,7 @@ export default function AdminFeatured() {
               <Label>Image</Label>
               <Input 
                 type="file" 
-                accept="image/*"
+                accept=".jpg,.jpeg,.png,.heic"
                 onChange={e => setFile(e.target.files?.[0] || null)} 
               />
             </div>
