@@ -2,11 +2,13 @@ import { useState, useEffect } from "react";
 import { api } from "@/lib/api";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
-import { Inbox, MessageSquare, Check, X } from "lucide-react";
+import { Inbox, MessageSquare, Check, X, Phone, Image as ImageIcon } from "lucide-react";
 import { format } from "date-fns";
+import { useNavigate } from "react-router-dom";
 
 export default function AdminRequests() {
   const { toast } = useToast();
+  const navigate = useNavigate();
   
   const [activeTab, setActiveTab] = useState<'requests' | 'feedback'>('requests');
   
@@ -41,6 +43,19 @@ export default function AdminRequests() {
       fetchData();
     } catch (err) {
       toast({ title: "Error", description: "Failed to update request", variant: "destructive" });
+    }
+  };
+
+  const handleMessageUser = async (req: any) => {
+    try {
+      const conv = await api.post("/api/conversations", {
+        seller_id: req.user_id,
+        context_id: req.id,
+        context_type: "request",
+      });
+      navigate(`/chat/${conv.id}`);
+    } catch (err) {
+      toast({ title: "Error", description: "Failed to start chat.", variant: "destructive" });
     }
   };
 
@@ -90,19 +105,40 @@ export default function AdminRequests() {
                     </div>
                     <h3 className="font-bold text-lg">{req.title}</h3>
                     <p className="text-muted-foreground text-sm mt-1">{req.description}</p>
+                    
+                    {req.contact_no && (
+                      <div className="flex items-center gap-1.5 mt-3 text-sm text-muted-foreground">
+                        <Phone className="h-4 w-4" />
+                        {req.contact_no}
+                      </div>
+                    )}
+                    
+                    {req.image_url && (
+                      <div className="mt-3">
+                        <a href={req.image_url} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1.5 text-sm text-primary hover:underline">
+                          <ImageIcon className="h-4 w-4" /> View Attached Image
+                        </a>
+                      </div>
+                    )}
+
                     <p className="text-xs text-muted-foreground mt-3">
                       Requested on: {format(new Date(req.created_at), 'PPP')}
                     </p>
                   </div>
                   
                   {req.status === 'pending' && (
-                    <div className="flex items-center gap-2 sm:self-start">
-                      <Button size="sm" onClick={() => handleRequestAction(req.id, 'approved')} className="bg-green-500 hover:bg-green-600 text-white">
-                        <Check className="h-4 w-4 mr-1" /> Approve
+                    <div className="flex flex-col gap-2 sm:self-start mt-4 sm:mt-0">
+                      <Button size="sm" onClick={() => handleMessageUser(req)} variant="outline" className="gap-2">
+                        <MessageSquare className="h-4 w-4" /> Message User
                       </Button>
-                      <Button size="sm" variant="destructive" onClick={() => handleRequestAction(req.id, 'rejected')}>
-                        <X className="h-4 w-4 mr-1" /> Reject
-                      </Button>
+                      <div className="flex gap-2">
+                        <Button size="sm" onClick={() => handleRequestAction(req.id, 'approved')} className="bg-green-500 hover:bg-green-600 text-white flex-1">
+                          <Check className="h-4 w-4 mr-1" /> Approve
+                        </Button>
+                        <Button size="sm" onClick={() => handleRequestAction(req.id, 'rejected')} variant="destructive" className="flex-1">
+                          <X className="h-4 w-4 mr-1" /> Reject
+                        </Button>
+                      </div>
                     </div>
                   )}
                 </div>

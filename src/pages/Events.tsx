@@ -5,12 +5,14 @@ import { useAuthContext } from "@/contexts/AuthContext";
 import { useCollege } from "@/contexts/CollegeContext";
 import Navbar from "@/components/Navbar";
 import { Button } from "@/components/ui/button";
+import RequestUploadModal from "@/components/RequestUploadModal";
 import { Tooltip, TooltipTrigger, TooltipContent } from "@/components/ui/tooltip";
 import { useToast } from "@/hooks/use-toast";
 import { Calendar, MapPin, Lock, Send } from "lucide-react";
 import { format } from "date-fns";
 import { DUMMY_EVENTS, mergeWithDummies } from "@/lib/dummyData";
 import { DUMMY_MSG } from "@/lib/dummyMessages";
+import Footer from "@/components/Footer";
 
 interface CampusEvent {
   id: string;
@@ -31,6 +33,7 @@ export default function Events() {
   const [events, setEvents] = useState<CampusEvent[]>([]);
   const [loading, setLoading] = useState(true);
   const [expandedId, setExpandedId] = useState<string | null>(null);
+  const [showRequestModal, setShowRequestModal] = useState(false);
 
   useEffect(() => {
     api.get(`/api/events?college_name=${encodeURIComponent(browseCollege || "")}`).then((resp) => {
@@ -58,19 +61,7 @@ export default function Events() {
 
   const handleRequestUpload = async () => {
     if (!user) { navigate("/auth"); return; }
-    const title = prompt("What event would you like to add?");
-    if (!title?.trim()) return;
-    try {
-      await api.post("/api/upload-requests", {
-        user_id: user.id,
-        target_section: "events",
-        title: title.trim(),
-        description: "User requested to add an event.",
-      });
-      toast({ title: "Request submitted", description: "An admin will review your request." });
-    } catch {
-      toast({ title: "Error", description: "Failed to submit request.", variant: "destructive" });
-    }
+    setShowRequestModal(true);
   };
 
   return (
@@ -152,6 +143,14 @@ export default function Events() {
           </div>
         )}
       </main>
+
+      <RequestUploadModal 
+        isOpen={showRequestModal}
+        onClose={() => setShowRequestModal(false)}
+        targetSection="events"
+      />
+
+      <Footer />
     </div>
   );
 }

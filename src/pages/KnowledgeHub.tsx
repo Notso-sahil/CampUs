@@ -5,6 +5,8 @@ import { useAuthContext } from "@/contexts/AuthContext";
 import { useCollege } from "@/contexts/CollegeContext";
 import { COURSES } from "@/lib/courses";
 import Navbar from "@/components/Navbar";
+import Footer from "@/components/Footer";
+import RequestUploadModal from "@/components/RequestUploadModal";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -48,6 +50,7 @@ export default function KnowledgeHub() {
   const [selectedCourse, setSelectedCourse] = useState<string>("all");
   const [selectedSubCourse, setSelectedSubCourse] = useState<string>("all");
   const [showUpload, setShowUpload] = useState(false);
+  const [showRequestModal, setShowRequestModal] = useState(false);
 
   // Admin upload form
   const [uploadTitle, setUploadTitle] = useState("");
@@ -101,19 +104,7 @@ export default function KnowledgeHub() {
 
   const handleRequestUpload = async () => {
     if (!user) { navigate("/auth"); return; }
-    const title = prompt("What material would you like to upload?");
-    if (!title?.trim()) return;
-    try {
-      await api.post("/api/upload-requests", {
-        user_id: user.id,
-        target_section: "knowledge_hub",
-        title: title.trim(),
-        description: "User requested to upload study material.",
-      });
-      toast({ title: "Request submitted", description: "An admin will review your request." });
-    } catch {
-      toast({ title: "Error", description: "Failed to submit request.", variant: "destructive" });
-    }
+    setShowRequestModal(true);
   };
 
   const handleAdminUpload = async (e: React.FormEvent) => {
@@ -324,6 +315,14 @@ export default function KnowledgeHub() {
           </div>
         )}
       </main>
+
+      <RequestUploadModal 
+        isOpen={showRequestModal}
+        onClose={() => setShowRequestModal(false)}
+        targetSection="knowledge"
+      />
+
+      <Footer />
     </div>
   );
 }

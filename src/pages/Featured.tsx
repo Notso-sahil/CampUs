@@ -5,6 +5,7 @@ import { useAuthContext } from "@/contexts/AuthContext";
 import { useCollege } from "@/contexts/CollegeContext";
 import Navbar from "@/components/Navbar";
 import { Button } from "@/components/ui/button";
+import RequestUploadModal from "@/components/RequestUploadModal";
 import { Tooltip, TooltipTrigger, TooltipContent } from "@/components/ui/tooltip";
 import { useToast } from "@/hooks/use-toast";
 import { Calendar, MapPin, Lock, Send } from "lucide-react";
@@ -32,6 +33,7 @@ export default function Featured() {
   const [featured, setFeatured] = useState<FeaturedItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [expandedId, setExpandedId] = useState<string | null>(null);
+  const [showRequestModal, setShowRequestModal] = useState(false);
 
   useEffect(() => {
     api.get(`/api/featured?college_name=${encodeURIComponent(browseCollege)}`).then((resp) => {
@@ -55,19 +57,7 @@ export default function Featured() {
 
   const handleRequestUpload = async () => {
     if (!user) { navigate("/auth"); return; }
-    const title = prompt("What featured item would you like to add?");
-    if (!title?.trim()) return;
-    try {
-      await api.post("/api/upload-requests", {
-        user_id: user.id,
-        target_section: "featured",
-        title: title.trim(),
-        description: "User requested to add a featured item.",
-      });
-      toast({ title: "Request submitted", description: "An admin will review your request." });
-    } catch {
-      toast({ title: "Error", description: "Failed to submit request.", variant: "destructive" });
-    }
+    setShowRequestModal(true);
   };
 
   return (
@@ -151,6 +141,12 @@ export default function Featured() {
           </div>
         )}
       </main>
+
+      <RequestUploadModal 
+        isOpen={showRequestModal}
+        onClose={() => setShowRequestModal(false)}
+        targetSection="featured"
+      />
     </div>
   );
 }

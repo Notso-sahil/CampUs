@@ -35,7 +35,7 @@ export default function ChatList() {
   const navigate = useNavigate();
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState<"product" | "service" | "team">("product");
+  const [activeTab, setActiveTab] = useState<"product" | "service" | "team" | "request">("product");
 
   useEffect(() => {
     if (!user) { navigate("/auth"); return; }
@@ -101,6 +101,12 @@ export default function ChatList() {
               className={`pb-2 font-medium transition-colors ${activeTab === "team" ? "text-primary border-b-2 border-primary" : "text-muted-foreground hover:text-foreground"}`}
             >
               Teams
+            </button>
+            <button 
+              onClick={() => setActiveTab("request")}
+              className={`pb-2 font-medium transition-colors ${activeTab === "request" ? "text-primary border-b-2 border-primary" : "text-muted-foreground hover:text-foreground"}`}
+            >
+              Support
             </button>
           </div>
         </FadeIn>
