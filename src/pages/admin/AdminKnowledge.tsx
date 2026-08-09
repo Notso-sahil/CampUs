@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
-import { uploadToCloudinary } from "@/lib/uploadToCloudinary";
+import { uploadToStorage } from "@/lib/uploadToStorage";
 import { UploadCloud } from "lucide-react";
 import { COURSES } from "@/lib/courses"; // Correct import: COURSES is an array of objects from the shared lib
 
@@ -35,8 +35,8 @@ export default function AdminKnowledge() {
 
     setSaving(true);
     try {
-      // uploadToCloudinary returns a plain string (the public URL), not an object
-      const fileUrl = await uploadToCloudinary(file, "knowledge-hub");
+      // uploadToStorage returns a plain string (the public URL), not an object
+      const fileUrl = await uploadToStorage(file, "knowledge-hub");
       
       await api.post("/api/knowledge-hub", {
         title,

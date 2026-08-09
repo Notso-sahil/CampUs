@@ -10,7 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
-import { uploadToCloudinary } from "@/lib/uploadToCloudinary";
+import { uploadToStorage } from "@/lib/uploadToStorage";
 import { Tooltip, TooltipTrigger, TooltipContent } from "@/components/ui/tooltip";
 import { Upload, MapPin, Phone, Search, Eye, HandHelping, X, CalendarDays } from "lucide-react";
 import { format } from "date-fns";
@@ -69,7 +69,7 @@ function LostItemForm({ onSuccess, user, selectedCollege }: { onSuccess: () => v
     try {
       let imageUrl: string | null = null;
       if (image) {
-        imageUrl = await uploadToCloudinary(image, "recover_items");
+        imageUrl = await uploadToStorage(image, "recover_items");
       }
 
       await api.post("/api/recover-items", {
@@ -176,7 +176,7 @@ function FoundItemForm({ onSuccess, user, selectedCollege }: { onSuccess: () => 
     try {
       let imageUrl: string | null = null;
       if (image) {
-        imageUrl = await uploadToCloudinary(image, "recover_items");
+        imageUrl = await uploadToStorage(image, "recover_items");
       }
 
       await api.post("/api/recover-items", {

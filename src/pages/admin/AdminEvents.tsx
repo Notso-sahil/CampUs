@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
-import { uploadToCloudinary } from "@/lib/uploadToCloudinary";
+import { uploadToStorage } from "@/lib/uploadToStorage";
 import { Calendar as CalendarIcon, MapPin, Trash2, Image as ImageIcon } from "lucide-react";
 
 export default function AdminEvents() {
@@ -40,7 +40,7 @@ export default function AdminEvents() {
     try {
       let image_url = null;
       if (file) {
-        image_url = await uploadToCloudinary(file, "events");
+        image_url = await uploadToStorage(file, "events");
       }
 
       await api.post(`/api/events`, { ...form, image_url });

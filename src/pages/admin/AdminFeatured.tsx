@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
-import { uploadToCloudinary } from "@/lib/uploadToCloudinary";
+import { uploadToStorage } from "@/lib/uploadToStorage";
 import { MapPin, Trash2, Image as ImageIcon, Calendar as CalendarIcon } from "lucide-react";
 import { format } from "date-fns";
 
@@ -41,7 +41,7 @@ export default function AdminFeatured() {
     try {
       let image_url = null;
       if (file) {
-        image_url = await uploadToCloudinary(file, "featured");
+        image_url = await uploadToStorage(file, "featured");
       }
 
       await api.post(`/api/featured`, { ...form, image_url });

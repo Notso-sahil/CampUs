@@ -10,7 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { uploadToCloudinary } from "@/lib/uploadToCloudinary";
+import { uploadToStorage } from "@/lib/uploadToStorage";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import { Upload, X, MapPin, Tag, ShieldCheck } from "lucide-react";
@@ -80,7 +80,7 @@ export default function Sell() {
     setLoading(true);
     try {
       const imageUrls = await Promise.all(
-        images.slice(0, 4).map((file) => uploadToCloudinary(file, "products"))
+        images.slice(0, 4).map((file) => uploadToStorage(file, "products"))
       );
 
       await api.post("/api/products", {

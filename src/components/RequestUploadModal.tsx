@@ -12,7 +12,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
-import { uploadToCloudinary } from "@/lib/uploadToCloudinary";
+import { uploadToStorage } from "@/lib/uploadToStorage";
 import { useAuthContext } from "@/contexts/AuthContext";
 import { COURSES } from "@/lib/courses";
 
@@ -60,12 +60,12 @@ export default function RequestUploadModal({ isOpen, onClose, targetSection, col
     try {
       let image_url = null;
       if (imageFile) {
-        image_url = await uploadToCloudinary(imageFile, "requests");
+        image_url = await uploadToStorage(imageFile, "requests");
       }
 
       let file_url = null;
       if (fileData) {
-        file_url = await uploadToCloudinary(fileData, "knowledge");
+        file_url = await uploadToStorage(fileData, "knowledge");
       }
 
       const metadata = {

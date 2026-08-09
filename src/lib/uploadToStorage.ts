@@ -2,9 +2,9 @@ import imageCompression from "browser-image-compression";
 import { auth } from "./firebase";
 import { api } from "./api";
 
-// We keep the name uploadToCloudinary for backward compatibility, 
-// but it now securely uploads to Cloudflare R2 using presigned URLs.
-export async function uploadToCloudinary(
+// We keep the generic name uploadToStorage, 
+// as it securely uploads to Cloudflare R2 using presigned URLs.
+export async function uploadToStorage(
   file: File,
   folder: string
 ): Promise<string> {

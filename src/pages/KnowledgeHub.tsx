@@ -21,7 +21,7 @@ import {
 import { Tooltip, TooltipTrigger, TooltipContent } from "@/components/ui/tooltip";
 import { Card, CardContent } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
-import { uploadToCloudinary } from "@/lib/uploadToCloudinary";
+import { uploadToStorage } from "@/lib/uploadToStorage";
 import { Download, Upload, Send, FileText, Lock } from "lucide-react";
 
 import { DUMMY_NOTES, mergeWithDummies } from "@/lib/dummyData";
@@ -114,7 +114,7 @@ export default function KnowledgeHub() {
     try {
       let fileUrl: string | null = null;
       if (uploadFile) {
-        fileUrl = await uploadToCloudinary(uploadFile, "knowledge_hub");
+        fileUrl = await uploadToStorage(uploadFile, "knowledge_hub");
       }
 
       await api.post("/api/knowledge-hub", {
