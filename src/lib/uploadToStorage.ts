@@ -1,16 +1,36 @@
 import imageCompression from "browser-image-compression";
 import { auth } from "./firebase";
-import { api } from "./api";
+import { compressPdf } from "./compressPdf";
 
-// We keep the generic name uploadToStorage, 
-// as it securely uploads to Cloudflare R2 using presigned URLs.
+const getFileHash = (file: File): Promise<{ hash: string; firstBytesHex: string }> => {
+  return new Promise((resolve, reject) => {
+    const worker = new Worker(new URL('./hashWorker.ts', import.meta.url), { type: 'module' });
+    
+    worker.onmessage = (e) => {
+      if (e.data.success) {
+        resolve({ hash: e.data.hash, firstBytesHex: e.data.firstBytesHex });
+      } else {
+        reject(new Error(e.data.error));
+      }
+      worker.terminate();
+    };
+    
+    worker.onerror = (err) => {
+      reject(err);
+      worker.terminate();
+    };
+    
+    worker.postMessage(file);
+  });
+};
+
 export async function uploadToStorage(
   file: File,
   folder: string
 ): Promise<string> {
   let processedFile = file;
 
-  // Compress images (skip for PDFs or other docs)
+  // Phase 0 & 1: Compression
   if (file.type.startsWith("image/")) {
     const options = {
       maxSizeMB: 5,
@@ -21,10 +41,15 @@ export async function uploadToStorage(
     try {
       processedFile = await imageCompression(file, options);
     } catch (error) {
-      console.error("Compression error:", error);
-      // Fallback to original file if compression fails
+      console.error("Image compression error:", error);
     }
+  } else if (file.type === "application/pdf" && file.size > 1024 * 1024) {
+    // Compress PDF if larger than 1MB
+    processedFile = await compressPdf(file);
   }
+
+  // Phase 1: Hashing for Deduplication
+  const { hash, firstBytesHex } = await getFileHash(processedFile);
 
   // 1. Get Firebase ID token
   const currentUser = auth.currentUser;
@@ -33,7 +58,7 @@ export async function uploadToStorage(
   }
   const token = await currentUser.getIdToken();
 
-  // 2. Request a presigned URL from our backend
+  // 2. Request a presigned URL from our backend (Deduplication Check)
   const response = await fetch(`${import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000'}/api/get-upload-url`, {
     method: "POST",
     headers: {
@@ -45,6 +70,8 @@ export async function uploadToStorage(
       folder: folder,
       contentType: processedFile.type,
       size: processedFile.size,
+      hash,
+      firstBytesHex
     }),
   });
 
@@ -53,9 +80,24 @@ export async function uploadToStorage(
     throw new Error(err.error || "Failed to get upload URL");
   }
 
-  const { uploadUrl, publicUrl } = await response.json();
+  const { alreadyExists, uploadUrl, publicUrl } = await response.json();
 
-  // 3. Upload the file directly to Cloudflare R2
+  // 3. Fast-path: The file already exists on the server!
+  if (alreadyExists) {
+    console.log("File already exists on the server. Skipping upload.");
+    // We still need to record ownership for the user
+    await fetch(`${import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000'}/api/finalize-upload`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({ hash, originalFilename: processedFile.name })
+    });
+    return publicUrl;
+  }
+
+  // 4. Upload the new file directly to Cloudflare R2
   const uploadRes = await fetch(uploadUrl, {
     method: "PUT",
     headers: {
@@ -68,6 +110,19 @@ export async function uploadToStorage(
     throw new Error("Failed to upload file to storage.");
   }
 
-  // 4. Return the public URL for the database
+  // 5. Finalize the upload to link ownership and increment reference count
+  const finalizeRes = await fetch(`${import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000'}/api/finalize-upload`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify({ hash, originalFilename: processedFile.name })
+  });
+
+  if (!finalizeRes.ok) {
+    console.error("Failed to finalize upload link, but file was uploaded.");
+  }
+
   return publicUrl;
 }
