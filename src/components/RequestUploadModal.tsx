@@ -27,12 +27,12 @@ export default function RequestUploadModal({ isOpen, onClose, targetSection, col
   const { user } = useAuthContext();
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
-  
+
   // Generic fields
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [contactNo, setContactNo] = useState("");
-  
+
   // Events/Featured fields
   const [eventDate, setEventDate] = useState("");
   const [location, setLocation] = useState("");
@@ -61,7 +61,7 @@ export default function RequestUploadModal({ isOpen, onClose, targetSection, col
     }
 
     setLoading(true);
-    
+
     try {
       let image_url = null;
       if (imageFile) {
@@ -94,18 +94,18 @@ export default function RequestUploadModal({ isOpen, onClose, targetSection, col
       });
 
       toast({ title: "Request submitted", description: "An admin will review your request." });
-      
+
       // Reset
       setTitle(""); setDescription(""); setContactNo("");
       setEventDate(""); setLocation(""); setImageFile(null);
       setFileData(null); setCourse(""); setSubCourse(""); setSemester("");
-      
+
       onClose();
     } catch (err) {
       console.error(err);
       toast({ title: "Error", description: "Failed to submit request.", variant: "destructive" });
     }
-    
+
     setLoading(false);
   };
 
@@ -119,7 +119,7 @@ export default function RequestUploadModal({ isOpen, onClose, targetSection, col
         <form onSubmit={handleSubmit} className="space-y-4 pt-2">
           <div className="space-y-1.5">
             <Label>Title *</Label>
-            <Input 
+            <Input
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               placeholder="e.g. Annual Hackathon"
@@ -129,7 +129,7 @@ export default function RequestUploadModal({ isOpen, onClose, targetSection, col
 
           <div className="space-y-1.5">
             <Label>Description *</Label>
-            <Textarea 
+            <Textarea
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               placeholder="Full details..."
@@ -143,7 +143,7 @@ export default function RequestUploadModal({ isOpen, onClose, targetSection, col
             <>
               <div className="space-y-1.5">
                 <Label>Event Date {targetSection === "events" ? "*" : "(Optional)"}</Label>
-                <Input 
+                <Input
                   type="date"
                   value={eventDate}
                   onChange={(e) => setEventDate(e.target.value)}
@@ -153,7 +153,7 @@ export default function RequestUploadModal({ isOpen, onClose, targetSection, col
 
               <div className="space-y-1.5">
                 <Label>Location {targetSection === "events" ? "*" : "(Optional)"}</Label>
-                <Input 
+                <Input
                   value={location}
                   onChange={(e) => setLocation(e.target.value)}
                   placeholder="e.g. Main Auditorium"
@@ -163,8 +163,8 @@ export default function RequestUploadModal({ isOpen, onClose, targetSection, col
 
               <div className="space-y-1.5">
                 <Label>Image {targetSection === "featured" ? "*" : "(Optional)"}</Label>
-                <Input 
-                  type="file" 
+                <Input
+                  type="file"
                   accept=".jpg,.jpeg,.png,.heic"
                   onChange={(e) => setImageFile(e.target.files?.[0] || null)}
                   required={targetSection === "featured"}
@@ -203,8 +203,8 @@ export default function RequestUploadModal({ isOpen, onClose, targetSection, col
                 <Select value={semester} onValueChange={setSemester} required>
                   <SelectTrigger><SelectValue placeholder="Select semester" /></SelectTrigger>
                   <SelectContent>
-                    {Array.from({length: 8}, (_, i) => (
-                      <SelectItem key={i+1} value={(i+1).toString()}>Semester {i+1}</SelectItem>
+                    {Array.from({ length: 8 }, (_, i) => (
+                      <SelectItem key={i + 1} value={(i + 1).toString()}>Semester {i + 1}</SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
@@ -224,7 +224,7 @@ export default function RequestUploadModal({ isOpen, onClose, targetSection, col
 
           <div className="space-y-1.5">
             <Label>Contact No. (Optional)</Label>
-            <Input 
+            <Input
               value={contactNo}
               onChange={(e) => setContactNo(e.target.value)}
               placeholder="So admins can reach you"
