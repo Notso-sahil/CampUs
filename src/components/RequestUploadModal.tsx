@@ -55,6 +55,11 @@ export default function RequestUploadModal({ isOpen, onClose, targetSection, col
       return;
     }
 
+    if (targetSection === "knowledge" && fileData && fileData.size > 25 * 1024 * 1024) {
+      toast({ title: "File too large", description: "Documents must be 25MB or smaller.", variant: "destructive" });
+      return;
+    }
+
     setLoading(true);
     
     try {
@@ -206,9 +211,10 @@ export default function RequestUploadModal({ isOpen, onClose, targetSection, col
               </div>
 
               <div className="space-y-1.5">
-                <Label>File Upload (PDF/Doc) *</Label>
-                <Input 
-                  type="file" 
+                <Label>File Upload <span className="text-muted-foreground text-xs">(PDF, DOCX, PPTX, XLSX — max 25MB)</span> *</Label>
+                <Input
+                  type="file"
+                  accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx"
                   onChange={(e) => setFileData(e.target.files?.[0] || null)}
                   required
                 />

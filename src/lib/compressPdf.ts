@@ -1,58 +1,43 @@
-import ghostscript from "@jspawn/ghostscript-wasm";
-
 export async function compressPdf(file: File): Promise<File> {
-  // Read the original file into an ArrayBuffer
-  const arrayBuffer = await file.arrayBuffer();
-  
-  // Set up Ghostscript arguments for eBook quality compression (150 DPI)
-  // This drastically reduces file size for scanned PDFs while maintaining readability
-  const args = [
-    "-sDEVICE=pdfwrite",
-    "-dCompatibilityLevel=1.4",
-    "-dPDFSETTINGS=/ebook",
-    "-dNOPAUSE",
-    "-dQUIET",
-    "-dBATCH",
-    "-sOutputFile=output.pdf",
-    "input.pdf"
-  ];
-
-  try {
-    // Run ghostscript WASM
-    const result = await ghostscript({
-      args,
-      files: [
-        {
-          name: "input.pdf",
-          data: new Uint8Array(arrayBuffer),
-        }
-      ]
-    });
-
-    // Extract the output file
-    const outputFile = result.files.find((f: any) => f.name === "output.pdf");
+  return new Promise(async (resolve) => {
+    // We immediately read the ArrayBuffer on the main thread so we can transfer it
+    const arrayBuffer = await file.arrayBuffer();
     
-    if (!outputFile) {
-      throw new Error("Ghostscript failed to produce output.pdf");
-    }
-
-    // Convert back to a File object
-    const compressedBlob = new Blob([outputFile.data], { type: "application/pdf" });
-    const compressedFile = new File([compressedBlob], file.name, {
-      type: "application/pdf",
-      lastModified: Date.now(),
+    const worker = new Worker(new URL("./pdfWorker.ts", import.meta.url), {
+      type: "module",
     });
 
-    // Fallback: If for some strange reason the "compressed" file is larger,
-    // just return the original file to save storage.
-    if (compressedFile.size >= file.size) {
-      return file;
-    }
+    worker.onmessage = (e) => {
+      const { success, compressedBuffer, error } = e.data;
+      
+      if (success) {
+        const compressedBlob = new Blob([compressedBuffer], { type: "application/pdf" });
+        const compressedFile = new File([compressedBlob], file.name, {
+          type: "application/pdf",
+          lastModified: Date.now(),
+        });
 
-    return compressedFile;
-  } catch (error) {
-    console.error("PDF compression failed, falling back to original:", error);
-    // Never block upload on compression failure
-    return file;
-  }
+        // Fallback: If for some reason compression made it larger, return original
+        if (compressedFile.size >= file.size) {
+          resolve(file);
+        } else {
+          resolve(compressedFile);
+        }
+      } else {
+        console.error("PDF compression worker failed, falling back to original:", error);
+        resolve(file); // Never block upload on failure
+      }
+      
+      worker.terminate();
+    };
+
+    worker.onerror = (err) => {
+      console.error("Worker fatal error:", err);
+      resolve(file);
+      worker.terminate();
+    };
+
+    // Transfer ownership of the buffer to the worker (zero-copy)
+    worker.postMessage({ fileBuffer: arrayBuffer, filename: file.name }, [arrayBuffer]);
+  });
 }

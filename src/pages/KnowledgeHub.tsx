@@ -38,6 +38,7 @@ interface KnowledgeItem {
   college_name: string | null;
   created_at: string;
   isDummy?: boolean;
+  scan_status?: string;
 }
 
 export default function KnowledgeHub() {
@@ -107,14 +108,22 @@ export default function KnowledgeHub() {
     setShowRequestModal(true);
   };
 
+  const KNOWLEDGE_MAX_SIZE = 25 * 1024 * 1024; // 25MB
+
   const handleAdminUpload = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!isAdmin || !user) return;
+
+    if (uploadFile && uploadFile.size > KNOWLEDGE_MAX_SIZE) {
+      toast({ title: "File too large", description: "Knowledge Hub documents must be 25MB or smaller.", variant: "destructive" });
+      return;
+    }
+
     setUploading(true);
     try {
       let fileUrl: string | null = null;
       if (uploadFile) {
-        fileUrl = await uploadToStorage(uploadFile, "knowledge_hub");
+        fileUrl = await uploadToStorage(uploadFile, "knowledge");
       }
 
       await api.post("/api/knowledge-hub", {
@@ -215,8 +224,12 @@ export default function KnowledgeHub() {
                 </div>
               </div>
               <div className="space-y-2">
-                <Label>File</Label>
-                <Input type="file" onChange={(e) => setUploadFile(e.target.files?.[0] || null)} />
+                <Label>File <span className="text-muted-foreground text-xs">(PDF, DOCX, PPTX, XLSX — max 25MB)</span></Label>
+                <Input
+                  type="file"
+                  accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx"
+                  onChange={(e) => setUploadFile(e.target.files?.[0] || null)}
+                />
               </div>
               <Button type="submit" disabled={uploading || !uploadCourse || !uploadTitle}>
                 {uploading ? "Uploading..." : "Upload Material"}
@@ -297,12 +310,14 @@ export default function KnowledgeHub() {
                 </div>
                 <div className="flex-1 min-w-0">
                   <h3 className="text-sm font-medium line-clamp-1">{item.title}</h3>
-                  <p className="text-xs text-muted-foreground">
-                    {item.course}{item.sub_course ? ` · ${item.sub_course}` : ""}{item.semester ? ` · ${item.semester}` : ""}
-                  </p>
+                  <div className="flex gap-2 text-xs text-muted-foreground mt-1">
+                    <span>{item.course}{item.sub_course ? ` · ${item.sub_course}` : ""}{item.semester ? ` · ${item.semester}` : ""}</span>
+                    {item.scan_status === 'pending' && <span className="bg-yellow-100 text-yellow-800 px-1.5 py-0.5 rounded">Scanning...</span>}
+                    {item.scan_status === 'infected' && <span className="bg-red-100 text-red-800 px-1.5 py-0.5 rounded font-bold">Infected</span>}
+                  </div>
                 </div>
                 {user ? (
-                  <Button variant="ghost" size="sm" onClick={() => handleDownload(item)} className="gap-1 flex-shrink-0">
+                  <Button variant="ghost" size="sm" onClick={() => handleDownload(item)} disabled={item.scan_status === 'infected'} className="gap-1 flex-shrink-0">
                     <Download className="h-4 w-4" /> Download
                   </Button>
                 ) : (
