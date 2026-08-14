@@ -73,7 +73,7 @@ export default function Index() {
       setLoading(true);
       try {
         const qs = `?college_name=${encodeURIComponent(browseCollege)}`;
-        const [prodRes, evtRes, recRes, kbRes, expRes] = await Promise.all([
+        const [prodRes, evtRes, recRes, kbRes, expRes] = await Promise.allSettled([
           api.get(`/api/products${qs}`),
           api.get(`/api/events${qs}`),
           user ? api.get(`/api/recover-items${qs}`) : Promise.resolve([]),
@@ -81,16 +81,21 @@ export default function Index() {
           api.get(`/api/featured${qs}`),
         ]);
 
+        const settle = (result: PromiseSettledResult<any>) => {
+          if (result.status === "rejected") { console.warn("Fetch failed:", result.reason); return []; }
+          return result.value;
+        };
+
         const processItems = (resp: any) => {
           if (!resp) return [];
           return Array.isArray(resp) ? resp : (Array.isArray(resp.data) ? resp.data : []);
         };
 
-        const realProducts = processItems(prodRes);
-        const realEvents = processItems(evtRes);
-        const realRecover = processItems(recRes);
-        const realKnowledge = processItems(kbRes);
-        const realFeatured = processItems(expRes);
+        const realProducts = processItems(settle(prodRes));
+        const realEvents = processItems(settle(evtRes));
+        const realRecover = processItems(settle(recRes));
+        const realKnowledge = processItems(settle(kbRes));
+        const realFeatured = processItems(settle(expRes));
 
         setTrade(realProducts.slice(0, 6).map((p: any) => ({
           id: p.id, title: p.title, subtitle: `₹${p.price}`, imageUrl: p.image_urls?.[0] || "",
