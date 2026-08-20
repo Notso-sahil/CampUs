@@ -7,12 +7,12 @@
 ### Schema-as-Code
 PRINCIPLE: Database schema changes must be captured in versioned, source-controlled migration files — never applied ad-hoc via a SQL client. Each migration file is a one-way, sequential script. Once applied to production it is immutable.
 
-HERE: Migrations are plain Node.js scripts in `CampUs-api/` root: `migrate.js`, `migrate-v2.js`, `migrate-v3.js`, `migrate-v4.js`, `admin-migrate.js`, `init-db.js`, `db-constraints.js`. They use `@neondatabase/serverless` and are run manually (`node migrate-v4.js`). **Never edit an already-applied migration file.** For new schema changes, create a new `migrate-v5.js` (incrementing the version number). There is no migration tracker (no `schema_migrations` table), so the version number in the filename IS the tracker.
+HERE: Migrations are plain Node.js scripts in `CampUs-api/` root: `migrate.js`, `migrate-v2.js` … `migrate-v4.js`, `admin-migrate.js`, `init-db.js`, `db-constraints.js`. They use the database client (`@neondatabase/serverless`) and are run manually (`node migrate-v4.js`). **Never edit an already-applied migration file.** For new schema changes, create a new `migrate-v5.js` (incrementing the version number). There is no migration tracker table, so the version number in the filename IS the tracker.
 
 ---
 
 ### Additive Migrations Only
-PRINCIPLE: Prefer `ADD COLUMN IF NOT EXISTS`, `CREATE TABLE IF NOT EXISTS`, and `CREATE INDEX IF NOT EXISTS`. Destructive changes (DROP, RENAME) require explicit review because they can't be rolled back.
+PRINCIPLE: Prefer `ADD COLUMN IF NOT EXISTS`, `CREATE TABLE IF NOT EXISTS`, and `CREATE INDEX IF NOT EXISTS`. Destructive changes (DROP, RENAME) require explicit review because they cannot be rolled back automatically.
 
 HERE: All existing migrations use the `IF NOT EXISTS` / `IF EXISTS` pattern. Follow this. If a column rename is needed, add the new column, backfill data, update application code, then remove the old column in a follow-up migration — never rename in one step.
 
@@ -20,40 +20,42 @@ HERE: All existing migrations use the `IF NOT EXISTS` / `IF EXISTS` pattern. Fol
 
 ## SQL Query Rules
 
-### Tagged Template Literals (Critical)
-PRINCIPLE: Use the database client's parameterized query API. Never concatenate user input into a SQL string.
+### Tagged Template Literals (Critical for This DB Client)
+PRINCIPLE: Use the database client's parameterized query API. Never concatenate user input into a SQL string — this is the primary defense against SQL injection.
 
-HERE: The Neon client (`@neondatabase/serverless`) uses **tagged template literals exclusively**. The correct form is:
+HERE: The database client (`@neondatabase/serverless`) uses **tagged template literals exclusively**. The correct form is:
 ```js
 const rows = await sql`SELECT * FROM profiles WHERE user_id = ${userId}`;
 ```
-**Never use** `sql(baseString + " AND col = $1", [value])` — this is the `node-postgres` calling convention and will throw a runtime 500 error in Neon. Every query branch that varies by parameter must be a separate tagged template literal block.
+**Never use** `sql(baseString + " AND col = $1", [value])` — this is the `node-postgres` calling convention and throws a runtime 500 in this database client. Every query branch that varies by parameter must be a separate tagged template literal block.
+
+The `sql.unsafe()` function bypasses parameterization — it exists only for DDL identifier interpolation in migration scripts. Never use `sql.unsafe()` in API request handlers.
 
 ---
 
 ### Avoid N+1 Queries
 PRINCIPLE: Never issue a query inside a loop over a result set. One request should not generate O(n) database round-trips. Fetch related data with JOINs or IN clauses.
 
-HERE: The most common violation pattern in this codebase is fetching a list of items and then fetching related profile names in a `.map()`. Fix this with a `LEFT JOIN profiles ON ...` in the primary query, as already done in `api/conversations.js`. When adding new list endpoints, always join the related data up front.
+HERE: The most common violation pattern in this codebase is fetching a list of items and then fetching related profile names in a `.map()`. Fix this with a `LEFT JOIN profiles ON ...` in the primary query, as done in `api/conversations.js`. When adding new list endpoints, always join related data up front.
 
 ---
 
 ### Index Hot Lookup Paths
-PRINCIPLE: Every column used in a `WHERE` clause on a table with significant rows should have an index. Unindexed lookups on large tables cause full table scans.
+PRINCIPLE: Every column used in a `WHERE` clause on a table with significant rows should have an index. Unindexed lookups on growing tables cause full table scans and progressive performance degradation.
 
-HERE: Core indexes are defined in `db-constraints.js` and are already applied:
+HERE: Core indexes are applied via `db-constraints.js` (already run against production):
 - `idx_products_feed` on `(college_name, is_active, created_at DESC)`
 - `idx_knowledge_feed` on `(college_name, course, semester, created_at DESC)`
 - `idx_messages_conversation` on `(conversation_id, created_at ASC)`
 
-When adding a new table or a new filter condition on an existing table, add an `CREATE INDEX IF NOT EXISTS` in a new migration script.
+When adding a new table or a new filter condition on an existing table, add a `CREATE INDEX IF NOT EXISTS` statement in a new migration script.
 
 ---
 
 ### LIMIT All List Queries
-PRINCIPLE: Unbounded `SELECT *` without a `LIMIT` on large tables will eventually cause memory exhaustion and slow responses. Every list query must have a cap.
+PRINCIPLE: Unbounded `SELECT *` without a `LIMIT` on large tables will eventually cause memory exhaustion and slow responses. Every list query must have an explicit cap.
 
-HERE: Add `LIMIT 50` (or an explicit pagination `LIMIT/OFFSET`) to every query that returns multiple rows. The default list queries in knowledge-hub, events, and products already do this. New endpoints must follow the same pattern.
+HERE: Add `LIMIT 50` (or an explicit `LIMIT`/`OFFSET` for pagination) to every query returning multiple rows. The default list queries in `knowledge-hub.js`, `events.js`, and `products.js` already do this. New endpoints must follow the same pattern.
 
 ---
 
@@ -62,7 +64,7 @@ HERE: Add `LIMIT 50` (or an explicit pagination `LIMIT/OFFSET`) to every query t
 ### Validate at the API Boundary
 PRINCIPLE: The backend must validate all inputs — type, presence, length, format, and range — before they touch business logic or the database. Client-side validation is UX only, never a security control.
 
-HERE: There is currently **no validation library** (no Zod, Joi, or express-validator) on the backend. Validation is done with manual `if (!field)` checks. For new routes, add explicit guards at the top of each handler before any DB call:
+HERE: There is currently **no validation library** (no Zod, Joi, or express-validator) on the backend. Validation is manual `if (!field)` guards. For new routes, add explicit checks at the top of each handler before any DB call:
 ```js
 const { title, user_id } = req.body;
 if (!title || typeof title !== 'string' || title.trim().length === 0) {
@@ -79,31 +81,31 @@ Do not trust `req.query`, `req.params`, or `req.body` without checking type and 
 ### Ownership / Authorization Checks
 PRINCIPLE: After validating inputs, verify that the authenticated user is allowed to perform the requested operation on the target resource. Authentication (who are you?) and authorization (are you allowed?) are separate checks.
 
-HERE: `req.uid` is the Firebase UID set by `verifyFirebaseToken` middleware. For any mutation on a user-owned resource (e.g., deleting a product, editing a listing), always check that `req.uid === resource.seller_id` (or equivalent owner field) before proceeding. For admin-only mutations, the `requireAdminForMutations` middleware handles the DB role check. Never skip this check because "the frontend already prevents it."
+HERE: `req.uid` is the user ID set by the token verification middleware. For any mutation on a user-owned resource (e.g., deleting a product), always check `req.uid === resource.seller_id` (or equivalent owner field) before proceeding. The `requireAdminForMutations` middleware handles admin-role DB checks. Never skip ownership checks because "the frontend already prevents it."
 
 ---
 
 ## Transactions and Consistency
 
 ### Wrap Multi-Step Writes in a Transaction
-PRINCIPLE: Any operation that modifies more than one table, or makes multiple related changes to the same table, must be wrapped in a database transaction. A partial write that leaves the DB in an inconsistent state is worse than a full failure.
+PRINCIPLE: Any operation that modifies more than one table, or makes multiple related changes to the same table, must be wrapped in a database transaction. A partial write leaving the DB in an inconsistent state is worse than a full failure.
 
-HERE: The Neon serverless client supports transactions via `sql.transaction()`:
+HERE: The database client (`@neondatabase/serverless`) supports transactions via `sql.transaction()`:
 ```js
 await sql.transaction(async (tx) => {
   await tx`DELETE FROM user_files WHERE hash = ${hash} AND user_id = ${userId}`;
-  await tx`UPDATE file_hashes SET reference_count = reference_count - 1 WHERE hash = ${hash} RETURNING reference_count`;
+  await tx`UPDATE file_hashes SET reference_count = reference_count - 1 WHERE hash = ${hash}`;
 });
 ```
-The file deletion flow (in `api/delete-file.js`) specifically requires a transaction for the ownership-row delete + reference-count decrement. The R2 `DeleteObjectCommand` happens **outside** the transaction (after it commits) and uses the `pending_deletion` flag as a safe retry mechanism.
+The file deletion flow (`api/delete-file.js`) specifically requires a transaction for the ownership-row delete + reference-count decrement. The object storage `DeleteObjectCommand` happens **outside** the transaction (after it commits) using the `pending_deletion` flag as a safe retry mechanism.
 
 ---
 
 ### Atomic Increments/Decrements
-PRINCIPLE: Never read a counter, modify it in application code, and write it back — this creates a race condition. Always use a single atomic SQL statement that modifies the value in the database.
+PRINCIPLE: Never read a counter, modify it in application code, and write it back — this creates a race condition under concurrent requests. Always use a single atomic SQL statement that modifies the value in the database.
 
-HERE: Reference counts must always be modified as:
+HERE: Reference counts must always be modified as a single statement:
 ```sql
 UPDATE file_hashes SET reference_count = reference_count - 1 WHERE hash = $hash RETURNING reference_count
 ```
-The returned value from the `RETURNING` clause is what determines whether to issue an R2 delete — never make that decision based on a separate SELECT before or after.
+The value returned by `RETURNING` determines whether to issue an object storage delete — never make that decision based on a separate SELECT before or after the update.

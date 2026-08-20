@@ -1,6 +1,6 @@
 # CampUs — Agent Engineering Standards
 
-CampUs is a multi-tenant college-lifestyle platform for Indian students covering: a buy/sell marketplace (Trade), lost & found (Recover), knowledge document hub, peer services marketplace, team finder, roommate finder, and a real-time messaging layer. Auth is Firebase, the DB is Neon Postgres, and files are stored in Cloudflare R2 with SHA-256 content-addressing for deduplication.
+CampUs is a multi-tenant college-lifestyle platform for Indian students covering: a buy/sell marketplace (Trade), lost & found (Recover), knowledge document hub, peer services marketplace, team finder, roommate finder, and a real-time messaging layer. Auth is handled by an auth provider (Firebase), the DB is a relational database (Neon Postgres), and files are stored in object storage (Cloudflare R2) with SHA-256 content-addressing for deduplication.
 
 ---
 
@@ -8,9 +8,9 @@ CampUs is a multi-tenant college-lifestyle platform for Indian students covering
 
 | Repo | Path | Stack | Deployed on |
 |---|---|---|---|
-| **CampUs** (SPA) | `CampUs/` | React 18 · TS 5.8 · Vite 5 · Tailwind 3 · shadcn/ui · React Router 6 · TanStack Query 5 · Firebase 12 | Firebase Hosting |
-| **CampUs-api** (API) | `CampUs-api/` | Express 5 · plain ESM JS · `@neondatabase/serverless` 1.x · Firebase Admin 14 · AWS SDK v3 | Azure App Service (via GitHub Actions) |
-| **campus-scan-worker** | `campus-scan-worker/` | Cloudflare Workers · Wrangler · TypeScript | Cloudflare |
+| **CampUs** (SPA) | `CampUs/` | React 18 · TS 5.8 · Bundler (Vite 5) · CSS framework (Tailwind 3) · UI library (shadcn/ui) · Router (React Router 6) · Server state library (TanStack Query 5) · Auth provider (Firebase 12) | Hosting provider (Firebase Hosting) |
+| **CampUs-api** (API) | `CampUs-api/` | Web framework (Express 5) · Plain ESM JS · Database client (`@neondatabase/serverless` 1.x) · Auth admin SDK (Firebase Admin 14) · Cloud SDK (AWS SDK v3 for R2) | Cloud host (Azure App Service via GitHub Actions) |
+| **campus-scan-worker** | `campus-scan-worker/` | Edge runtime (Cloudflare Workers) · Wrangler · TypeScript | Cloudflare |
 
 ---
 
@@ -18,12 +18,12 @@ CampUs is a multi-tenant college-lifestyle platform for Indian students covering
 
 ### Frontend (`CampUs/`)
 ```bash
-npm run dev          # Vite dev server on port 8080
+npm run dev          # Dev server on port 8080
 npm run build        # Production build → dist/
 npm run lint         # ESLint flat config (TS + react-hooks + react-refresh)
 npm run test         # Vitest one-shot (jsdom environment)
 npm run test:watch   # Vitest watch
-npx tsc --noEmit     # Type-check only (no emit)
+npx tsc --noEmit     # Type-check only
 ```
 
 ### Backend (`CampUs-api/`)
@@ -46,7 +46,7 @@ npx wrangler deploy  # deploy to Cloudflare
 ### Frontend `CampUs/src/`
 ```
 components/         Reusable UI (Navbar, cards, modals)
-  └── ui/           shadcn/ui primitives — never hand-edit, use CLI
+  └── ui/           UI library primitives — never hand-edit, use CLI
 contexts/           AuthContext, CollegeContext (React context providers)
 hooks/              Custom hooks (use-toast, use-mobile)
 lib/                Utilities: api.ts, firebase.ts, uploadToStorage.ts, workers
@@ -60,8 +60,8 @@ types/              Shared TypeScript type definitions
 ```
 api/                One handler file per endpoint (kebab-case.js)
 controllers/        Complex business logic (admin.controller.js)
-middleware/         auth.js (Firebase token), rbac.js (admin role check)
-lib/                firebase-admin.js singleton
+middleware/         auth.js (token verification), rbac.js (admin role check)
+lib/                Auth admin singleton (firebase-admin.js)
 routes/             admin.routes.js (Express Router for /api/admin/*)
 *.js (root)         Migration scripts — ALREADY APPLIED, do not re-run
 ```
@@ -87,22 +87,23 @@ routes/             admin.routes.js (Express Router for /api/admin/*)
 
 | Path | Reason |
 |---|---|
-| `CampUs/src/components/ui/*` | shadcn/ui generated — update only via `npx shadcn-ui@latest add` |
+| `CampUs/src/components/ui/*` | UI library generated — update only via `npx shadcn-ui@latest add` |
 | `CampUs-api/migrate*.js`, `init-db.js`, `db-constraints.js`, `admin-migrate.js` | Already-applied DDL migrations — re-running could corrupt data |
-| `CampUs-api/campus-504010-firebase-adminsdk-*.json` | Service account key — never log, read value into code, or commit |
+| `CampUs-api/campus-504010-firebase-adminsdk-*.json` | Service account key — never log, read into code, or commit |
 | `.env` / `.env.local` files | Secrets — never log, never commit |
-| `CampUs-api/.github/workflows/master_campushub.yml` | Production Azure deploy pipeline |
+| `CampUs-api/.github/workflows/master_campushub.yml` | Production deploy pipeline |
 
 ---
 
 ## Critical Architectural Rules (Quick Ref)
 
-1. **Neon SQL**: tagged template literals ONLY — `` sql`...${param}` ``. Never `sql(string, args)`.
-2. **File deletion**: decrement `file_hashes.reference_count`; only call R2 `DeleteObjectCommand` when it reaches 0.
-3. **Auth**: every mutating route requires `verifyFirebaseToken` → `req.uid`; admin routes additionally call `requireAdmin`.
-4. **Upload pipeline**: compress → hash (Web Worker) → dedup check (`get-upload-url`) → presigned PUT to R2 → `finalize-upload`.
+1. **Database queries**: Tagged template literals ONLY — `` sql`...${param}` ``. Never `sql(string, args)`.
+2. **File deletion**: Decrement `file_hashes.reference_count`; only call object storage `DeleteObjectCommand` when it reaches 0.
+3. **Auth**: Every mutating route requires token verification middleware → `req.uid`; admin routes additionally call `requireAdmin`.
+4. **Upload pipeline**: compress → hash (Web Worker) → dedup check (`get-upload-url`) → presigned PUT to object storage → `finalize-upload`.
 5. **Size limits**: 25 MB max for knowledge docs; 5 MB for images in all other contexts.
-6. **Homepage resilience**: use `Promise.allSettled`, never `Promise.all`, for multi-endpoint fetches on shared pages.
+6. **Homepage resilience**: Use `Promise.allSettled`, never `Promise.all`, for multi-endpoint fetches on shared pages.
+7. **Data fetching**: All new data-fetching must use `useQuery`/`useMutation` from the server state library (TanStack Query). Raw `useState + useEffect` fetch patterns are deprecated for new code.
 
 ---
 
@@ -127,5 +128,5 @@ The `/rules/` folder is a portable starter kit. To apply it to a new codebase:
 2. Create a fresh `/AGENTS.md` for the new project (do not copy this file).
 3. Inspect the new codebase (stack, commands, conventions, secrets pattern).
 4. In each `/rules/*.md` file, **keep all `PRINCIPLE:` lines untouched** — they are stack-agnostic and always valid.
-5. **Regenerate only the `HERE:` lines** for each rule based on the new codebase's actual libraries and patterns.
-6. If a principle is genuinely inapplicable to the new project's domain (e.g., "no public-facing pages" for an internal tool), note why it's skipped rather than silently deleting it.
+5. **Regenerate only the `HERE:` lines** based on the new codebase's actual libraries and patterns. The general-term format (`database (ToolName)`, `auth provider (ToolName)`, `bundler (ToolName)`) makes it clear which parts are stack-specific.
+6. If a principle is genuinely inapplicable to the new project's domain, note why it is skipped rather than silently deleting it.
